@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MainTabView: View {
+    let user: User
     @State private var selectedIndex = 0
     @StateObject var locationViewModel = LocationSearchViewModel()
     
@@ -47,7 +48,7 @@ struct MainTabView: View {
                         Image(systemName: "globe.desk.fill")
                     }.tag(3)
                 
-                ProfileView2()
+                ProfileView2(user: user)
                     .onTapGesture {
                         self.selectedIndex = 4
                     }
@@ -71,8 +72,3 @@ struct MainTabView: View {
     }
 }
 
-struct MainTab_Previews: PreviewProvider {
-    static var previews: some View {
-        MainTabView()
-    }
-}

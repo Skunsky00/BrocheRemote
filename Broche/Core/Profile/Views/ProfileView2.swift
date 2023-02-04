@@ -8,12 +8,19 @@
 import SwiftUI
 
 struct ProfileView2: View {
+    let user: User
+    @ObservedObject var viewModel: ProfileViewModel
     @State private var selectedFilter: ProfileFilterSelector = .hearts
     @Namespace var animation
+    
+    init(user: User) {
+        self.user = user
+        self.viewModel = ProfileViewModel(user: user)
+    }
     var body: some View {
         ScrollView {
             VStack(spacing: 32) {
-                ProfileHeaderView()
+                ProfileHeaderView(viewModel: viewModel)
                 
                 profileFilterBar
                 
@@ -65,10 +72,6 @@ var brocheView: some View {
     }
 }
 
-struct ProfileView2_Previews: PreviewProvider {
-    static var previews: some View {
-        ProfileView2()
-    }
-}
+
 
 

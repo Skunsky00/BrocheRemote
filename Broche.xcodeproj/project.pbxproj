@@ -52,6 +52,11 @@
 		4EA2C878294275F700C61C3E /* BrocheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA2C877294275F700C61C3E /* BrocheTests.swift */; };
 		4EA2C882294275F700C61C3E /* BrocheUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA2C881294275F700C61C3E /* BrocheUITests.swift */; };
 		4EA2C884294275F700C61C3E /* BrocheUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA2C883294275F700C61C3E /* BrocheUITestsLaunchTests.swift */; };
+		4EB80D81298E18EC00A4660E /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB80D80298E18EC00A4660E /* Constants.swift */; };
+		4EB80D83298E19CA00A4660E /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB80D82298E19CA00A4660E /* User.swift */; };
+		4EB80D85298E1C3000A4660E /* SearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB80D84298E1C3000A4660E /* SearchViewModel.swift */; };
+		4EB80D87298E272400A4660E /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB80D86298E272400A4660E /* ProfileViewModel.swift */; };
+		4EB80D89298E2A0500A4660E /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB80D88298E2A0500A4660E /* UserService.swift */; };
 		4EC12FA6295CDB7D00AA10E8 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4EC12FA5295CDB7C00AA10E8 /* GoogleService-Info.plist */; };
 		4EC12FA9295CE5FD00AA10E8 /* ImageUploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC12FA8295CE5FD00AA10E8 /* ImageUploader.swift */; };
 		4EE2630029522A05006E961D /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 4EE262FF29522A05006E961D /* FirebaseAuth */; };
@@ -131,6 +136,12 @@
 		4EA2C87D294275F700C61C3E /* BrocheUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BrocheUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4EA2C881294275F700C61C3E /* BrocheUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrocheUITests.swift; sourceTree = "<group>"; };
 		4EA2C883294275F700C61C3E /* BrocheUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrocheUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		4EB80D80298E18EC00A4660E /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		4EB80D82298E19CA00A4660E /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		4EB80D84298E1C3000A4660E /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
+		4EB80D86298E272400A4660E /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
+		4EB80D88298E2A0500A4660E /* UserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
+		4EB80D8A298E337500A4660E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4EC12FA5295CDB7C00AA10E8 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		4EC12FA8295CE5FD00AA10E8 /* ImageUploader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageUploader.swift; sourceTree = "<group>"; };
 		4EE2630F2952421F006E961D /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
@@ -202,6 +213,7 @@
 			children = (
 				4E5D8E32294B94AF002896DE /* CustomTextField.swift */,
 				4E5D8E34294B94C1002896DE /* CustomSecureField.swift */,
+				4EB80D80298E18EC00A4660E /* Constants.swift */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -357,6 +369,7 @@
 			isa = PBXGroup;
 			children = (
 				4E75834A2947E57D00B03345 /* BrocheFilterViewModle.swift */,
+				4EB80D86298E272400A4660E /* ProfileViewModel.swift */,
 			);
 			path = ViewModles;
 			sourceTree = "<group>";
@@ -405,6 +418,7 @@
 		4EA2C865294275F500C61C3E /* Broche */ = {
 			isa = PBXGroup;
 			children = (
+				4EB80D8A298E337500A4660E /* Info.plist */,
 				4EC12FA7295CE5E100AA10E8 /* API */,
 				4EE2631129524384006E961D /* ViewModels */,
 				4E7632092944E17700685751 /* Extensions */,
@@ -464,6 +478,7 @@
 			isa = PBXGroup;
 			children = (
 				4EC12FA8295CE5FD00AA10E8 /* ImageUploader.swift */,
+				4EB80D88298E2A0500A4660E /* UserService.swift */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -479,6 +494,8 @@
 			isa = PBXGroup;
 			children = (
 				4EE2630F2952421F006E961D /* AuthViewModel.swift */,
+				4EB80D82298E19CA00A4660E /* User.swift */,
+				4EB80D84298E1C3000A4660E /* SearchViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -641,6 +658,7 @@
 				4E7CB399294A5126006D11E8 /* ProfileActionButtonView.swift in Sources */,
 				4EC12FA9295CE5FD00AA10E8 /* ImageUploader.swift in Sources */,
 				4E763B8329490D8900C8BA05 /* SearchBar.swift in Sources */,
+				4EB80D85298E1C3000A4660E /* SearchViewModel.swift in Sources */,
 				4E79ADDF294E3713003CD106 /* AddPostImage.swift in Sources */,
 				4E763B882949144F00C8BA05 /* UserCell.swift in Sources */,
 				4E77D460294AB1B6006F1D1F /* PhotoPicker.swift in Sources */,
@@ -648,8 +666,11 @@
 				4E79ADDB294E1629003CD106 /* ProfileModel.swift in Sources */,
 				4E29328E2950B2F300B17E07 /* LocationManager.swift in Sources */,
 				4E2932932950C03400B17E07 /* MapViewActionButton.swift in Sources */,
+				4EB80D87298E272400A4660E /* ProfileViewModel.swift in Sources */,
 				4E2932952950C1EA00B17E07 /* LocationSearchView.swift in Sources */,
 				4E5D8E30294B8FD6002896DE /* ResestPasswordView.swift in Sources */,
+				4EB80D83298E19CA00A4660E /* User.swift in Sources */,
+				4EB80D81298E18EC00A4660E /* Constants.swift in Sources */,
 				4E7CB397294A4E5F006D11E8 /* ProfileView2.swift in Sources */,
 				4E7311C829511B1F00907C1A /* MapViewState.swift in Sources */,
 				4E5D8E2E294B8FB9002896DE /* RegistrationView.swift in Sources */,
@@ -667,6 +688,7 @@
 				4E29329A2950E48A00B17E07 /* LocationSearchViewModel.swift in Sources */,
 				4E76321D2944F7B200685751 /* ExploreView.swift in Sources */,
 				4E7CB393294A3F4E006D11E8 /* ProfileHeaderView.swift in Sources */,
+				4EB80D89298E2A0500A4660E /* UserService.swift in Sources */,
 				4E29328C2950B28C00B17E07 /* MapView2.swift in Sources */,
 				4E7632172944F3D700685751 /* MainTabView.swift in Sources */,
 				4E7CB391294A2B1B006D11E8 /* NotificationCell.swift in Sources */,
@@ -831,8 +853,8 @@
 				DEVELOPMENT_TEAM = 5K8U9AH5WN;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Broche/Info.plist;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app needs your location to show it on the map.";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -861,8 +883,8 @@
 				DEVELOPMENT_TEAM = 5K8U9AH5WN;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Broche/Info.plist;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app needs your location to show it on the map.";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
