@@ -36,6 +36,12 @@ struct FeedView: View {
                         .imageScale(.large)
                 }
             }
+            .refreshable {
+                Task { try await viewModel.fetchPosts() }
+            }
+            .navigationDestination(for: User.self) { user in
+                ProfileView(user: user)
+            }
         }
     }
 }
