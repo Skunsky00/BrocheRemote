@@ -61,6 +61,9 @@
 		4E9770552A2570D400919F88 /* LocationSearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E9770542A2570D400919F88 /* LocationSearchViewModel.swift */; };
 		4EC081092A2588F700B86052 /* ProfileFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC081082A2588F700B86052 /* ProfileFilterView.swift */; };
 		4EC0810B2A25897100B86052 /* ProfileFilterSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC0810A2A25897100B86052 /* ProfileFilterSelector.swift */; };
+		4EC0810E2A26B62200B86052 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC0810D2A26B62200B86052 /* Constants.swift */; };
+		4EC081102A26C4DD00B86052 /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC0810F2A26C4DD00B86052 /* ProfileViewModel.swift */; };
+		4EC081122A26D68300B86052 /* ProfileActionButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC081112A26D68300B86052 /* ProfileActionButtonView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -114,6 +117,9 @@
 		4E9770542A2570D400919F88 /* LocationSearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchViewModel.swift; sourceTree = "<group>"; };
 		4EC081082A2588F700B86052 /* ProfileFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFilterView.swift; sourceTree = "<group>"; };
 		4EC0810A2A25897100B86052 /* ProfileFilterSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFilterSelector.swift; sourceTree = "<group>"; };
+		4EC0810D2A26B62200B86052 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		4EC0810F2A26C4DD00B86052 /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
+		4EC081112A26D68300B86052 /* ProfileActionButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileActionButtonView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,6 +162,7 @@
 				4E85EBAD2A16980C0074A346 /* Extensions */,
 				4E85EBAC2A1698050074A346 /* Model */,
 				4E85EBAB2A1698020074A346 /* Services */,
+				4EC0810C2A26B60900B86052 /* Utils */,
 				4E85EBE12A17E4D20074A346 /* GoogleService-Info.plist */,
 				4E85EBA12A16972F0074A346 /* Assets.xcassets */,
 				4E85EBA32A16972F0074A346 /* Preview Content */,
@@ -351,6 +358,7 @@
 			children = (
 				4E97702A2A1C67A400919F88 /* EditProfileViewModel.swift */,
 				4EC0810A2A25897100B86052 /* ProfileFilterSelector.swift */,
+				4EC0810F2A26C4DD00B86052 /* ProfileViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -363,6 +371,7 @@
 				4E85EBDB2A170A5A0074A346 /* ProfileHeaderView.swift */,
 				4E9770262A1C58D300919F88 /* EditProfileView.swift */,
 				4EC081082A2588F700B86052 /* ProfileFilterView.swift */,
+				4EC081112A26D68300B86052 /* ProfileActionButtonView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -450,6 +459,14 @@
 				4E9770502A25701400919F88 /* LocationBookMarkView.swift */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		4EC0810C2A26B60900B86052 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				4EC0810D2A26B62200B86052 /* Constants.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -550,6 +567,7 @@
 				4E85EBEF2A17E78C0074A346 /* AuthService.swift in Sources */,
 				4E85EB9E2A16972C0074A346 /* BrocheApp.swift in Sources */,
 				4E85EBD62A16F12D0074A346 /* CurrentUserProfileView.swift in Sources */,
+				4EC081122A26D68300B86052 /* ProfileActionButtonView.swift in Sources */,
 				4E85EBCA2A16D8C30074A346 /* AddEmailView.swift in Sources */,
 				4E85EBDA2A1708860074A346 /* PostGridView.swift in Sources */,
 				4E9770512A25701400919F88 /* LocationBookMarkView.swift in Sources */,
@@ -558,11 +576,13 @@
 				4E9770382A1D3D9C00919F88 /* FeedViewModel.swift in Sources */,
 				4E85EBF42A17E9270074A346 /* ContentViewModel.swift in Sources */,
 				4E97703A2A1D6E6A00919F88 /* PostService.swift in Sources */,
+				4EC0810E2A26B62200B86052 /* Constants.swift in Sources */,
 				4E9770272A1C58D300919F88 /* EditProfileView.swift in Sources */,
 				4E97703E2A1D725700919F88 /* PostGridViewModel.swift in Sources */,
 				4E97701F2A1C38B100919F88 /* LoginViewModel.swift in Sources */,
 				4E97702D2A1C6E2C00919F88 /* ImageUploader.swift in Sources */,
 				4E9770452A256E4E00919F88 /* MapViewRepresentable.swift in Sources */,
+				4EC081102A26C4DD00B86052 /* ProfileViewModel.swift in Sources */,
 				4E9770552A2570D400919F88 /* LocationSearchViewModel.swift in Sources */,
 				4E97701D2A19197200919F88 /* RegistrationViewModel.swift in Sources */,
 				4E85EBE02A17DE040074A346 /* UploadPostViewModel.swift in Sources */,

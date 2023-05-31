@@ -9,10 +9,12 @@ import SwiftUI
 import Kingfisher
 
 struct PostGridView: View {
+    let config: PostGridConfiguration
     @StateObject var viewModel: PostGridViewModel
     
-    init(user: User) {
-        self._viewModel = StateObject(wrappedValue: PostGridViewModel(user: user))
+    init(config: PostGridConfiguration) {
+        self.config = config
+        self._viewModel = StateObject(wrappedValue: PostGridViewModel(config: config))
     }
     
     private let gridItems: [GridItem] = [
@@ -49,6 +51,6 @@ struct PostGridView: View {
 
 struct PostGridView_Previews: PreviewProvider {
     static var previews: some View {
-        PostGridView(user: User.MOCK_USERS[0])
+        PostGridView(config: .profile(User.MOCK_USERS[0]))
     }
 }
