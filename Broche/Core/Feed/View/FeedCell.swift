@@ -78,11 +78,7 @@ struct FeedCell: View {
                 
                 Spacer()
                 
-                Button {
-                    //   NavigationLink(destination: CommentsView(post: viewModel.post)) {
-                    print("comment on post")
-               // }
-                } label: {
+                NavigationLink(destination: CommentsView(post: viewModel.post)) {
                     Image(systemName: "bubble.left")
                         .imageScale(.large)
                 }
@@ -133,7 +129,7 @@ struct FeedCell: View {
             .padding(.leading, 10)
             .padding(.top, 1)
                 
-            Text("2d")
+            Text(viewModel.timestampString)
                 .font(.footnote)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, 10)
