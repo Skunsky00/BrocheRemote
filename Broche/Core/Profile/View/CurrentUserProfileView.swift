@@ -10,6 +10,9 @@ import SwiftUI
 struct CurrentUserProfileView: View {
     let user: User
     @StateObject var viewModel: ProfileViewModel
+    @State private var showSettingsSheet = false
+    @State private var selectedSettingsOption: SettingsItemModel?
+    @State private var showDetail = false
     
     init(user: User) {
         self.user = user
@@ -28,14 +31,30 @@ struct CurrentUserProfileView: View {
             }
             .navigationTitle(user.username)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
+            .navigationDestination(isPresented: $showDetail, destination: {
+                Text(selectedSettingsOption?.title ?? "")
+            })
+            .sheet(isPresented: $showSettingsSheet) {
+                SettingsView(selectedOption: $selectedSettingsOption)
+                    .presentationDetents([.height(CGFloat(SettingsItemModel.allCases.count * 56))])
+            }
+            .toolbar(content: {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
-                        AuthService.shared.signout()
+                        selectedSettingsOption = nil
+                        showSettingsSheet.toggle()
                     } label: {
                         Image(systemName: "line.3.horizontal")
-                            .foregroundColor(.black)
                     }
+                }
+            })
+            .onChange(of: selectedSettingsOption) { newValue in
+                guard let option = newValue else { return }
+                
+                if option != .logout {
+                    self.showDetail.toggle()
+                } else  {
+                    AuthService.shared.signout()
                 }
             }
         }

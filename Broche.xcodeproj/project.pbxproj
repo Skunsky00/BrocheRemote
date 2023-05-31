@@ -71,6 +71,7 @@
 		4EC0811F2A27A99D00B86052 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC0811E2A27A99D00B86052 /* CommentCell.swift */; };
 		4EC081212A27A9D000B86052 /* CommentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC081202A27A9D000B86052 /* CommentViewModel.swift */; };
 		4EC081232A27AA3200B86052 /* CustomInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC081222A27AA3200B86052 /* CustomInputView.swift */; };
+		4EC081252A27BB7800B86052 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC081242A27BB7800B86052 /* SettingsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -134,6 +135,7 @@
 		4EC0811E2A27A99D00B86052 /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
 		4EC081202A27A9D000B86052 /* CommentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentViewModel.swift; sourceTree = "<group>"; };
 		4EC081222A27AA3200B86052 /* CustomInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomInputView.swift; sourceTree = "<group>"; };
+		4EC081242A27BB7800B86052 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -389,6 +391,7 @@
 				4E9770262A1C58D300919F88 /* EditProfileView.swift */,
 				4EC081082A2588F700B86052 /* ProfileFilterView.swift */,
 				4EC081112A26D68300B86052 /* ProfileActionButtonView.swift */,
+				4EC081242A27BB7800B86052 /* SettingsView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -614,6 +617,7 @@
 				4E85EBEF2A17E78C0074A346 /* AuthService.swift in Sources */,
 				4E85EB9E2A16972C0074A346 /* BrocheApp.swift in Sources */,
 				4E85EBD62A16F12D0074A346 /* CurrentUserProfileView.swift in Sources */,
+				4EC081252A27BB7800B86052 /* SettingsView.swift in Sources */,
 				4EC081122A26D68300B86052 /* ProfileActionButtonView.swift in Sources */,
 				4E85EBCA2A16D8C30074A346 /* AddEmailView.swift in Sources */,
 				4E85EBDA2A1708860074A346 /* PostGridView.swift in Sources */,

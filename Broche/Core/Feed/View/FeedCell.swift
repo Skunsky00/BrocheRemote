@@ -41,7 +41,9 @@ struct FeedCell: View {
                 Spacer()
                 
                 if let user = viewModel.post.user {
-                    CircularProfileImageView(user: user, size: .xSmall)
+                    NavigationLink(value: user) {
+                        CircularProfileImageView(user: user, size: .xSmall)
+                    }
                 }
                 
                }
@@ -120,14 +122,15 @@ struct FeedCell: View {
             .padding(.bottom, 1)
             
             // caption - broche description
-            HStack {
-                Text("\(viewModel.post.user?.username ?? "") ").fontWeight(.semibold) +
-                Text(viewModel.post.caption)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .font(.footnote)
-            .padding(.leading, 10)
-            .padding(.top, 1)
+                    HStack {
+                        Text("\(viewModel.post.user?.username ?? "") ").fontWeight(.semibold) +
+                        Text(viewModel.post.caption)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .font(.footnote)
+                    .padding(.leading, 10)
+                    .padding(.top, 1)
+                
                 
             Text(viewModel.timestampString)
                 .font(.footnote)
