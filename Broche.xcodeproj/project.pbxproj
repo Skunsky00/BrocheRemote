@@ -64,6 +64,8 @@
 		4EC0810E2A26B62200B86052 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC0810D2A26B62200B86052 /* Constants.swift */; };
 		4EC081102A26C4DD00B86052 /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC0810F2A26C4DD00B86052 /* ProfileViewModel.swift */; };
 		4EC081122A26D68300B86052 /* ProfileActionButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC081112A26D68300B86052 /* ProfileActionButtonView.swift */; };
+		4EC081142A27966800B86052 /* FeedCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC081132A27966800B86052 /* FeedCellViewModel.swift */; };
+		4EC081162A279ADC00B86052 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC081152A279ADC00B86052 /* Color.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -120,6 +122,8 @@
 		4EC0810D2A26B62200B86052 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		4EC0810F2A26C4DD00B86052 /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		4EC081112A26D68300B86052 /* ProfileActionButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileActionButtonView.swift; sourceTree = "<group>"; };
+		4EC081132A27966800B86052 /* FeedCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedCellViewModel.swift; sourceTree = "<group>"; };
+		4EC081152A279ADC00B86052 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -201,6 +205,7 @@
 		4E85EBAD2A16980C0074A346 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				4EC081152A279ADC00B86052 /* Color.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -396,6 +401,7 @@
 			isa = PBXGroup;
 			children = (
 				4E9770372A1D3D9C00919F88 /* FeedViewModel.swift */,
+				4EC081132A27966800B86052 /* FeedCellViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -557,6 +563,7 @@
 				4E85EBBB2A169AD70074A346 /* ProfileView.swift in Sources */,
 				4E85EBA02A16972C0074A346 /* ContentView.swift in Sources */,
 				4E9770212A1C4DBD00919F88 /* UserService.swift in Sources */,
+				4EC081142A27966800B86052 /* FeedCellViewModel.swift in Sources */,
 				4E9770532A25703400919F88 /* MapViewState.swift in Sources */,
 				4E85EBC82A16D2AB0074A346 /* LoginView.swift in Sources */,
 				4E97704D2A256F9600919F88 /* LocationSearchView.swift in Sources */,
@@ -588,6 +595,7 @@
 				4E85EBE02A17DE040074A346 /* UploadPostViewModel.swift in Sources */,
 				4E97704B2A256F0500919F88 /* LocationSearchActivationView.swift in Sources */,
 				4E85EBD22A16E2D40074A346 /* CompleteSignUpView.swift in Sources */,
+				4EC081162A279ADC00B86052 /* Color.swift in Sources */,
 				4E85EBD42A16EA330074A346 /* User.swift in Sources */,
 				4E9770492A256EB500919F88 /* MapViewActionButton.swift in Sources */,
 				4E85EBBE2A16A2A00074A346 /* UserStatView.swift in Sources */,

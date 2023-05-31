@@ -9,7 +9,10 @@ import SwiftUI
 import Kingfisher
 
 struct FeedCell: View {
-    let post: Post
+    @ObservedObject var viewModel: FeedCellViewModel
+    
+    var didLike: Bool { return viewModel.post.didLike ?? false }
+    var didBookmark: Bool { return viewModel.post.didBookmark ?? false }
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -29,7 +32,7 @@ struct FeedCell: View {
                             .foregroundColor(.black)
                     })
                 }
-                Text(post.location)
+                Text(viewModel.post.location)
                             .font(.footnote)
                             
                         
@@ -37,7 +40,7 @@ struct FeedCell: View {
                 
                 Spacer()
                 
-                if let user = post.user {
+                if let user = viewModel.post.user {
                     CircularProfileImageView(user: user, size: .xSmall)
                 }
                 
@@ -45,7 +48,7 @@ struct FeedCell: View {
             .padding(.horizontal,12 )
             
             // post image
-            KFImage(URL(string: post.imageUrl))
+            KFImage(URL(string: viewModel.post.imageUrl))
                         .resizable()
                         .scaledToFill()
                         .frame(width: UIScreen.main.bounds.width, height: 400)
@@ -56,19 +59,20 @@ struct FeedCell: View {
             HStack(spacing: 16) {
                 Button {
                     print("like post")
-                   // didLike ? viewModel.unlike() : viewModel.like()
+                    Task { didLike ? try await viewModel.unlike() : try await viewModel.like() }
                 } label: {
-                    Image(systemName: "heart")
+                    Image(systemName: didLike ? "heart.fill" : "heart")
                         .imageScale(.large)
+                        .foregroundColor(didLike ? .red : .black /*Color.theme.systemBackground*/)
                 }
                 
                 Spacer()
                 
             Button {
                 print("save post")
-             //   didBookmark ? viewModel.unbookmark() : viewModel.bookmark()
+                Task {  didBookmark ? try await viewModel.unbookmark() : try await viewModel.bookmark() }
                 } label: {
-                    Image(systemName:"bookmark")
+                    Image(systemName: didBookmark ? "bookmark.fill" : "bookmark")
                         .imageScale(.large)
                 }
                 
@@ -98,16 +102,17 @@ struct FeedCell: View {
             
             //likes and comments lable
             HStack {
-                Text("\(post.likes) likes")
+                Text(viewModel.likeString)
                         .font(.footnote)
                         .fontWeight(.semibold)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.top, 1)
+//                        .foregroundColor(Color.theme.systemBackground)
                     
                        Spacer()
                 
                 // filter name
-                Text(post.label)
+                Text(viewModel.post.label)
                     .font(.footnote)
                     .fontWeight(.semibold)
                     .frame(minWidth: 50)
@@ -120,8 +125,8 @@ struct FeedCell: View {
             
             // caption - broche description
             HStack {
-                    Text("\(post.user?.username ?? "") ").fontWeight(.semibold) +
-                Text(post.caption)
+                Text("\(viewModel.post.user?.username ?? "") ").fontWeight(.semibold) +
+                Text(viewModel.post.caption)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .font(.footnote)
@@ -144,6 +149,6 @@ struct FeedCell: View {
 
 struct FeedCell_Previews: PreviewProvider {
     static var previews: some View {
-        FeedCell(post: Post.MOCK_POSTS[4])
+        FeedCell(viewModel: FeedCellViewModel(post: Post.MOCK_POSTS[4]))
     }
 }
