@@ -24,7 +24,7 @@ struct ProfileHeaderView: View {
                 
                 UserStatView(value: viewModel.user.stats?.followers ?? 0, title: "Followers")
                     
-                    UserStatView(value: viewModel.user.stats?.following ?? 0, title: "Following")
+                UserStatView(value: viewModel.user.stats?.following ?? 0, title: "Following")
                 
             }.padding(.vertical, 4)
             

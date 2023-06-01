@@ -78,8 +78,6 @@ extension MapViewRepresentable {
         
         // MARK: - Helpers
         
-        // this is where i will personally remove the things i need to make the list work of locations traveled
-        
         func addAndSelectAnnotation(withCoordinate coordinate: CLLocationCoordinate2D) {
             parent.mapView.removeAnnotations(parent.mapView.annotations)
             
@@ -88,9 +86,10 @@ extension MapViewRepresentable {
             parent.mapView.addAnnotation(anno)
             parent.mapView.selectAnnotation(anno, animated: true)
             
-            parent.mapView.showAnnotations(parent.mapView.annotations, animated: true)
+            let region = MKCoordinateRegion(center: coordinate, latitudinalMeters: 1000, longitudinalMeters: 1000)
+            parent.mapView.setRegion(region, animated: true)
         }
-        
+
         
         func clearMapViewAndRecenterOnUserLocation() {
             parent.mapView.removeAnnotations(parent.mapView.annotations)

@@ -39,35 +39,42 @@ struct LocationBookMarkView: View {
                 .foregroundColor(.gray)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            HStack{
-                Spacer()
-                VStack{
+            VStack {
+                HStack{
                     Image(systemName: "mappin")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 50, height: 50)
+                        .frame(width: 20, height: 20)
                     
                     Text("Visited")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
                 }
+                .frame(width: UIScreen.main.bounds.width - 32, height: 30)
+                .background(.red)
+                .cornerRadius(8)
+                .foregroundColor(.white)
                 
-                Spacer()
                 
-                VStack{
+                HStack{
                     Image(systemName: "airplane.departure")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 50, height: 50)
+                        .frame(width: 20, height: 20)
                     
                     Text("Future Visits")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
                 }
-                Spacer()
+                .frame(width: UIScreen.main.bounds.width - 32, height: 30)
+                .background(.blue)
+                .cornerRadius(8)
+                .foregroundColor(.white)
             }
-        }.padding(.bottom)
-            .background(.white)
-            .cornerRadius(16)
-            
+            .padding(.bottom)
+        }
+        .background(.white)
+        .cornerRadius(16)
     }
 }
 
