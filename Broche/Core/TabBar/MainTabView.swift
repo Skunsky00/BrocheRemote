@@ -55,6 +55,7 @@ struct MainTabView: View {
                 Image(systemName: "figure.wave.circle")
             }.tag(4)
         }
+        .accentColor(.black)
     }
 }
 

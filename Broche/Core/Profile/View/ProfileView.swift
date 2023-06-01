@@ -64,6 +64,7 @@ struct ProfileView: View {
             }
         }
         .overlay(Divider().offset(x: 0, y: 16))
+        .padding(.top, 1)
     }
     
     var brocheView: some View {

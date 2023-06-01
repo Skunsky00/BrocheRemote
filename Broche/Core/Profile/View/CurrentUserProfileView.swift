@@ -54,10 +54,12 @@ struct CurrentUserProfileView: View {
             .onChange(of: selectedSettingsOption) { newValue in
                 guard let option = newValue else { return }
                 
-                if option != .logout {
-                    self.showDetail.toggle()
-                } else  {
+                if option == .logout {
                     AuthService.shared.signout()
+                } else if option == .yourPost {
+                    let postGridView = PostGridView(config: .profile(user))
+                } else {
+                    self.showDetail.toggle()
                 }
             }
         }
@@ -95,6 +97,7 @@ struct CurrentUserProfileView: View {
                 }
             }
         }
+        .padding(.top, 1)
         .overlay(Divider().offset(x: 0, y: 16))
     }
     
