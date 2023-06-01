@@ -6,47 +6,87 @@
 //
 
 import Firebase
+import Foundation
+
 
 struct PostService {
     static func fetchPost() async throws -> [Post] {
         let snapshot = try await COLLECTION_POSTS.getDocuments()
         var posts = try snapshot.documents.compactMap({ try $0.data(as: Post.self) })
-
+        
         for i in 0 ..< posts.count {
             let post = posts[i]
             let ownerUid = post.ownerUid
             let postUser = try await UserService.fetchUser(wtihUid: ownerUid)
             posts[i].user = postUser
         }
-
+        
         return posts
     }
-//
-//    static func fetchUserPosts(uid: String) async throws -> [Post] {
-//        let snapshot = try await COLLECTION_POSTS.whereField("ownerUid", isEqualTo: uid).getDocuments()
-//        return try snapshot.documents.compactMap({ try $0.data(as: Post.self) })
-//    }
-//}
-
-
-//static func fetchPost(withId id: String) async throws -> Post {
-//    let postSnapshot = try await COLLECTION_POSTS.document(id).getDocument()
-//    let post = try postSnapshot.data(as: Post.self)
-//    return post
-//}
-
-static func fetchUserPosts(user: User) async throws -> [Post] {
-    let snapshot = try await COLLECTION_POSTS.whereField("ownerUid", isEqualTo: user.id).getDocuments()
-    var posts = snapshot.documents.compactMap({try? $0.data(as: Post.self )})
+    //
+    //    static func fetchUserPosts(uid: String) async throws -> [Post] {
+    //        let snapshot = try await COLLECTION_POSTS.whereField("ownerUid", isEqualTo: uid).getDocuments()
+    //        return try snapshot.documents.compactMap({ try $0.data(as: Post.self) })
+    //    }
+    //}
     
-    for i in 0 ..< posts.count {
-        posts[i].user = user
+    
+    //static func fetchPost(withId id: String) async throws -> Post {
+    //    let postSnapshot = try await COLLECTION_POSTS.document(id).getDocument()
+    //    let post = try postSnapshot.data(as: Post.self)
+    //    return post
+    //}
+    
+    static func fetchUserPosts(user: User) async throws -> [Post] {
+        let snapshot = try await COLLECTION_POSTS.whereField("ownerUid", isEqualTo: user.id).getDocuments()
+        var posts = snapshot.documents.compactMap({try? $0.data(as: Post.self )})
+        
+        for i in 0 ..< posts.count {
+            posts[i].user = user
+        }
+        
+        return posts
     }
     
-    return posts
+    
+    static func fetchLikedPosts(user: User) async throws -> [Post] {
+        guard let uid = Auth.auth().currentUser?.uid else { return [] }
+        
+        let snapshot = try await COLLECTION_USERS.document(uid).collection("user-likes").getDocuments()
+        var posts = snapshot.documents.compactMap({try? $0.data(as: Post.self )})
+        let documents = snapshot.documents
+        
+        for document in documents {
+            let postID = document.documentID
+            
+            let snippet = try await COLLECTION_POSTS.document(postID).getDocument()
+            let post = try snippet.data(as: Post.self)
+            posts.append(post)
+            
+        }
+        
+        return posts
+    }
+    
+    static func fetchBookmarkedPosts(user: User) async throws -> [Post] {
+        guard let uid = Auth.auth().currentUser?.uid else { return [] }
+        
+        let snapshot = try await COLLECTION_USERS.document(uid).collection("user-bookmarks").getDocuments()
+        var posts = snapshot.documents.compactMap({try? $0.data(as: Post.self )})
+        let documents = snapshot.documents
+        
+        for document in documents {
+            let postID = document.documentID
+            
+            let snippet = try await COLLECTION_POSTS.document(postID).getDocument()
+            let post = try snippet.data(as: Post.self)
+            posts.append(post)
+            
+        }
+        
+        return posts
+    }
 }
-}
-
 
 // MARK: - Likes
 

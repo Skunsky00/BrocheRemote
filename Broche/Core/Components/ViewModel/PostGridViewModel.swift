@@ -11,6 +11,8 @@ import Firebase
 enum PostGridConfiguration {
     case explore
     case profile(User)
+    case likedPosts(User)
+    case bookmarkedPosts(User)
 }
 
 class PostGridViewModel: ObservableObject {
@@ -29,6 +31,10 @@ class PostGridViewModel: ObservableObject {
             fetchExplorePagePosts()
         case .profile(let user):
             Task { try await fetchUserPosts(forUser: user) }
+        case .likedPosts(let user):
+            Task { try await fetchLikedPosts(forUser: user) }
+        case .bookmarkedPosts(let user):
+            Task { try await fetchBookmarkedPosts(forUser: user) }
         }
     }
     
@@ -57,6 +63,17 @@ class PostGridViewModel: ObservableObject {
         let posts = try await PostService.fetchUserPosts(user: user)
         self.posts = posts
     }
+    @MainActor
+    func fetchLikedPosts(forUser user: User) async throws {
+        let posts = try await PostService.fetchLikedPosts(user: user)
+        self.posts = posts
+    }
+    @MainActor
+    func fetchBookmarkedPosts(forUser user: User) async throws {
+        let posts = try await PostService.fetchBookmarkedPosts(user: user)
+        self.posts = posts
+            
+        }
 }
 //    @MainActor
 //    func fetchUserPosts(forUser user: User) async throws {

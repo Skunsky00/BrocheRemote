@@ -13,6 +13,8 @@ struct CurrentUserProfileView: View {
     @State private var showSettingsSheet = false
     @State private var selectedSettingsOption: SettingsItemModel?
     @State private var showDetail = false
+    @State private var selectedFilter: ProfileFilterSelector = .hearts
+    @Namespace var animation
     
     init(user: User) {
         self.user = user
@@ -25,9 +27,9 @@ struct CurrentUserProfileView: View {
                 //header
                 ProfileHeaderView(viewModel: viewModel)
                 //profile filter bar
-                ProfileFilterView()
+                profileFilterBar
                 // post grid view
-                PostGridView(config: .profile(user))
+                brocheView
             }
             .navigationTitle(user.username)
             .navigationBarTitleDisplayMode(.inline)
@@ -45,6 +47,7 @@ struct CurrentUserProfileView: View {
                         showSettingsSheet.toggle()
                     } label: {
                         Image(systemName: "line.3.horizontal")
+                            .foregroundColor(.black)
                     }
                 }
             })
@@ -59,8 +62,58 @@ struct CurrentUserProfileView: View {
             }
         }
     }
+    
+    
+    
+    
+    var profileFilterBar: some View {
+        
+        HStack {
+            ForEach(ProfileFilterSelector.allCases, id: \.rawValue) { item in
+                VStack {
+                    Image(systemName: item.imageName)
+                        .font(.subheadline)
+                        .imageScale(.large)
+                        .fontWeight(selectedFilter == item ? .semibold : .regular)
+                        .foregroundColor(selectedFilter == item ? .black : . gray)
+                    
+                    if selectedFilter == item {
+                        Capsule()
+                            .foregroundColor(.black)
+                            .frame(height: 3)
+                            .matchedGeometryEffect(id: "filter", in: animation)
+                    } else {
+                        Capsule()
+                            .foregroundColor(.clear)
+                            .frame(height: 3)
+                    }
+                }
+                .onTapGesture {
+                    withAnimation(.easeInOut) {
+                        self.selectedFilter = item
+                    }
+                }
+            }
+        }
+        .overlay(Divider().offset(x: 0, y: 16))
+    }
+    
+    var brocheView: some View {
+        ScrollView {
+            LazyVStack {
+                switch self.selectedFilter {
+                case .hearts:
+                    PostGridView(config: .likedPosts(user))
+                case .bookmarks:
+                    PostGridView(config: .bookmarkedPosts(user))
+                case .mappin:
+                     PostGridView(config: .profile(user))
+                }
+                
+            }
+        }
+    }
 }
-
 struct CurrentUserProfileView_Previews: PreviewProvider {
     static var previews: some View {
         CurrentUserProfileView(user: User.MOCK_USERS[0])
