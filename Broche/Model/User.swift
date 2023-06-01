@@ -8,19 +8,37 @@
 import Foundation
 import Firebase
 
-struct User: Identifiable, Hashable, Codable {
+struct User: Identifiable, Codable {
     let id: String
     var username: String
     var profileImageUrl: String?
     var fullname: String?
     var bio: String?
     let email: String
+    var stats: UserStats?
     var isFollowed: Bool? = false
     
     var isCurrentUser: Bool {
         guard let currentUid = Auth.auth().currentUser?.uid else { return false }
         return currentUid == id
     }
+}
+
+extension User: Hashable {
+    var identifier: String { return id }
+    
+    public func hash(into hasher: inout Hasher) {
+        return hasher.combine(identifier)
+    }
+    
+    static func == (lhs: User, rhs: User) -> Bool {
+        return lhs.id == rhs.id
+    }
+}
+
+struct UserStats: Codable {
+    var following: Int
+    var followers: Int
 }
 
 extension User {

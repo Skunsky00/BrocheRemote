@@ -35,25 +35,23 @@ class ProfileViewModel: ObservableObject {
         return await UserService.checkIfUserIsFollowed(uid: user.id)
     }
     
-//    func fetchUserStats() async throws -> UserStats{
-//        let uid = user.id
-//
-//        async let followingSnapshot = try await COLLECTION_FOLLOWING.document(uid).collection("user-following").getDocuments()
-//        let following = try await followingSnapshot.count
-//
-//        async let followerSnapshot = try await COLLECTION_FOLLOWERS.document(uid).collection("user-followers").getDocuments()
-//        let followers = try await followerSnapshot.count
-//
-//        async let postSnapshot = try await COLLECTION_POSTS.whereField("ownerUid", isEqualTo: uid).getDocuments()
-//        let posts = try await postSnapshot.count
-//
-//        return .init(following: following, posts: posts, followers: followers)
-//    }
-//
+    func fetchUserStats() async throws -> UserStats{
+        let uid = user.id
+
+        async let followingSnapshot = try await COLLECTION_FOLLOWING.document(uid).collection("user-following").getDocuments()
+        let following = try await followingSnapshot.count
+
+        async let followerSnapshot = try await COLLECTION_FOLLOWERS.document(uid).collection("user-followers").getDocuments()
+        let followers = try await followerSnapshot.count
+
+
+        return .init(following: following, followers: followers)
+    }
+
     func loadUserData() {
         Task {
-       //     async let stats = try await fetchUserStats()
-      //      self.user.stats = try await stats
+            async let stats = try await fetchUserStats()
+            self.user.stats = try await stats
 
             async let isFollowed = await checkIfUserIsFollowed()
             self.user.isFollowed = await isFollowed
