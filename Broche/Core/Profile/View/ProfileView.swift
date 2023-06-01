@@ -11,7 +11,6 @@ struct ProfileView: View {
     let user: User
     @StateObject var viewModel: ProfileViewModel
     @State private var selectedFilter: ProfileFilterSelector = .hearts
-    @Namespace var animation
     
     init(user: User) {
         self.user = user
@@ -23,48 +22,13 @@ struct ProfileView: View {
                 //header
                 ProfileHeaderView(viewModel: viewModel)
                 //profile filter bar
-                ProfileFilterView()
+                ProfileFilterView(selectedFilter: $selectedFilter)
                 // post grid view
                 brocheView
             //    PostGridView(config: .profile(user))
             }
             .navigationTitle(user.username)
             .navigationBarTitleDisplayMode(.inline)
-    }
-    
-    
-    
-    var profileFilterBar: some View {
-        
-        HStack {
-            ForEach(ProfileFilterSelector.allCases, id: \.rawValue) { item in
-                VStack {
-                    Image(systemName: item.imageName)
-                        .font(.subheadline)
-                        .imageScale(.large)
-                        .fontWeight(selectedFilter == item ? .semibold : .regular)
-                        .foregroundColor(selectedFilter == item ? .black : . gray)
-                    
-                    if selectedFilter == item {
-                        Capsule()
-                            .foregroundColor(.black)
-                            .frame(height: 3)
-                            .matchedGeometryEffect(id: "filter", in: animation)
-                    } else {
-                        Capsule()
-                            .foregroundColor(.clear)
-                            .frame(height: 3)
-                    }
-                }
-                .onTapGesture {
-                    withAnimation(.easeInOut) {
-                        self.selectedFilter = item
-                    }
-                }
-            }
-        }
-        .overlay(Divider().offset(x: 0, y: 16))
-        .padding(.top, 1)
     }
     
     var brocheView: some View {

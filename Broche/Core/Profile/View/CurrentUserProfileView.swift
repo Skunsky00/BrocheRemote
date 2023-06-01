@@ -14,7 +14,6 @@ struct CurrentUserProfileView: View {
     @State private var selectedSettingsOption: SettingsItemModel?
     @State private var showDetail = false
     @State private var selectedFilter: ProfileFilterSelector = .hearts
-    @Namespace var animation
     
     init(user: User) {
         self.user = user
@@ -27,7 +26,7 @@ struct CurrentUserProfileView: View {
                 //header
                 ProfileHeaderView(viewModel: viewModel)
                 //profile filter bar
-                profileFilterBar
+                ProfileFilterView(selectedFilter: $selectedFilter)
                 // post grid view
                 brocheView
             }
@@ -57,7 +56,7 @@ struct CurrentUserProfileView: View {
                 if option == .logout {
                     AuthService.shared.signout()
                 } else if option == .yourPost {
-                    let postGridView = PostGridView(config: .profile(user))
+                    _ = PostGridView(config: .profile(user))
                 } else {
                     self.showDetail.toggle()
                 }
@@ -65,41 +64,6 @@ struct CurrentUserProfileView: View {
         }
     }
     
-    
-    
-    
-    var profileFilterBar: some View {
-        
-        HStack {
-            ForEach(ProfileFilterSelector.allCases, id: \.rawValue) { item in
-                VStack {
-                    Image(systemName: item.imageName)
-                        .font(.subheadline)
-                        .imageScale(.large)
-                        .fontWeight(selectedFilter == item ? .semibold : .regular)
-                        .foregroundColor(selectedFilter == item ? .black : . gray)
-                    
-                    if selectedFilter == item {
-                        Capsule()
-                            .foregroundColor(.black)
-                            .frame(height: 3)
-                            .matchedGeometryEffect(id: "filter", in: animation)
-                    } else {
-                        Capsule()
-                            .foregroundColor(.clear)
-                            .frame(height: 3)
-                    }
-                }
-                .onTapGesture {
-                    withAnimation(.easeInOut) {
-                        self.selectedFilter = item
-                    }
-                }
-            }
-        }
-        .padding(.top, 1)
-        .overlay(Divider().offset(x: 0, y: 16))
-    }
     
     var brocheView: some View {
         ScrollView {

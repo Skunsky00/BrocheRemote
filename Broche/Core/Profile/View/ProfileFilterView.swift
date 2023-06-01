@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ProfileFilterView: View {
-    @State private var selectedFilter: ProfileFilterSelector = .hearts
+    @Binding var selectedFilter: ProfileFilterSelector
     @Namespace var animation
     var body: some View {
         HStack {
@@ -40,11 +40,5 @@ struct ProfileFilterView: View {
         }
         .overlay(Divider().offset(x: 0, y: 16))
         .padding(.top)
-    }
-}
-
-struct ProfileFilterView_Previews: PreviewProvider {
-    static var previews: some View {
-        ProfileFilterView()
     }
 }
