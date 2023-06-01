@@ -79,7 +79,7 @@ extension MapViewRepresentable {
         // MARK: - Helpers
         
         func addAndSelectAnnotation(withCoordinate coordinate: CLLocationCoordinate2D) {
-            parent.mapView.removeAnnotations(parent.mapView.annotations)
+           // parent.mapView.removeAnnotations(parent.mapView.annotations)
             
             let anno = MKPointAnnotation()
             anno.coordinate = coordinate
@@ -92,7 +92,7 @@ extension MapViewRepresentable {
 
         
         func clearMapViewAndRecenterOnUserLocation() {
-            parent.mapView.removeAnnotations(parent.mapView.annotations)
+           // parent.mapView.removeAnnotations(parent.mapView.annotations)
             
             if let currentRegion = currentRegion {
                 parent.mapView.setRegion(currentRegion, animated: true)
