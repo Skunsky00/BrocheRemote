@@ -30,7 +30,7 @@ struct PostGridView: View {
             ForEach(viewModel.posts) { post in
                 NavigationLink(value: post) {
                     ZStack {
-                        KFImage(URL(string: post.imageUrl))
+                        KFImage(URL(string: post.imageUrl! ))
                             .resizable()
                             .scaledToFill()
                             .frame(width: imageDimension, height: imageDimension)

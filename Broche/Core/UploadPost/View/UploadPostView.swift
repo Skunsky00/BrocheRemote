@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PhotosUI
+import AVKit
 
 struct UploadPostView: View {
     @State private var caption = ""
@@ -18,7 +19,7 @@ struct UploadPostView: View {
     
     var body: some View {
         VStack {
-            //action tool bar
+            // Action toolbar
             HStack {
                 Button {
                     clearPostDataAndReturnToFeed()
@@ -36,30 +37,32 @@ struct UploadPostView: View {
                 Button {
                     Task {
                         try await viewModel.uploadPost(caption: caption, location: location, label: label)
-                            clearPostDataAndReturnToFeed()
+                        clearPostDataAndReturnToFeed()
                     }
                 } label: {
                     Text("Upload")
                         .fontWeight(.semibold)
                 }
-
             }
             
-            // post image and caption and location
-            
-            if let image = viewModel.postImage {
-                image
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 200, height: 200)
-                    .clipped()
-            }
+            // Post image or video
+           // Group {
+                if let image = viewModel.postImage {
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 200, height: 200)
+                        .clipped()
+                } /*else if let videoUrl = viewModel.videoUrl {
+                    VideoPlayer(url: videoUrl)
+                        .frame(width: 200, height: 200)
+                }*/
+         //   }
             
             VStack(spacing: 8) {
-                
                 TextField("Enter your caption...", text: $caption, axis: .vertical)
                 TextField("Enter the location", text: $location, axis: .vertical)
-                TextField("label", text: $label)
+                TextField("Label", text: $label)
             }
             .padding(.horizontal, 8)
             
@@ -76,10 +79,13 @@ struct UploadPostView: View {
         location = ""
         label = ""
         viewModel.selectedImage = nil
+   //     viewModel.selectedVideo = nil
         viewModel.postImage = nil
+//        viewModel.videoUrl = nil
         tabIndex = 0
     }
 }
+
 
 struct UploadPostView_Previews: PreviewProvider {
     static var previews: some View {

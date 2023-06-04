@@ -32,9 +32,15 @@ struct CurrentUserProfileView: View {
             }
             .navigationTitle(user.username)
             .navigationBarTitleDisplayMode(.inline)
-            .navigationDestination(isPresented: $showDetail, destination: {
-                Text(selectedSettingsOption?.title ?? "")
-            })
+            .navigationDestination(isPresented: $showDetail) {
+                if selectedSettingsOption == .yourPost {
+                    ScrollView {
+                        PostGridView(config: .profile(user))
+                    }
+                } else {
+                    Text(selectedSettingsOption?.title ?? "")
+                }
+            }
             .sheet(isPresented: $showSettingsSheet) {
                 SettingsView(selectedOption: $selectedSettingsOption)
                     .presentationDetents([.height(CGFloat(SettingsItemModel.allCases.count * 56))])
@@ -56,7 +62,7 @@ struct CurrentUserProfileView: View {
                 if option == .logout {
                     AuthService.shared.signout()
                 } else if option == .yourPost {
-                    _ = PostGridView(config: .profile(user))
+                    showDetail = true
                 } else {
                     self.showDetail.toggle()
                 }
@@ -74,7 +80,7 @@ struct CurrentUserProfileView: View {
                 case .bookmarks:
                     PostGridView(config: .bookmarkedPosts(user))
                 case .mappin:
-                     PostGridView(config: .profile(user))
+                     MapViewForUserPins()
                 }
                 
             }

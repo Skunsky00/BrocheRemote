@@ -14,7 +14,8 @@ struct Post: Identifiable, Hashable, Codable {
     let caption: String
     let location: String
     var likes: Int
-    let imageUrl: String
+    let imageUrl: String?
+    let videoUrl: String?
     let label: String
     let timestamp: Timestamp
     var user: User?
@@ -32,6 +33,7 @@ extension Post {
         location: "Orlando, Fl",
         likes: 195,
         imageUrl: "example",
+        videoUrl: nil,
         label: "Air BnB",
         timestamp: Timestamp(),
         user: User.MOCK_USERS[0]
@@ -43,6 +45,7 @@ extension Post {
         location: "Gothom,  IL",
         likes: 130,
         imageUrl: "example",
+        videoUrl: nil,
         label: "Air BnB",
         timestamp: Timestamp(),
         user: User.MOCK_USERS[1]
@@ -54,6 +57,7 @@ extension Post {
         location: "Los Angelos, CA",
         likes: 12232,
         imageUrl: "example",
+        videoUrl: nil,
         label: "Air BnB",
         timestamp: Timestamp(),
         user: User.MOCK_USERS[2]
@@ -65,6 +69,7 @@ extension Post {
         location: "New York, NY",
         likes: 16433,
         imageUrl: "example",
+        videoUrl: nil,
         label: "Air BnB",
         timestamp: Timestamp(),
         user: User.MOCK_USERS[3]
@@ -76,6 +81,7 @@ extension Post {
         location: "Asgard",
         likes: 13,
         imageUrl: "example",
+        videoUrl: nil,
         label: "Hotle",
         timestamp: Timestamp(),
         user: User.MOCK_USERS[4]

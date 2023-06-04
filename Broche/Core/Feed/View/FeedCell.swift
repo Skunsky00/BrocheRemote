@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import AVKit
 
 struct FeedCell: View {
     @ObservedObject var viewModel: FeedCellViewModel
@@ -50,12 +51,17 @@ struct FeedCell: View {
             .padding(.horizontal,12 )
             
             // post image
-            KFImage(URL(string: viewModel.post.imageUrl))
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: UIScreen.main.bounds.width, height: 400)
-                        .clipped()
-                        .contentShape(Rectangle())
+            if let imageUrl = viewModel.post.imageUrl {
+                            KFImage(URL(string: imageUrl))
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: UIScreen.main.bounds.width, height: 400)
+                                .clipped()
+                                .contentShape(Rectangle())
+                        }/* else if let videoUrl = viewModel.post.videoUrl {
+                            VideoPlayer(player: AVPlayer(url: URL(string: videoUrl)!))
+                                .frame(width: UIScreen.main.bounds.width, height: 400)
+                        }*/
             
             //action buttons
             HStack(spacing: 16) {
