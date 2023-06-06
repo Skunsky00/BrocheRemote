@@ -65,12 +65,12 @@ class PostGridViewModel: ObservableObject {
     }
     @MainActor
     func fetchLikedPosts(forUser user: User) async throws {
-        let posts = try await PostService.fetchLikedPosts(user: user)
+        let posts = try await PostService.fetchLikedPosts(forUserID: user.id)
         self.posts = posts
     }
     @MainActor
     func fetchBookmarkedPosts(forUser user: User) async throws {
-        let posts = try await PostService.fetchBookmarkedPosts(user: user)
+        let posts = try await PostService.fetchBookmarkedPosts(forUserID: user.id)
         self.posts = posts
             
         }

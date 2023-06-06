@@ -49,35 +49,28 @@ struct PostService {
     }
     
     
-    static func fetchLikedPosts(user: User) async throws -> [Post] {
-        guard let uid = Auth.auth().currentUser?.uid else { return [] }
+    static func fetchLikedPosts(forUserID id: String) async throws -> [Post] {
+        let snapshot = try await COLLECTION_USERS.document(id).collection("user-likes").getDocuments()
+        var posts = snapshot.documents.compactMap({ try? $0.data(as: Post.self) })
         
-        let snapshot = try await COLLECTION_USERS.document(uid).collection("user-likes").getDocuments()
-        var posts = snapshot.documents.compactMap({try? $0.data(as: Post.self )})
-        let documents = snapshot.documents
+        let postIDs = snapshot.documents.map({ $0.documentID })
         
-        for document in documents {
-            let postID = document.documentID
-            
+        for postID in postIDs {
             let snippet = try await COLLECTION_POSTS.document(postID).getDocument()
             let post = try snippet.data(as: Post.self)
             posts.append(post)
-            
         }
         
         return posts
     }
     
-    static func fetchBookmarkedPosts(user: User) async throws -> [Post] {
-        guard let uid = Auth.auth().currentUser?.uid else { return [] }
-        
-        let snapshot = try await COLLECTION_USERS.document(uid).collection("user-bookmarks").getDocuments()
+    static func fetchBookmarkedPosts(forUserID id: String) async throws -> [Post] {
+        let snapshot = try await COLLECTION_USERS.document(id).collection("user-bookmarks").getDocuments()
         var posts = snapshot.documents.compactMap({try? $0.data(as: Post.self )})
-        let documents = snapshot.documents
         
-        for document in documents {
-            let postID = document.documentID
+        let postIDs = snapshot.documents.map({ $0.documentID })
             
+        for postID in postIDs {
             let snippet = try await COLLECTION_POSTS.document(postID).getDocument()
             let post = try snippet.data(as: Post.self)
             posts.append(post)
