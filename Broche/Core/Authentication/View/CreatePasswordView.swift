@@ -8,10 +8,7 @@
 import SwiftUI
 
 struct CreatePasswordView: View {
-    
-    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var viewModel: RegistrationViewModel
-    var color = #colorLiteral(red: 0.1698683487, green: 0.3265062064, blue: 0.74163749, alpha: 1)
     
     var body: some View {
         ZStack {
@@ -31,7 +28,6 @@ struct CreatePasswordView: View {
                     .padding(.horizontal, 24)
                 
                 SecureField("Password", text: $viewModel.password)
-                    .autocapitalization(.none)
                     .modifier(BrocheTextFieldModifier())
                     .padding(.top)
                 
@@ -40,33 +36,28 @@ struct CreatePasswordView: View {
                         .navigationBarBackButtonHidden()
                 } label: {
                     Text("Next")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .frame(width: 360, height: 44)
-                        .foregroundColor(.white)
-                        .background(Color(color))
-                        .cornerRadius(8)
+                        .modifier(TextFieldModifier())
+                        .padding(.top)
                 }
-                .id(UUID())
-                .padding(.vertical)
+                .disabled(!formIsValid)
+                .opacity(formIsValid ? 1.0 : 0.5)
                 
                 Spacer()
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Image(systemName: "chevron.left")
-                        .imageScale(.large)
-                        .onTapGesture {
-                            dismiss()
-                        }
-                }
             }
         }
     }
 }
 
+extension CreatePasswordView: AuthenticationFormProtocol {
+    var formIsValid: Bool {
+        return !viewModel.password.isEmpty && viewModel.password.count > 5
+    }
+}
+
+
 struct CreatePasswordView_Previews: PreviewProvider {
     static var previews: some View {
         CreatePasswordView()
+        
     }
 }

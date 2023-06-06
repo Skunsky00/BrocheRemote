@@ -8,15 +8,18 @@
 import SwiftUI
 
 struct LoginView: View {
+    @State private var email = ""
+    @State private var password = ""
     @StateObject var viewModel = LoginViewModel()
-    var color = #colorLiteral(red: 0.1698683487, green: 0.3265062064, blue: 0.74163749, alpha: 1)
+    @EnvironmentObject var registrationViewModel: RegistrationViewModel
+    @StateObject private var authViewModel = AuthViewModel()
     
     var body: some View {
         NavigationStack {
             ZStack {
                 LinearGradient(gradient: Gradient(colors: [Color.cyan, Color.teal, Color.green]), startPoint: .top, endPoint: .bottom)
                     .ignoresSafeArea()
-               
+                
                 VStack {
                     
                     Spacer()
@@ -29,37 +32,35 @@ struct LoginView: View {
                     
                     //text fields
                     VStack {
-                        TextField("Enter your email", text: $viewModel.email)
+                        TextField("Enter your email", text: $email)
                             .autocapitalization(.none)
                             .modifier(BrocheTextFieldModifier())
                         
-                        SecureField("Enter your password", text: $viewModel.password)
+                        SecureField("Enter your password", text: $password)
                             .modifier(BrocheTextFieldModifier())
                     }
                     
-                    Button {
-                        print("Show forgot password")
-                    } label: {
-                        Text("Forgot Password?")
-                            .font(.footnote)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                            .padding(.top)
-                            .padding(.trailing, 33)
-                    }
+                    NavigationLink(
+                        destination: ResetPasswordView(email: $email)
+                            .environmentObject(authViewModel)
+                        ,
+                        label: {
+                            Text("Forgot Password?")
+                                .font(.footnote)
+                                .fontWeight(.semibold)
+                                .padding(.top)
+                                .padding(.trailing, 28)
+                        })
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     
                     Button {
-                        Task { try await viewModel.signIn() }
+                        Task { try await viewModel.signIn(withEmail: email, password: password) }
                     } label: {
                         Text("Login")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .frame(width: 360, height: 44)
-                            .foregroundColor(.white)
-                            .background(Color(color))
-                            .cornerRadius(8)
+                            .modifier(TextFieldModifier())
                     }
+                    .disabled(!formIsValid)
+                    .opacity(formIsValid ? 1.0 : 0.5)
                     .padding(.vertical)
                     
                     Spacer()
@@ -75,7 +76,7 @@ struct LoginView: View {
                             
                             Text("Sign up")
                                 .fontWeight(.semibold)
-                    }
+                        }
                         .font(.footnote)
                         .foregroundColor(.white)
                     }
@@ -86,8 +87,19 @@ struct LoginView: View {
     }
 }
 
+
+extension LoginView: AuthenticationFormProtocol {
+    var formIsValid: Bool {
+        return !email.isEmpty
+        && email.contains("@")
+        && !password.isEmpty
+        && password.count > 5
+    }
+}
+
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
         LoginView()
+            .environmentObject(RegistrationViewModel())
     }
 }

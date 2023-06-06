@@ -74,6 +74,9 @@
 		4EC081252A27BB7800B86052 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC081242A27BB7800B86052 /* SettingsView.swift */; };
 		4EC081292A2962F800B86052 /* VideoUploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC081282A2962F800B86052 /* VideoUploader.swift */; };
 		4EC0812B2A2CEE2600B86052 /* MapViewForUserPins.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC0812A2A2CEE2600B86052 /* MapViewForUserPins.swift */; };
+		4EC0812E2A2D86E200B86052 /* AuthenticationFormProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC0812D2A2D86E200B86052 /* AuthenticationFormProtocol.swift */; };
+		4EC081302A2D870700B86052 /* ResetPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC0812F2A2D870700B86052 /* ResetPasswordView.swift */; };
+		4EC081322A2D881500B86052 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC081312A2D881500B86052 /* AuthViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -140,6 +143,9 @@
 		4EC081242A27BB7800B86052 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		4EC081282A2962F800B86052 /* VideoUploader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoUploader.swift; sourceTree = "<group>"; };
 		4EC0812A2A2CEE2600B86052 /* MapViewForUserPins.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewForUserPins.swift; sourceTree = "<group>"; };
+		4EC0812D2A2D86E200B86052 /* AuthenticationFormProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationFormProtocol.swift; sourceTree = "<group>"; };
+		4EC0812F2A2D870700B86052 /* ResetPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetPasswordView.swift; sourceTree = "<group>"; };
+		4EC081312A2D881500B86052 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -256,6 +262,7 @@
 		4E85EBB12A1698770074A346 /* Authentication */ = {
 			isa = PBXGroup;
 			children = (
+				4EC0812C2A2D86C400B86052 /* Protocols */,
 				4E85EBEC2A17E70A0074A346 /* View */,
 				4E97701B2A19192C00919F88 /* ViewModel */,
 			);
@@ -332,6 +339,7 @@
 				4E85EBCF2A16E0E80074A346 /* CreatePasswordView.swift */,
 				4E85EBCD2A16DE5F0074A346 /* CreatUserNameView.swift */,
 				4E85EBC72A16D2AB0074A346 /* LoginView.swift */,
+				4EC0812F2A2D870700B86052 /* ResetPasswordView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -357,6 +365,7 @@
 			children = (
 				4E97701C2A19197200919F88 /* RegistrationViewModel.swift */,
 				4E97701E2A1C38B100919F88 /* LoginViewModel.swift */,
+				4EC081312A2D881500B86052 /* AuthViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -523,6 +532,14 @@
 			path = View;
 			sourceTree = "<group>";
 		};
+		4EC0812C2A2D86C400B86052 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				4EC0812D2A2D86E200B86052 /* AuthenticationFormProtocol.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -615,6 +632,7 @@
 				4EC081142A27966800B86052 /* FeedCellViewModel.swift in Sources */,
 				4E9770532A25703400919F88 /* MapViewState.swift in Sources */,
 				4E85EBC82A16D2AB0074A346 /* LoginView.swift in Sources */,
+				4EC0812E2A2D86E200B86052 /* AuthenticationFormProtocol.swift in Sources */,
 				4E97704D2A256F9600919F88 /* LocationSearchView.swift in Sources */,
 				4EC081092A2588F700B86052 /* ProfileFilterView.swift in Sources */,
 				4E97702B2A1C67A400919F88 /* EditProfileViewModel.swift in Sources */,
@@ -630,9 +648,11 @@
 				4E9770512A25701400919F88 /* LocationBookMarkView.swift in Sources */,
 				4E85EBC42A16CF730074A346 /* SearchView.swift in Sources */,
 				4E85EBDC2A170A5A0074A346 /* ProfileHeaderView.swift in Sources */,
+				4EC081322A2D881500B86052 /* AuthViewModel.swift in Sources */,
 				4E9770382A1D3D9C00919F88 /* FeedViewModel.swift in Sources */,
 				4E85EBF42A17E9270074A346 /* ContentViewModel.swift in Sources */,
 				4E97703A2A1D6E6A00919F88 /* PostService.swift in Sources */,
+				4EC081302A2D870700B86052 /* ResetPasswordView.swift in Sources */,
 				4EC0810E2A26B62200B86052 /* Constants.swift in Sources */,
 				4E9770272A1C58D300919F88 /* EditProfileView.swift in Sources */,
 				4E97703E2A1D725700919F88 /* PostGridViewModel.swift in Sources */,
@@ -794,6 +814,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Broche/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Broche;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Please allow us to access your location to display the best Broches";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -823,6 +844,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Broche/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Broche;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Please allow us to access your location to display the best Broches";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

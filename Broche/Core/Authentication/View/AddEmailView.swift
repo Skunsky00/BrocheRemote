@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct AddEmailView: View {
-    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var viewModel: RegistrationViewModel
-    var color = #colorLiteral(red: 0.1698683487, green: 0.3265062064, blue: 0.74163749, alpha: 1)
+    @Environment(\.presentationMode) var presentationMode
+    @State private var showCreatUserNameView = false
     
     var body: some View {
         ZStack {
@@ -30,35 +30,71 @@ struct AddEmailView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
                 
-                TextField("Email", text: $viewModel.email)
-                    .autocapitalization(.none)
-                    .modifier(BrocheTextFieldModifier())
-
-                
-                NavigationLink {
-                    CreatUserNameView()
-                        .navigationBarBackButtonHidden()
-                } label:  {
-                    Text("Next")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .frame(width: 360, height: 44)
-                        .background(Color(color))
-                        .cornerRadius(8)
+                ZStack(alignment: .trailing) {
+                    TextField("Email", text: $viewModel.email)
+                        .autocapitalization(.none)
+                        .modifier(BrocheTextFieldModifier())
+                        .padding(.top)
+                        .autocapitalization(.none)
+                    
+                    if viewModel.isLoading {
+                        ProgressView()
+                            .padding(.trailing, 40)
+                            .padding(.top, 14)
+                    }
+                    
+                    if viewModel.emailValidationFailed {
+                        Image(systemName: "xmark.circle.fill")
+                            .imageScale(.large)
+                            .fontWeight(.bold)
+                            .foregroundColor(Color(.systemRed))
+                            .padding(.trailing, 40)
+                            .padding(.top, 14)
+                    }
                 }
-                .id(UUID())
-                .padding(.vertical)
-
+                
+                if viewModel.emailValidationFailed {
+                    Text("This email is already in use. Please login or try again.")
+                        .font(.caption)
+                        .foregroundColor(Color(.systemRed))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 28)
+                }
+                
+                Button {
+                    Task {
+                        try await viewModel.validateEmail()
+                    }
+                } label: {
+                    Text("Next")
+                        .modifier(TextFieldModifier())
+                }
+                .disabled(!formIsValid)
+                .opacity(formIsValid ? 1.0 : 0.5)
+                
                 
                 Spacer()
+            }
+            .navigationBarBackButtonHidden(true)
+            .onReceive(viewModel.$emailIsValid, perform: { emailIsValid in
+                if emailIsValid {
+                    self.showCreatUserNameView.toggle()
+                }
+            })
+            .navigationDestination(isPresented: $showCreatUserNameView, destination: {
+                CreatUserNameView()
+            })
+            
+            .onAppear {
+                showCreatUserNameView = false
+                viewModel.emailIsValid = false
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Image(systemName: "chevron.left")
                         .imageScale(.large)
                         .onTapGesture {
-                            dismiss()
+                            presentationMode.wrappedValue.dismiss()
                         }
                 }
             }
@@ -66,8 +102,19 @@ struct AddEmailView: View {
     }
 }
 
+extension AddEmailView: AuthenticationFormProtocol {
+    var formIsValid: Bool {
+        return !viewModel.email.isEmpty
+        && viewModel.email.contains("@")
+        && viewModel.email.contains(".")
+    }
+}
+
 struct AddEmailView_Previews: PreviewProvider {
     static var previews: some View {
-        AddEmailView()
+        NavigationStack {
+            AddEmailView()
+                .environmentObject(RegistrationViewModel())
+        }
     }
 }
