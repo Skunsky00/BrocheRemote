@@ -40,7 +40,7 @@ struct ProfileView: View {
                 case .bookmarks:
                     PostGridView(config: .bookmarkedPosts(user))
                 case .mappin:
-                     MapViewForUserPins()
+                    MapViewForUserPins(user: user)
                 }
                 
             }

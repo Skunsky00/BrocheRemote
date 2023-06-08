@@ -209,8 +209,8 @@
 			children = (
 				4E85EBEE2A17E78C0074A346 /* AuthService.swift */,
 				4E9770202A1C4DBD00919F88 /* UserService.swift */,
-				4E97702C2A1C6E2C00919F88 /* ImageUploader.swift */,
 				4E9770392A1D6E6A00919F88 /* PostService.swift */,
+				4E97702C2A1C6E2C00919F88 /* ImageUploader.swift */,
 				4EC081282A2962F800B86052 /* VideoUploader.swift */,
 			);
 			path = Services;

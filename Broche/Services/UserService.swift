@@ -7,6 +7,7 @@
 
 import Foundation
 import Firebase
+import MapKit
 
 struct UserService {
     
@@ -65,4 +66,49 @@ struct UserService {
         return snapshot.documents.compactMap({ try? $0.data(as: User.self) })
     }
 }
+
+extension UserService {
+    static func fetchSavedLocations(uid: String) async throws -> [Location] {
+            let collectionRef = COLLECTION_LOCATION.document(uid).collection("user-locations")
+            let querySnapshot = try await collectionRef.getDocuments()
+            let locations = querySnapshot.documents.compactMap { document -> Location? in
+                if let location = try? document.data(as: Location.self) {
+                    return location
+                } else {
+                    print("Error: Failed to decode location document with ID: \(document.documentID)")
+                    return nil
+                }
+            }
+            return locations
+        }
+    
+    
+    static func saveLocation(uid: String, coordinate: Location) async throws {
+        let documentRef = COLLECTION_LOCATION.document(uid).collection("user-locations").document()
+        let locationData = try Firestore.Encoder().encode(coordinate)
+        try await documentRef.setData(locationData)
+        print("Location saved successfully!")
+    }
+            
+            
+    
+    static func unSaveLocation(uid: String) async throws  {
+        guard let currentUserID = Auth.auth().currentUser?.uid else {
+                    print("Error: User is not authenticated.")
+                    return
+                }
+        let documentRef = COLLECTION_LOCATION.document(currentUserID).collection("user-locations").document(uid)
+                try await documentRef.delete()
+
+    }
+    
+    static func checkIfUserSavedLocation(uid: String) async -> Bool {
+        guard let currentUid = Auth.auth().currentUser?.uid else { return false }
+        let collection = COLLECTION_LOCATION.document(currentUid).collection("user-locations")
+        guard let snapshot = try? await collection.document(uid).getDocument() else { return false }
+        return snapshot.exists
+    
+    }
+}
+
 

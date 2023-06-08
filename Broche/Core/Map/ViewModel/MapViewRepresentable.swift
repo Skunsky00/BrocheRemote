@@ -14,6 +14,7 @@ struct MapViewRepresentable: UIViewRepresentable {
     let locationManager = LocationManager()
     @Binding var mapState: MapViewState
     @EnvironmentObject var locationViewModel: LocationSearchViewModel
+    var user: User
     
     func makeUIView(context: Context) -> some UIView {
         mapView.delegate = context.coordinator
@@ -43,25 +44,33 @@ struct MapViewRepresentable: UIViewRepresentable {
     }
     
     func makeCoordinator() -> MapCoordinator {
-        return MapCoordinator(parent: self)
+        let coordinator = MapCoordinator(parent: self, user: user)
+        coordinator.mapView = mapView // Pass the mapView reference to the coordinator
+        return coordinator
     }
 }
 
 extension MapViewRepresentable {
     
-    class MapCoordinator: NSObject, MKMapViewDelegate {
+    class MapCoordinator: NSObject, MKMapViewDelegate, ObservableObject {
         
         // MARK: - Properties
         
-        let parent: MapViewRepresentable
-        var currentRegion: MKCoordinateRegion?
+                let parent: MapViewRepresentable
+                var currentRegion: MKCoordinateRegion?
+                @Published var locations: [Location] = []
+                var selectedAnnotation: MKPointAnnotation?
+                @Published var user: User
+                weak var mapView: MKMapView?
+                
         
         // MARK: - Lifecycle
         
-        init(parent: MapViewRepresentable) {
-            self.parent = parent
-            super.init()
-        }
+        init(parent: MapViewRepresentable, user: User) {
+                self.parent = parent
+                self.user = user
+                super.init()
+            }
         
         // MARK: - MKMapViewDelegate
         
@@ -79,8 +88,6 @@ extension MapViewRepresentable {
         // MARK: - Helpers
         
         func addAndSelectAnnotation(withCoordinate coordinate: CLLocationCoordinate2D) {
-           // parent.mapView.removeAnnotations(parent.mapView.annotations)
-            
             let anno = MKPointAnnotation()
             anno.coordinate = coordinate
             parent.mapView.addAnnotation(anno)
@@ -88,6 +95,7 @@ extension MapViewRepresentable {
             
             let region = MKCoordinateRegion(center: coordinate, latitudinalMeters: 1000, longitudinalMeters: 1000)
             parent.mapView.setRegion(region, animated: true)
+            selectedAnnotation = anno
         }
 
         
@@ -98,5 +106,32 @@ extension MapViewRepresentable {
                 parent.mapView.setRegion(currentRegion, animated: true)
             }
         }
+        
+        func fetchSavedLocations(forUser user: User) async throws {
+                    
+                    
+                }
+        
+
+        func save(coordinate: CLLocationCoordinate2D) async throws {
+            let location = Location(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            
+            do {
+                try await UserService.saveLocation(uid: user.id, coordinate: location)
+                print("Location saved successfully!")
+            } catch {
+                print("DEBUG: Failed to save location with error: \(error.localizedDescription)")
+            }
+        }
+        
+        
+        func unSaved() async throws {
+            print("DEBUG: UnSaved location to mapViewmodel")
+        }
+        
+        func checkIfSaved() async throws {
+            
+        }
+        
     }
 }

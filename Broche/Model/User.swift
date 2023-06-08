@@ -16,7 +16,9 @@ struct User: Identifiable, Codable {
     var bio: String?
     let email: String
     var stats: UserStats?
+    var location: Location?
     var isFollowed: Bool? = false
+    var didSaveLocation: Bool? = false
     
     var isCurrentUser: Bool {
         guard let currentUid = Auth.auth().currentUser?.uid else { return false }
@@ -39,6 +41,11 @@ extension User: Hashable {
 struct UserStats: Codable {
     var following: Int
     var followers: Int
+}
+
+struct Location: Codable {
+    let latitude: Double
+    let longitude: Double
 }
 
 extension User {

@@ -8,7 +8,12 @@
 import SwiftUI
 
 struct LocationBookMarkView: View {
+    @ObservedObject var viewModel: LocationSearchViewModel
+    @ObservedObject var coordinator: MapViewRepresentable.MapCoordinator
+    var didSaveLocation: Bool { return coordinator.user.didSaveLocation ?? false }
+    
     var body: some View {
+        
         VStack{
             Capsule()
                 .foregroundColor(Color(.systemGray5))
@@ -40,20 +45,27 @@ struct LocationBookMarkView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             VStack {
-                HStack{
-                    Image(systemName: "mappin")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 20, height: 20)
-                    
-                    Text("Visited")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
+                
+                Button {
+                    if let coordinate = viewModel.selectedLocationCoordinate {
+                        Task { didSaveLocation ? try await coordinator.unSaved() : try await coordinator.save(coordinate: coordinate) }}
+                } label: {
+                    HStack{
+                        Image(systemName: "mappin")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 20, height: 20)
+                        
+                        Text("Visited")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                    }
+                    .frame(width: UIScreen.main.bounds.width - 32, height: 30)
+                    .background(.red)
+                    .cornerRadius(8)
+                    .foregroundColor(.white)
                 }
-                .frame(width: UIScreen.main.bounds.width - 32, height: 30)
-                .background(.red)
-                .cornerRadius(8)
-                .foregroundColor(.white)
+
                 
                 
                 HStack{
@@ -78,8 +90,8 @@ struct LocationBookMarkView: View {
     }
 }
 
-struct LocationBookMarkView_Previews: PreviewProvider {
-    static var previews: some View {
-        LocationBookMarkView()
-    }
-}
+//struct LocationBookMarkView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        LocationBookMarkView()
+//    }
+//}

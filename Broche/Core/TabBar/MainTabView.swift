@@ -38,7 +38,7 @@ struct MainTabView: View {
                 Image(systemName: "plus.app")
             }.tag(2)
             
-            MapView()
+            MapView(user: user)
                 .environmentObject(locationViewModel)
                 .onAppear {
                     selectedIndex = 3
