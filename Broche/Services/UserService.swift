@@ -68,7 +68,7 @@ struct UserService {
 }
 
 extension UserService {
-    static func fetchSavedLocations(uid: String) async throws -> [Location] {
+    static func fetchSavedLocations(forUserID uid: String) async throws -> [Location] {
             let collectionRef = COLLECTION_LOCATION.document(uid).collection("user-locations")
             let querySnapshot = try await collectionRef.getDocuments()
             let locations = querySnapshot.documents.compactMap { document -> Location? in
@@ -81,6 +81,7 @@ extension UserService {
             }
             return locations
         }
+    
     
     
     static func saveLocation(uid: String, coordinate: Location) async throws {

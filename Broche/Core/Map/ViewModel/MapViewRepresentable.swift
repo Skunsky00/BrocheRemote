@@ -31,13 +31,14 @@ struct MapViewRepresentable: UIViewRepresentable {
         switch mapState {
         case .noInput:
             context.coordinator.clearMapViewAndRecenterOnUserLocation()
+            Task {try await context.coordinator.fetchSaveLocations(forUser: user)
+                try await context.coordinator.fetchSaveLocations(forUser: user) }
             break
         case .searchingForLocation:
             break
         case .locationSelected:
             if let coordinate = locationViewModel.selectedLocationCoordinate {
-                context.coordinator.addAndSelectAnnotation(withCoordinate: coordinate)
-            }
+                context.coordinator.addAndSelectAnnotation(withCoordinate: coordinate)}
             break
         }
   
@@ -107,10 +108,29 @@ extension MapViewRepresentable {
             }
         }
         
-        func fetchSavedLocations(forUser user: User) async throws {
-                    
-                    
-                }
+        func createAnnotationsForSavedLocations() {
+            guard let mapView = mapView else {
+                return
+            }
+            
+            let annotations = locations.map { location -> MKPointAnnotation in
+                let annotation = MKPointAnnotation()
+                annotation.coordinate = CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude)
+                return annotation
+            }
+            
+            mapView.addAnnotations(annotations)
+        }
+        
+        func fetchSaveLocations(forUser user: User) async throws {
+            do {
+                self.locations = try await UserService.fetchSavedLocations(forUserID: user.id)
+                print( locations)
+                createAnnotationsForSavedLocations()
+            } catch {
+                print("Failed to fetch saved locations with error: \(error.localizedDescription)")
+            }
+        }
         
 @MainActor
         func save(coordinate: CLLocationCoordinate2D) async throws {
