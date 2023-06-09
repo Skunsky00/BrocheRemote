@@ -54,7 +54,6 @@
 		4E9770472A256E7900919F88 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E9770462A256E7900919F88 /* LocationManager.swift */; };
 		4E9770492A256EB500919F88 /* MapViewActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E9770482A256EB500919F88 /* MapViewActionButton.swift */; };
 		4E97704B2A256F0500919F88 /* LocationSearchActivationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E97704A2A256F0500919F88 /* LocationSearchActivationView.swift */; };
-		4E97704D2A256F9600919F88 /* LocationSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E97704C2A256F9600919F88 /* LocationSearchView.swift */; };
 		4E97704F2A256FD300919F88 /* LocationSearchResultCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E97704E2A256FD300919F88 /* LocationSearchResultCell.swift */; };
 		4E9770512A25701400919F88 /* LocationBookMarkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E9770502A25701400919F88 /* LocationBookMarkView.swift */; };
 		4E9770532A25703400919F88 /* MapViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E9770522A25703400919F88 /* MapViewState.swift */; };
@@ -77,6 +76,7 @@
 		4EC0812E2A2D86E200B86052 /* AuthenticationFormProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC0812D2A2D86E200B86052 /* AuthenticationFormProtocol.swift */; };
 		4EC081302A2D870700B86052 /* ResetPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC0812F2A2D870700B86052 /* ResetPasswordView.swift */; };
 		4EC081322A2D881500B86052 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC081312A2D881500B86052 /* AuthViewModel.swift */; };
+		4EC0813B2A32B4A000B86052 /* LocationSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC0813A2A32B4A000B86052 /* LocationSearchView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -123,7 +123,6 @@
 		4E9770462A256E7900919F88 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		4E9770482A256EB500919F88 /* MapViewActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewActionButton.swift; sourceTree = "<group>"; };
 		4E97704A2A256F0500919F88 /* LocationSearchActivationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchActivationView.swift; sourceTree = "<group>"; };
-		4E97704C2A256F9600919F88 /* LocationSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchView.swift; sourceTree = "<group>"; };
 		4E97704E2A256FD300919F88 /* LocationSearchResultCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchResultCell.swift; sourceTree = "<group>"; };
 		4E9770502A25701400919F88 /* LocationBookMarkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationBookMarkView.swift; sourceTree = "<group>"; };
 		4E9770522A25703400919F88 /* MapViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewState.swift; sourceTree = "<group>"; };
@@ -146,6 +145,7 @@
 		4EC0812D2A2D86E200B86052 /* AuthenticationFormProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationFormProtocol.swift; sourceTree = "<group>"; };
 		4EC0812F2A2D870700B86052 /* ResetPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetPasswordView.swift; sourceTree = "<group>"; };
 		4EC081312A2D881500B86052 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		4EC0813A2A32B4A000B86052 /* LocationSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -489,7 +489,7 @@
 				4E9770422A256E0F00919F88 /* MapView.swift */,
 				4E9770482A256EB500919F88 /* MapViewActionButton.swift */,
 				4E97704A2A256F0500919F88 /* LocationSearchActivationView.swift */,
-				4E97704C2A256F9600919F88 /* LocationSearchView.swift */,
+				4EC0813A2A32B4A000B86052 /* LocationSearchView.swift */,
 				4E97704E2A256FD300919F88 /* LocationSearchResultCell.swift */,
 				4E9770502A25701400919F88 /* LocationBookMarkView.swift */,
 				4EC0812A2A2CEE2600B86052 /* MapViewForUserPins.swift */,
@@ -633,7 +633,6 @@
 				4E9770532A25703400919F88 /* MapViewState.swift in Sources */,
 				4E85EBC82A16D2AB0074A346 /* LoginView.swift in Sources */,
 				4EC0812E2A2D86E200B86052 /* AuthenticationFormProtocol.swift in Sources */,
-				4E97704D2A256F9600919F88 /* LocationSearchView.swift in Sources */,
 				4EC081092A2588F700B86052 /* ProfileFilterView.swift in Sources */,
 				4E97702B2A1C67A400919F88 /* EditProfileViewModel.swift in Sources */,
 				4E85EBD82A16F35C0074A346 /* Post.swift in Sources */,
@@ -670,6 +669,7 @@
 				4EC081162A279ADC00B86052 /* Color.swift in Sources */,
 				4E85EBD42A16EA330074A346 /* User.swift in Sources */,
 				4EC0811F2A27A99D00B86052 /* CommentCell.swift in Sources */,
+				4EC0813B2A32B4A000B86052 /* LocationSearchView.swift in Sources */,
 				4E9770492A256EB500919F88 /* MapViewActionButton.swift in Sources */,
 				4E85EBBE2A16A2A00074A346 /* UserStatView.swift in Sources */,
 				4E85EBDE2A17D9C70074A346 /* UploadPostView.swift in Sources */,

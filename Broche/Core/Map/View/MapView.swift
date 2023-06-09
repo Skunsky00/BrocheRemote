@@ -16,6 +16,7 @@ struct MapView: View {
         ZStack(alignment: .bottom) {
             ZStack(alignment: .top) {
                 MapViewRepresentable(mapState: $mapState, user: user)
+                    .environmentObject(locationViewModel)
                     .ignoresSafeArea()
                 
                 if mapState == .searchingForLocation {

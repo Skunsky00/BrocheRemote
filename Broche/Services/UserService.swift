@@ -92,17 +92,23 @@ extension UserService {
             
             
     
-    static func unSaveLocation(uid: String) async throws  {
-        guard let currentUserID = Auth.auth().currentUser?.uid else {
-                    print("Error: User is not authenticated.")
-                    return
-                }
-        let documentRef = COLLECTION_LOCATION.document(currentUserID).collection("user-locations").document(uid)
-                try await documentRef.delete()
-
+    static func unSaveLocation(uid: String, coordinate: Location) async throws {
+        let collectionRef = COLLECTION_LOCATION.document(uid).collection("user-locations")
+        let querySnapshot = try await collectionRef.getDocuments()
+        
+        for document in querySnapshot.documents {
+            if let location = try? document.data(as: Location.self),
+               location.latitude == coordinate.latitude && location.longitude == coordinate.longitude {
+                try await document.reference.delete()
+                print("Location unsaved successfully!")
+                return
+            }
+        }
+        
+        print("Error: Failed to find and unsave the location.")
     }
     
-    static func checkIfUserSavedLocation(uid: String) async -> Bool {
+    static func checkIfUserSavedLocation(uid: String, coordinate: Location) async -> Bool {
         guard let currentUid = Auth.auth().currentUser?.uid else { return false }
         let collection = COLLECTION_LOCATION.document(currentUid).collection("user-locations")
         guard let snapshot = try? await collection.document(uid).getDocument() else { return false }

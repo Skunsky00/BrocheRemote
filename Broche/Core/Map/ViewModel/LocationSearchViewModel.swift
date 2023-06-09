@@ -33,18 +33,7 @@ class LocationSearchViewModel: NSObject, ObservableObject {
     
     // MARK: Helpers
     
-//    func selectLocation(_ localSearch: MKLocalSearchCompletion) {
-//        locationSearch(forLocalSearchCompletion: localSearch) { response, error in
-//            if let error = error {
-//                print("DEBUG: Location search failed with error \(error.localizedDescription)")
-//                return
-//            }
-//            guard let item = response?.mapItems.first else { return }
-//            let coordinate = item.placemark.coordinate
-//            self.selectedLocationCoordinate = coordinate
-//            print("DEBUG: Location coordinates \(coordinate)")
-//        }
-//    }
+
     func selectLocation(_ localSearch: MKLocalSearchCompletion) {
         locationSearch(forLocalSearchCompletion: localSearch) { response, error in
             if let error = error {
@@ -55,11 +44,6 @@ class LocationSearchViewModel: NSObject, ObservableObject {
             let coordinate = item.placemark.coordinate
             self.selectedLocationCoordinate = coordinate
             print("DEBUG: Location coordinates \(coordinate)")
-            
-            // Pass the selected coordinates to the MapCoordinator
-            Task {
-                        try await self.mapCoordinator?.save(coordinate: coordinate)
-                    }
         }
     }
     

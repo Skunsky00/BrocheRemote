@@ -112,25 +112,36 @@ extension MapViewRepresentable {
                     
                 }
         
-
+@MainActor
         func save(coordinate: CLLocationCoordinate2D) async throws {
             let location = Location(latitude: coordinate.latitude, longitude: coordinate.longitude)
             
             do {
                 try await UserService.saveLocation(uid: user.id, coordinate: location)
+                self.user.didSaveLocation = true
                 print("Location saved successfully!")
             } catch {
                 print("DEBUG: Failed to save location with error: \(error.localizedDescription)")
             }
         }
         
-        
-        func unSaved() async throws {
-            print("DEBUG: UnSaved location to mapViewmodel")
+        @MainActor
+        func unSave(coordinate: CLLocationCoordinate2D) async throws {
+            let location = Location(latitude: coordinate.latitude, longitude: coordinate.longitude)
+
+            do {
+                try await UserService.unSaveLocation(uid: user.id, coordinate: location)
+                self.user.didSaveLocation = false
+                print("Location unsaved successfully!")
+            } catch {
+                print("DEBUG: Failed to unsave location with error: \(error.localizedDescription)")
+            }
         }
         
-        func checkIfSaved() async throws {
-            
+        @MainActor
+        func checkIfSaved(coordinate: CLLocationCoordinate2D) async throws {
+            let location = Location(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            self.user.didSaveLocation = await UserService.checkIfUserSavedLocation(uid: user.id, coordinate: location)
         }
         
     }

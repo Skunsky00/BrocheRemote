@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LocationBookMarkView: View {
     @ObservedObject var viewModel: LocationSearchViewModel
-    @ObservedObject var coordinator: MapViewRepresentable.MapCoordinator
+    var coordinator: MapViewRepresentable.MapCoordinator
     var didSaveLocation: Bool { return coordinator.user.didSaveLocation ?? false }
     
     var body: some View {
@@ -48,10 +48,10 @@ struct LocationBookMarkView: View {
                 
                 Button {
                     if let coordinate = viewModel.selectedLocationCoordinate {
-                        Task { didSaveLocation ? try await coordinator.unSaved() : try await coordinator.save(coordinate: coordinate) }}
+                        Task { didSaveLocation ? try await coordinator.unSave(coordinate: coordinate) : try await coordinator.save(coordinate: coordinate) }}
                 } label: {
                     HStack{
-                        Image(systemName: "mappin")
+                        Image(systemName: didSaveLocation ? "mappin" : "mappin.circle")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 20, height: 20)
