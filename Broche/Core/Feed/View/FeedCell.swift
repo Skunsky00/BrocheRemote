@@ -113,19 +113,21 @@ struct FeedCell: View {
             
             //likes and comments lable
             HStack {
-                Text(viewModel.likeString)
+                NavigationLink(value: SearchViewModelConfig.likes(viewModel.post.id ?? "")) {
+                    Text(viewModel.likeString)
                         .font(.footnote)
                         .fontWeight(.semibold)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.top, 1)
-//                        .foregroundColor(Color.theme.systemBackground)
-                    
+                }
+                               
                        Spacer()
                 
                 // filter name
                 Text(viewModel.post.label)
                     .font(.footnote)
                     .fontWeight(.semibold)
+                    .lineLimit(1)
                     .frame(minWidth: 50)
                     .padding(.top, 1)
                     .background(.gray)
@@ -154,6 +156,8 @@ struct FeedCell: View {
                 
             
         }
+        .navigationDestination(for: SearchViewModelConfig.self) { config in
+            UserListView(config: config)}
     }
 }
 

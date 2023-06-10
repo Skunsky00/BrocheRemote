@@ -23,9 +23,15 @@ struct ProfileHeaderView: View {
             
             HStack(spacing: 24) {
                 
-                UserStatView(value: viewModel.user.stats?.followers ?? 0, title: "Followers")
-                    
-                UserStatView(value: viewModel.user.stats?.following ?? 0, title: "Following")
+                NavigationLink(value: SearchViewModelConfig.followers(viewModel.user.id)) {
+                    UserStatView(value: viewModel.user.stats?.followers ?? 0, title: "Followers")
+                }
+               // .disabled(viewModel.user.stats?.followers == 0)
+                
+                NavigationLink(value: SearchViewModelConfig.following(viewModel.user.id)) {
+                    UserStatView(value: viewModel.user.stats?.following ?? 0, title: "Following")
+                }
+               // .disabled(viewModel.user.stats?.following == 0)
                 
             }.padding(.vertical, 4)
             
@@ -42,6 +48,9 @@ struct ProfileHeaderView: View {
             .frame(maxWidth: .infinity)
             .padding(.horizontal)
         
+        }
+        .navigationDestination(for: SearchViewModelConfig.self) { config in
+            UserListView(config: config)
         }
     }
 }

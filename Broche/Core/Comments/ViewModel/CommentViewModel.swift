@@ -43,7 +43,7 @@ class CommentViewModel: ObservableObject {
         
         for data in documentData {
             guard let uid = data ["commentOwnerUid"] as? String else { return }
-            let user = try await UserService.fetchUser(wtihUid: uid)
+            let user = try await UserService.fetchUser(withUid: uid)
             let comment = Comment(user: user, data: data)
             self.comments.append(comment)
         }
