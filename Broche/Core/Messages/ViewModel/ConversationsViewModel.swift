@@ -21,7 +21,7 @@ class ConversationsViewModel: ObservableObject {
             .order(by: "timestamp", descending: true)
         
         let snapshot = try await query.getDocuments()
-        let documents = snapshot.documents
+       // let _ documents = snapshot.documents
         return snapshot.documents.compactMap({ try? $0.data(as: Message.self) })
     }
     

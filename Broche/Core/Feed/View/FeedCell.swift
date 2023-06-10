@@ -56,7 +56,7 @@ struct FeedCell: View {
                             KFImage(URL(string: imageUrl))
                                 .resizable()
                                 .scaledToFill()
-                                .frame(width: UIScreen.main.bounds.width, height: 400)
+                                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.1)
                                 .clipped()
                                 .contentShape(Rectangle())
                         }/* else if let videoUrl = viewModel.post.videoUrl {
