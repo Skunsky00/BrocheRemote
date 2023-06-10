@@ -11,6 +11,11 @@ struct MainTabView: View {
     let user: User
     @State private var selectedIndex = 0
     @StateObject var locationViewModel = LocationSearchViewModel()
+    @Environment(\.colorScheme) var colorScheme
+    
+    var accentColor: Color {
+            colorScheme == .dark ? .white : .black
+        }
     
     var body: some View {
         TabView(selection: $selectedIndex) {
@@ -55,7 +60,7 @@ struct MainTabView: View {
                 Image(systemName: "figure.wave.circle")
             }.tag(4)
         }
-        .accentColor(.black)
+        .accentColor(accentColor)
     }
 }
 

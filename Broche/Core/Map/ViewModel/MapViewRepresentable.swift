@@ -125,7 +125,6 @@ extension MapViewRepresentable {
         func fetchSaveLocations(forUser user: User) async throws {
             do {
                 self.locations = try await UserService.fetchSavedLocations(forUserID: user.id)
-                print( locations)
                 createAnnotationsForSavedLocations()
             } catch {
                 print("Failed to fetch saved locations with error: \(error.localizedDescription)")

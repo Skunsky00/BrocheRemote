@@ -16,6 +16,7 @@ struct UploadPostView: View {
     @State private var imagePickerPresented = false
     @StateObject var viewModel = UploadPostViewModel()
     @Binding var tabIndex: Int
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         VStack {
@@ -25,12 +26,14 @@ struct UploadPostView: View {
                     clearPostDataAndReturnToFeed()
                 } label: {
                     Text("Cancel")
+                        .foregroundColor(colorScheme == .dark ? .white : .black)
                 }
                 
                 Spacer()
                 
                 Text("New Post")
                     .fontWeight(.semibold)
+                    
                 
                 Spacer()
                 
@@ -42,6 +45,7 @@ struct UploadPostView: View {
                 } label: {
                     Text("Upload")
                         .fontWeight(.semibold)
+                        .foregroundColor(colorScheme == .dark ? .white : .black)
                 }
             }
             

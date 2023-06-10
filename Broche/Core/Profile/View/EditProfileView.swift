@@ -11,6 +11,7 @@ import PhotosUI
 struct EditProfileView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject var viewModel: EditProfileViewModel
+    @Environment(\.colorScheme) var colorScheme
     
     init(user: User) {
         self._viewModel = StateObject(wrappedValue: EditProfileViewModel(user: user))
@@ -30,6 +31,7 @@ struct EditProfileView: View {
                     Text("Edit Profile")
                         .font(.subheadline)
                         .fontWeight(.semibold)
+                        
                     
                     Spacer ()
                     

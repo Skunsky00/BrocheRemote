@@ -11,6 +11,7 @@ import AVKit
 
 struct FeedCell: View {
     @ObservedObject var viewModel: FeedCellViewModel
+    @Environment(\.colorScheme) var colorScheme
     
     var didLike: Bool { return viewModel.post.didLike ?? false }
     var didBookmark: Bool { return viewModel.post.didBookmark ?? false }
@@ -71,7 +72,7 @@ struct FeedCell: View {
                 } label: {
                     Image(systemName: didLike ? "heart.fill" : "heart")
                         .imageScale(.large)
-                        .foregroundColor(didLike ? .red : .black /*Color.theme.systemBackground*/)
+                        .foregroundColor(didLike ? .red : colorScheme == .dark ? .white : .black)
                 }
                 
                 Spacer()
@@ -82,6 +83,8 @@ struct FeedCell: View {
                 } label: {
                     Image(systemName: didBookmark ? "bookmark.fill" : "bookmark")
                         .imageScale(.large)
+                        .accentColor(colorScheme == .dark ? .white : .black)
+                        .foregroundColor(colorScheme == .dark ? .white : .black)
                 }
                 
                 Spacer()
@@ -89,6 +92,8 @@ struct FeedCell: View {
                 NavigationLink(destination: CommentsView(post: viewModel.post)) {
                     Image(systemName: "bubble.left")
                         .imageScale(.large)
+                        .accentColor(colorScheme == .dark ? .white : .black)
+                        .foregroundColor(colorScheme == .dark ? .white : .black)
                 }
                 
                 Spacer()
@@ -98,6 +103,8 @@ struct FeedCell: View {
                 } label: {
                     Image(systemName: "ellipsis")
                         .imageScale(.large)
+                        .accentColor(colorScheme == .dark ? .white : .black)
+                        .foregroundColor(colorScheme == .dark ? .white : .black)
                 }
             }
             .padding(.horizontal, 10)

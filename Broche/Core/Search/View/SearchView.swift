@@ -10,6 +10,7 @@ import SwiftUI
 struct SearchView: View {
     @State private var searchText = ""
     @StateObject var viewModel = SearchViewModel()
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         NavigationStack {
@@ -23,9 +24,11 @@ struct SearchView: View {
                                 VStack(alignment: .leading) {
                                     Text(user.username)
                                         .fontWeight(.semibold)
+                                        .foregroundColor(colorScheme == .dark ? .white : .black)
                                     
                                     if let fullname = user.fullname {
                                         Text(fullname)
+                                            .foregroundColor(colorScheme == .dark ? .white : .black)
                                     }
                                 }
                                 .font(.footnote)

@@ -11,6 +11,7 @@ struct LocationBookMarkView: View {
     @ObservedObject var viewModel: LocationSearchViewModel
     var coordinator: MapViewRepresentable.MapCoordinator
     var didSaveLocation: Bool { return coordinator.user.didSaveLocation ?? false }
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         
@@ -85,7 +86,7 @@ struct LocationBookMarkView: View {
             }
             .padding(.bottom)
         }
-        .background(.white)
+        .background(colorScheme == .dark ? Color.black : Color.white)
         .cornerRadius(16)
     }
 }

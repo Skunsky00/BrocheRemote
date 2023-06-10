@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MapViewActionButton: View {
     @Binding var mapState: MapViewState
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         Button(action: {
@@ -18,11 +19,11 @@ struct MapViewActionButton: View {
                }, label: {
                    Image(systemName: imageNameForState(mapState))
                 .font(.title2)
-                .foregroundColor(.black)
+                .foregroundColor(colorScheme == .dark ? .white : .black)
                 .padding()
-                .background(.white)
+                .background(colorScheme == .dark ? Color.black : Color.white)
                 .clipShape(Circle())
-                .shadow(color: .black, radius: 6)
+                .shadow(color: colorScheme == .dark ? .white : .black, radius: 6)
             
         })
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -14,6 +14,8 @@ struct CurrentUserProfileView: View {
     @State private var selectedSettingsOption: SettingsItemModel?
     @State private var showDetail = false
     @State private var selectedFilter: ProfileFilterSelector = .hearts
+    @Environment(\.colorScheme) var colorScheme
+    
     
     init(user: User) {
         self.user = user
@@ -52,7 +54,7 @@ struct CurrentUserProfileView: View {
                         showSettingsSheet.toggle()
                     } label: {
                         Image(systemName: "line.3.horizontal")
-                            .foregroundColor(.black)
+                            .foregroundColor(colorScheme == .dark ? .white : .black)
                     }
                 }
             })

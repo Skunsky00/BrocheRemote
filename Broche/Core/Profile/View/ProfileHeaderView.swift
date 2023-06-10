@@ -10,6 +10,7 @@ import SwiftUI
 struct ProfileHeaderView: View {
     @ObservedObject var viewModel: ProfileViewModel
     
+    
     var body: some View {
         VStack {
             CircularProfileImageView(user: viewModel.user, size: .large)

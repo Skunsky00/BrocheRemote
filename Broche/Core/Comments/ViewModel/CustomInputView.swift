@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct CustomInputView: View {
+    @Environment(\.colorScheme) var colorScheme
     @Binding var inputText: String
     let placeholder: String
     
@@ -29,7 +30,7 @@ struct CustomInputView: View {
                 Button(action: action) {
                     Text("Send")
                         .bold()
-                        .foregroundColor(.black)
+                        .foregroundColor(colorScheme == .dark ? .white : .primary)
                 }
             }
             .padding(.bottom, 8)

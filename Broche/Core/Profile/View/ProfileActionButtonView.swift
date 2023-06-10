@@ -11,6 +11,7 @@ struct ProfileActionButtonView: View {
     @ObservedObject var viewModel: ProfileViewModel
     var isFollowed: Bool { return viewModel.user.isFollowed ?? false }
     @State var showEditProfile = false
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         VStack {
@@ -21,6 +22,7 @@ struct ProfileActionButtonView: View {
                         .fontWeight(.semibold)
                         .frame(width: 160, height: 32)
                         .foregroundColor(.black)
+                        .background(Color.white)
                         .overlay(RoundedRectangle(cornerRadius: 3)
                                 .stroke(Color.gray, lineWidth: 1)
                         )
@@ -45,6 +47,8 @@ struct ProfileActionButtonView: View {
                 }
             }
         }
+        .foregroundColor(.primary)
+            .background(colorScheme == .dark ? Color.black : Color.white)
     }
 }
 
