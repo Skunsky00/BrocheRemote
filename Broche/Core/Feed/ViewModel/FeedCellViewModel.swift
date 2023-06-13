@@ -33,6 +33,16 @@ class FeedCellViewModel: ObservableObject {
         }
     }
     
+   
+    
+    func deletePost() async throws {
+        print("Deleting post...")
+                try await PostService.deletePost(post)
+                print("Post deleted.")
+            
+            // Additional logic after deleting the post (e.g., navigating back to the feed)
+        }
+    
     func like() async throws {
         self.post.didLike = true
         Task {

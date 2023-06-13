@@ -23,19 +23,6 @@ struct PostService {
         
         return posts
     }
-    //
-    //    static func fetchUserPosts(uid: String) async throws -> [Post] {
-    //        let snapshot = try await COLLECTION_POSTS.whereField("ownerUid", isEqualTo: uid).getDocuments()
-    //        return try snapshot.documents.compactMap({ try $0.data(as: Post.self) })
-    //    }
-    //}
-    
-    
-    //static func fetchPost(withId id: String) async throws -> Post {
-    //    let postSnapshot = try await COLLECTION_POSTS.document(id).getDocument()
-    //    let post = try postSnapshot.data(as: Post.self)
-    //    return post
-    //}
     
     static func fetchUserPosts(user: User) async throws -> [Post] {
         let snapshot = try await COLLECTION_POSTS.whereField("ownerUid", isEqualTo: user.id).getDocuments()
@@ -79,6 +66,18 @@ struct PostService {
         
         return posts
     }
+    
+    static func deletePost(_ post: Post) async throws {
+            // Delete the post from Firebase
+            guard let postId = post.id else { return }
+            let postRef = COLLECTION_POSTS.document(postId)
+            let userLikesRef = COLLECTION_USERS.document(post.ownerUid).collection("user-likes").document(postId)
+            let userBookmarksRef = COLLECTION_USERS.document(post.ownerUid).collection("user-bookmarks").document(postId)
+            
+            try await postRef.delete()
+            try await userLikesRef.delete()
+            try await userBookmarksRef.delete()
+        }
 }
 
 // MARK: - Likes

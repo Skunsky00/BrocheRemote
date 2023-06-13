@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4E2F6BEC2A38C02000BA0A89 /* OptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2F6BEB2A38C02000BA0A89 /* OptionsView.swift */; };
 		4E85EB9E2A16972C0074A346 /* BrocheApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E85EB9D2A16972C0074A346 /* BrocheApp.swift */; };
 		4E85EBA02A16972C0074A346 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E85EB9F2A16972C0074A346 /* ContentView.swift */; };
 		4E85EBA22A16972F0074A346 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4E85EBA12A16972F0074A346 /* Assets.xcassets */; };
@@ -93,6 +94,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4E2F6BEB2A38C02000BA0A89 /* OptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionsView.swift; sourceTree = "<group>"; };
 		4E85EB9A2A16972C0074A346 /* Broche.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Broche.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E85EB9D2A16972C0074A346 /* BrocheApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrocheApp.swift; sourceTree = "<group>"; };
 		4E85EB9F2A16972C0074A346 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -469,6 +471,7 @@
 			children = (
 				4E85EBBF2A16AC440074A346 /* FeedView.swift */,
 				4E85EBC12A16AC6A0074A346 /* FeedCell.swift */,
+				4E2F6BEB2A38C02000BA0A89 /* OptionsView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -716,6 +719,7 @@
 				4E9770512A25701400919F88 /* LocationBookMarkView.swift in Sources */,
 				4E85EBC42A16CF730074A346 /* SearchView.swift in Sources */,
 				4E85EBDC2A170A5A0074A346 /* ProfileHeaderView.swift in Sources */,
+				4E2F6BEC2A38C02000BA0A89 /* OptionsView.swift in Sources */,
 				4EC081322A2D881500B86052 /* AuthViewModel.swift in Sources */,
 				4EC0815C2A34DE2A00B86052 /* SearchBar.swift in Sources */,
 				4E9770382A1D3D9C00919F88 /* FeedViewModel.swift in Sources */,
@@ -905,7 +909,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.TravelBroche2.Broche;
+				PRODUCT_BUNDLE_IDENTIFIER = com.brochetravel.broche;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -938,7 +942,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.TravelBroche2.Broche;
+				PRODUCT_BUNDLE_IDENTIFIER = com.brochetravel.broche;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

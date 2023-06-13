@@ -11,8 +11,14 @@ import AVKit
 
 struct FeedCell: View {
     @ObservedObject var viewModel: FeedCellViewModel
+    @State private var showOptionsSheet = false
+    @State private var selectedOptionsOption: OptionsItemModel?
+    @State private var showDetail = false
+    @State private var showDeleteConfirmation = false
     @Environment(\.colorScheme) var colorScheme
     
+    
+    var showDeleteOption: Bool { return viewModel.post.isCurrentUser }
     var didLike: Bool { return viewModel.post.didLike ?? false }
     var didBookmark: Bool { return viewModel.post.didBookmark ?? false }
     
@@ -35,10 +41,10 @@ struct FeedCell: View {
                     })
                 }
                 Text(viewModel.post.location)
-                            .font(.footnote)
-                            
-                        
-                    
+                    .font(.footnote)
+                
+                
+                
                 
                 Spacer()
                 
@@ -48,21 +54,21 @@ struct FeedCell: View {
                     }
                 }
                 
-               }
+            }
             .padding(.horizontal,12 )
             
             // post image
             if let imageUrl = viewModel.post.imageUrl {
-                            KFImage(URL(string: imageUrl))
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.1)
-                                .clipped()
-                                .contentShape(Rectangle())
-                        }/* else if let videoUrl = viewModel.post.videoUrl {
-                            VideoPlayer(player: AVPlayer(url: URL(string: videoUrl)!))
-                                .frame(width: UIScreen.main.bounds.width, height: 400)
-                        }*/
+                KFImage(URL(string: imageUrl))
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.1)
+                    .clipped()
+                    .contentShape(Rectangle())
+            }/* else if let videoUrl = viewModel.post.videoUrl {
+              VideoPlayer(player: AVPlayer(url: URL(string: videoUrl)!))
+              .frame(width: UIScreen.main.bounds.width, height: 400)
+              }*/
             
             //action buttons
             HStack(spacing: 16) {
@@ -77,9 +83,9 @@ struct FeedCell: View {
                 
                 Spacer()
                 
-            Button {
-                print("save post")
-                Task {  didBookmark ? try await viewModel.unbookmark() : try await viewModel.bookmark() }
+                Button {
+                    print("save post")
+                    Task {  didBookmark ? try await viewModel.unbookmark() : try await viewModel.bookmark() }
                 } label: {
                     Image(systemName: didBookmark ? "bookmark.fill" : "bookmark")
                         .imageScale(.large)
@@ -99,7 +105,8 @@ struct FeedCell: View {
                 Spacer()
                 
                 Button {
-                print("share post")
+                    selectedOptionsOption = nil
+                    showOptionsSheet.toggle()
                 } label: {
                     Image(systemName: "ellipsis")
                         .imageScale(.large)
@@ -120,8 +127,8 @@ struct FeedCell: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.top, 1)
                 }
-                               
-                       Spacer()
+                
+                Spacer()
                 
                 // filter name
                 Text(viewModel.post.label)
@@ -132,34 +139,66 @@ struct FeedCell: View {
                     .padding(.top, 1)
                     .background(.gray)
                 
-                  }
+            }
             .padding(.horizontal, 12)
             .padding(.bottom, 1)
             
             // caption - broche description
-                    HStack {
-                        Text("\(viewModel.post.user?.username ?? "") ").fontWeight(.semibold) +
-                        Text(viewModel.post.caption)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .font(.footnote)
-                    .padding(.leading, 10)
-                    .padding(.top, 1)
-                
-                
+            HStack {
+                Text("\(viewModel.post.user?.username ?? "") ").fontWeight(.semibold) +
+                Text(viewModel.post.caption)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .font(.footnote)
+            .padding(.leading, 10)
+            .padding(.top, 1)
+            
+            
             Text(viewModel.timestampString)
                 .font(.footnote)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, 10)
                 .padding(.top, 1)
                 .foregroundColor(.gray)
-                
+            
             
         }
-        .navigationDestination(for: SearchViewModelConfig.self) { config in
-            UserListView(config: config)}
-    }
-}
+        .navigationDestination(isPresented: $showDetail, destination: {
+                   Text(selectedOptionsOption?.title ?? "")
+               })
+               .sheet(isPresented: $showOptionsSheet) {
+                           OptionsView(selectedOption: $selectedOptionsOption, showDeleteOption: showDeleteOption)
+                               .presentationDetents([
+                                   .height(CGFloat(OptionsItemModel.allCases.count * 56))
+                               ])
+                       }
+               .onChange(of: selectedOptionsOption) { newValue in
+                   guard let option = newValue else { return }
+                   if option == .sharepost {
+                       showDetail = true
+                   } else if option == .delete {
+                       Task { try await viewModel.deletePost() }
+                     //  showDeleteConfirmation.toggle()
+                   } else {
+                       self.showDetail.toggle()
+                   }
+                   print(option.title)
+               }
+//               .alert(isPresented: $showDeleteConfirmation) {
+//                                          Alert(
+//                                              title: Text("Delete Post"),
+//                                              message: Text("Are you sure you want to delete this post?"),
+//                                              primaryButton: .destructive(Text("Delete")) {
+//                                                  // Call deletePost() on the viewModel
+//                                                  Task { try await viewModel.deletePost() }
+//                                              },
+//                                              secondaryButton: .cancel(Text("Cancel"))
+//                                          )
+//                                      }
+               .navigationDestination(for: SearchViewModelConfig.self) { config in
+                   UserListView(config: config)}
+           }
+       }
 
     
 

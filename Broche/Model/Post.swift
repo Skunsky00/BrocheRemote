@@ -22,6 +22,11 @@ struct Post: Identifiable, Hashable, Codable {
     
     var didLike: Bool? = false
     var didBookmark: Bool? = false
+    
+    var isCurrentUser: Bool {
+        guard let currentUid = Auth.auth().currentUser?.uid else { return false }
+        return currentUid == ownerUid
+    }
 }
 
 extension Post {
