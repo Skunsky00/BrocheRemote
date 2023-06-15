@@ -42,7 +42,6 @@ struct MapView: View {
                     .transition(.move(edge: .bottom))
             }
         }
-        //.edgesIgnoringSafeArea(.bottom)
     }
 }
 
