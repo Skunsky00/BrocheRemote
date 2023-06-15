@@ -16,6 +16,7 @@ struct MapViewRepresentable: UIViewRepresentable {
     @EnvironmentObject var locationViewModel: LocationSearchViewModel
     var user: User
     
+    
     func makeUIView(context: Context) -> some UIView {
         mapView.delegate = context.coordinator
         mapView.isRotateEnabled = false
@@ -31,17 +32,17 @@ struct MapViewRepresentable: UIViewRepresentable {
         switch mapState {
         case .noInput:
             context.coordinator.clearMapViewAndRecenterOnUserLocation()
-            Task {try await context.coordinator.fetchSaveLocations(forUser: user)
-                try await context.coordinator.fetchSaveLocations(forUser: user) }
+            Task {try await context.coordinator.fetchSaveLocations(forUser: user)}
             break
         case .searchingForLocation:
             break
         case .locationSelected:
             if let coordinate = locationViewModel.selectedLocationCoordinate {
-                context.coordinator.addAndSelectAnnotation(withCoordinate: coordinate)}
+                context.coordinator.addAndSelectAnnotation(withCoordinate: coordinate)
+                Task { try await context.coordinator.checkIfSaved(coordinate: coordinate)}
+            }
             break
         }
-  
     }
     
     func makeCoordinator() -> MapCoordinator {
@@ -131,7 +132,7 @@ extension MapViewRepresentable {
             }
         }
         
-@MainActor
+        @MainActor
         func save(coordinate: CLLocationCoordinate2D) async throws {
             let location = Location(latitude: coordinate.latitude, longitude: coordinate.longitude)
             
@@ -147,7 +148,7 @@ extension MapViewRepresentable {
         @MainActor
         func unSave(coordinate: CLLocationCoordinate2D) async throws {
             let location = Location(latitude: coordinate.latitude, longitude: coordinate.longitude)
-
+            
             do {
                 try await UserService.unSaveLocation(uid: user.id, coordinate: location)
                 self.user.didSaveLocation = false
@@ -160,7 +161,7 @@ extension MapViewRepresentable {
         @MainActor
         func checkIfSaved(coordinate: CLLocationCoordinate2D) async throws {
             let location = Location(latitude: coordinate.latitude, longitude: coordinate.longitude)
-            self.user.didSaveLocation = await UserService.checkIfUserSavedLocation(uid: user.id, coordinate: location)
+            self.user.didSaveLocation = try await UserService.checkIfUserSavedLocation(uid: user.id, coordinate: location)
         }
         
     }

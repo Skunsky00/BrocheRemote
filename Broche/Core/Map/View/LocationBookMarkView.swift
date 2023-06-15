@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LocationBookMarkView: View {
     @ObservedObject var viewModel: LocationSearchViewModel
-    var coordinator: MapViewRepresentable.MapCoordinator
+    @ObservedObject var coordinator: MapViewRepresentable.MapCoordinator
     var didSaveLocation: Bool { return coordinator.user.didSaveLocation ?? false }
     @Environment(\.colorScheme) var colorScheme
     
@@ -46,7 +46,7 @@ struct LocationBookMarkView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             VStack {
-                
+                //save button
                 Button {
                     if let coordinate = viewModel.selectedLocationCoordinate {
                         Task { didSaveLocation ? try await coordinator.unSave(coordinate: coordinate) : try await coordinator.save(coordinate: coordinate) }}

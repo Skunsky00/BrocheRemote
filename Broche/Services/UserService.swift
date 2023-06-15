@@ -69,7 +69,18 @@ extension UserService {
     
     
     static func saveLocation(uid: String, coordinate: Location) async throws {
-        let documentRef = COLLECTION_LOCATION.document(uid).collection("user-locations").document()
+        let collectionRef = COLLECTION_LOCATION.document(uid).collection("user-locations")
+        let querySnapshot = try await collectionRef.getDocuments()
+        
+        for document in querySnapshot.documents {
+            if let location = try? document.data(as: Location.self),
+               location.latitude == coordinate.latitude && location.longitude == coordinate.longitude {
+                print("Location already saved!")
+                return
+            }
+        }
+        
+        let documentRef = collectionRef.document()
         let locationData = try Firestore.Encoder().encode(coordinate)
         try await documentRef.setData(locationData)
         print("Location saved successfully!")
@@ -93,12 +104,30 @@ extension UserService {
         print("Error: Failed to find and unsave the location.")
     }
     
-    static func checkIfUserSavedLocation(uid: String, coordinate: Location) async -> Bool {
-        guard let currentUid = Auth.auth().currentUser?.uid else { return false }
-        let collection = COLLECTION_LOCATION.document(currentUid).collection("user-locations")
-        guard let snapshot = try? await collection.document(uid).getDocument() else { return false }
-        return snapshot.exists
-    
+//    static func checkIfUserSavedLocation(uid: String, coordinate: Location) async throws -> Bool {
+//        guard let currentUid = Auth.auth().currentUser?.uid else { return false }
+//        let collection = COLLECTION_LOCATION.document(currentUid).collection("user-locations")
+//        guard let snapshot = try? await collection.document(uid).getDocument() else { return false }
+//        return snapshot.exists
+//
+//    }
+    static func checkIfUserSavedLocation(uid: String, coordinate: Location) async throws -> Bool {
+        let collectionRef = COLLECTION_LOCATION.document(uid).collection("user-locations")
+        let querySnapshot = try await collectionRef.getDocuments()
+        
+        for document in querySnapshot.documents {
+            if let location = try? document.data(as: Location.self) {
+                let latDiff = abs(location.latitude - coordinate.latitude)
+                let lonDiff = abs(location.longitude - coordinate.longitude)
+                if latDiff < 0.0001 && lonDiff < 0.0001 { // Adjust the threshold as needed
+                    print("Location found: \(location)")
+                    return true
+                }
+            }
+        }
+        
+        print("Location not found!")
+        return false
     }
 }
 
