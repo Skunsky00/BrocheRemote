@@ -17,6 +17,7 @@ struct MapViewRepresentable: UIViewRepresentable {
     var user: User
     
     
+    
     func makeUIView(context: Context) -> some UIView {
         mapView.delegate = context.coordinator
         mapView.isRotateEnabled = false
