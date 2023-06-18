@@ -11,6 +11,7 @@ import MapKit
 struct MapViewRepresentable: UIViewRepresentable {
     
     let mapView = MKMapView()
+    //@EnvironmentObject var locationManager: LocationManager
     let locationManager = LocationManager()
     @Binding var mapState: MapViewState
     @EnvironmentObject var locationViewModel: LocationSearchViewModel
@@ -24,23 +25,37 @@ struct MapViewRepresentable: UIViewRepresentable {
         mapView.showsUserLocation = true
         mapView.userTrackingMode = .follow
         
+        locationManager.requestLocation()
+        
         return mapView
     }
     
     func updateUIView(_ uiView: UIViewType, context: Context) {
-        print ("DEBUG: Map state is \(mapState)")
+        guard let mapView = uiView as? MKMapView else {
+            return
+        }
         
+        print("DEBUG: Map state is \(mapState)")
+
         switch mapState {
         case .noInput:
-            context.coordinator.clearMapViewAndRecenterOnUserLocation()
-            Task {try await context.coordinator.fetchSaveLocations(forUser: user)}
-            break
+            // Update the map region when mapState is .noInput
+            if let currentRegion = context.coordinator.currentRegion {
+                mapView.setRegion(currentRegion, animated: true)
+            } else if let userLocation = locationManager.userLocation {
+                let region = MKCoordinateRegion(
+                    center: userLocation.coordinate,
+                    span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+                )
+                mapView.setRegion(region, animated: true)
+            }
+            Task { try await context.coordinator.fetchSaveLocations(forUser: user) }
         case .searchingForLocation:
             break
         case .locationSelected:
             if let coordinate = locationViewModel.selectedLocationCoordinate {
                 context.coordinator.addAndSelectAnnotation(withCoordinate: coordinate)
-                Task { try await context.coordinator.checkIfSaved(coordinate: coordinate)}
+                Task { try await context.coordinator.checkIfSaved(coordinate: coordinate) }
             }
             break
         }
@@ -77,16 +92,16 @@ extension MapViewRepresentable {
         
         // MARK: - MKMapViewDelegate
         
-        func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
-            let region = MKCoordinateRegion(
-                center: CLLocationCoordinate2D(latitude: userLocation.coordinate.latitude, longitude: userLocation.coordinate.longitude),
-                span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-            )
-            
-            self.currentRegion = region
-            
-            parent.mapView.setRegion(region, animated: true)
-        }
+//        func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
+//            let region = MKCoordinateRegion(
+//                center: CLLocationCoordinate2D(latitude: userLocation.coordinate.latitude, longitude: userLocation.coordinate.longitude),
+//                span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+//            )
+//
+//            self.currentRegion = region
+//
+//            parent.mapView.setRegion(region, animated: true)
+//        }
         
         // MARK: - Helpers
         
