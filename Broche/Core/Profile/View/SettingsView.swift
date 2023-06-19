@@ -9,7 +9,7 @@ import SwiftUI
 
 enum SettingsItemModel: Int, Identifiable, Hashable, CaseIterable {
     case settings
-    case yourActivity
+    case notification
     case yourPost
     case logout
     
@@ -17,8 +17,8 @@ enum SettingsItemModel: Int, Identifiable, Hashable, CaseIterable {
         switch self {
         case .settings:
             return "Settings"
-        case .yourActivity:
-            return "Your Activity"
+        case .notification:
+            return "Notifications"
         case .yourPost:
             return "Your Post"
         case .logout:
@@ -30,8 +30,8 @@ enum SettingsItemModel: Int, Identifiable, Hashable, CaseIterable {
         switch self {
         case .settings:
             return "gear"
-        case .yourActivity:
-            return "cursorarrow.click.badge.clock"
+        case .notification:
+            return "bell"
         case .yourPost:
             return "square.grid.2x2"
         case .logout:

@@ -35,12 +35,17 @@ struct CurrentUserProfileView: View {
             .navigationTitle(user.username)
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $showDetail) {
-                if selectedSettingsOption == .yourPost {
-                    ScrollView {
-                        PostGridView(config: .profile(user))
+                if let option = selectedSettingsOption {
+                    switch option {
+                    case .yourPost:
+                        ScrollView {
+                            PostGridView(config: .profile(user))
+                        }
+                    case .notification:
+                        NotificationsView()
+                    default:
+                        Text(option.title)
                     }
-                } else {
-                    Text(selectedSettingsOption?.title ?? "")
                 }
             }
             .sheet(isPresented: $showSettingsSheet) {
@@ -61,12 +66,11 @@ struct CurrentUserProfileView: View {
             .onChange(of: selectedSettingsOption) { newValue in
                 guard let option = newValue else { return }
                 
-                if option == .logout {
+                switch option {
+                case .logout:
                     AuthService.shared.signout()
-                } else if option == .yourPost {
+                case .yourPost, .notification, .settings:
                     showDetail = true
-                } else {
-                    self.showDetail.toggle()
                 }
             }
         }

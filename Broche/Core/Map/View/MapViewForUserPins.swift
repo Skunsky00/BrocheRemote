@@ -17,7 +17,7 @@ struct MapViewForUserPins: View {
             
             MapViewRepresentable(mapState: $mapState, user: user)
             Rectangle()
-                .frame(width: UIScreen.main.bounds.width, height: 400)
+                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.1)
                 .foregroundColor(.clear)
                 .padding(.top , 100)
                 

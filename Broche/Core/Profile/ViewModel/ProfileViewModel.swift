@@ -18,7 +18,7 @@ class ProfileViewModel: ObservableObject {
     
     func follow() {
         UserService.follow(uid: user.id) { _ in
-    //        NotificationsViewModel.uploadNotification(toUid: self.user.id, type: .follow)
+            NotificationsViewModel.uploadNotification(toUid: self.user.id, type: .follow)
             self.user.isFollowed = true
         }
     }
@@ -26,7 +26,7 @@ class ProfileViewModel: ObservableObject {
     func unfollow() {
         UserService.unfollow(uid: user.id) { _ in
             self.user.isFollowed = false
-   //         NotificationsViewModel.deleteNotification(toUid: self.user.id, type: .follow)
+            NotificationsViewModel.deleteNotification(toUid: self.user.id, type: .follow)
         }
     }
     
