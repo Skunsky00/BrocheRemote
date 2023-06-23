@@ -15,6 +15,7 @@ struct FeedCell: View {
     @State private var selectedOptionsOption: OptionsItemModel?
     @State private var showDetail = false
     @State private var showDeleteConfirmation = false
+    @StateObject private var playerManager = AVPlayerManager()
     @Environment(\.colorScheme) var colorScheme
     
     
@@ -65,10 +66,11 @@ struct FeedCell: View {
                     .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.1)
                     .clipped()
                     .contentShape(Rectangle())
-            }/* else if let videoUrl = viewModel.post.videoUrl {
-              VideoPlayer(player: AVPlayer(url: URL(string: videoUrl)!))
-              .frame(width: UIScreen.main.bounds.width, height: 400)
-              }*/
+            }
+            else if let videoUrl = viewModel.post.videoUrl {
+                VideoPlayerView(url: videoUrl, playerManager: playerManager)
+                                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.1)
+                        }
             
             //action buttons
             HStack(spacing: 16) {

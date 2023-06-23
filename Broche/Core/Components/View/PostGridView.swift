@@ -30,11 +30,18 @@ struct PostGridView: View {
             ForEach(viewModel.posts) { post in
                 NavigationLink(value: post) {
                     ZStack {
-                        KFImage(URL(string: post.imageUrl! ))
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: imageDimension, height: imageDimension)
-                            .clipped()
+                        if let imageUrl = post.imageUrl {
+                            KFImage(URL(string: imageUrl))
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: imageDimension, height: imageDimension)
+                                .clipped()
+                        } else if let videoUrlString = post.videoUrl, let videoUrl = URL(string: videoUrlString) {
+                            VideoThumbnail(url: videoUrl)
+                                .scaledToFill()
+                                .frame(width: imageDimension, height: imageDimension)
+                                .clipped()
+                        }
                         
                         Text(post.location)
                             .font(.subheadline)

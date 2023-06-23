@@ -14,6 +14,7 @@ struct UploadPostView: View {
     @State private var location = ""
     @State private var label = ""
     @State private var imagePickerPresented = false
+    @State private var selectedVideo: URL?
     @StateObject var viewModel = UploadPostViewModel()
     @Binding var tabIndex: Int
     @Environment(\.colorScheme) var colorScheme
@@ -39,8 +40,13 @@ struct UploadPostView: View {
                 
                 Button {
                     Task {
-                        try await viewModel.uploadPost(caption: caption, location: location, label: label)
-                        clearPostDataAndReturnToFeed()
+                        do {
+                            try await viewModel.uploadPost(caption: caption, location: location, label: label)
+                            clearPostDataAndReturnToFeed()
+                        } catch {
+                            print("Error uploading post: \(error)")
+                            // Handle the error (e.g., show an alert)
+                        }
                     }
                 } label: {
                     Text("Upload")
@@ -51,13 +57,14 @@ struct UploadPostView: View {
             
             // Post image or video
            // Group {
-                if let image = viewModel.postImage {
-                    image
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 200, height: 200)
-                        .clipped()
-                } /*else if let videoUrl = viewModel.videoUrl {
+//                if let image = viewModel.postImage {
+//                    image
+            if let videoUrl = viewModel.selectedVideoUrl {
+                VideoPlayer(player: AVPlayer(url: videoUrl))
+                    .frame(width: 200, height: 200)
+            }
+            
+            /*else if let videoUrl = viewModel.videoUrl {
                     VideoPlayer(url: videoUrl)
                         .frame(width: 200, height: 200)
                 }*/
@@ -75,17 +82,17 @@ struct UploadPostView: View {
         .onAppear {
             imagePickerPresented.toggle()
         }
-        .photosPicker(isPresented: $imagePickerPresented, selection: $viewModel.selectedImage)
+        .photosPicker(isPresented: $imagePickerPresented, selection: $viewModel.selectedItem, matching: .any(of: [.videos, .not(.images)]))
     }
     
     func clearPostDataAndReturnToFeed() {
         caption = ""
         location = ""
         label = ""
-        viewModel.selectedImage = nil
-   //     viewModel.selectedVideo = nil
-        viewModel.postImage = nil
-//        viewModel.videoUrl = nil
+       // viewModel.selectedImage = nil
+        viewModel.selectedItem = nil
+//        viewModel.postImage = nil
+        viewModel.selectedVideoUrl = nil
         tabIndex = 0
     }
 }

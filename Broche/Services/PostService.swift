@@ -10,8 +10,14 @@ import Foundation
 
 
 struct PostService {
-    static func fetchPost() async throws -> [Post] {
-        let snapshot = try await COLLECTION_POSTS.getDocuments()
+    static func fetchPosts(startingAfter document: DocumentSnapshot?) async throws -> [Post] {
+        var query = COLLECTION_POSTS.order(by: "timestamp", descending: true)
+        
+        if let document = document {
+            query = query.start(afterDocument: document)
+        }
+        
+        let snapshot = try await query.limit(to: 20).getDocuments()
         var posts = try snapshot.documents.compactMap({ try $0.data(as: Post.self) })
         
         for i in 0 ..< posts.count {
@@ -23,6 +29,7 @@ struct PostService {
         
         return posts
     }
+
     
     static func fetchUserPosts(user: User) async throws -> [Post] {
         let snapshot = try await COLLECTION_POSTS.whereField("ownerUid", isEqualTo: user.id).getDocuments()

@@ -10,13 +10,19 @@ import Firebase
 
 class FeedViewModel: ObservableObject {
     @Published var posts = [Post]()
+    private var lastDocument: DocumentSnapshot?
     
     init() {
         Task { try await fetchPosts() }
     }
     
     @MainActor
-    func fetchPosts() async throws {
-        self.posts = try await PostService.fetchPost()
-    }
-}
+       func fetchPosts() async throws {
+           let posts = try await PostService.fetchPosts(startingAfter: lastDocument)
+           self.posts.append(contentsOf: posts)
+       }
+       
+       func fetchMorePosts() async throws {
+           try await fetchPosts()
+       }
+   }

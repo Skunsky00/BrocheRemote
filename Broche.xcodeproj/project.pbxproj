@@ -97,6 +97,8 @@
 		4EC081582A34D93900B86052 /* ConversationsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC081572A34D93900B86052 /* ConversationsViewModel.swift */; };
 		4EC0815A2A34D95700B86052 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC081592A34D95700B86052 /* ChatViewModel.swift */; };
 		4EC0815C2A34DE2A00B86052 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC0815B2A34DE2A00B86052 /* SearchBar.swift */; };
+		4EC10E012A45291000DA12EF /* VideoThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC10E002A45291000DA12EF /* VideoThumbnail.swift */; };
+		4EC10E032A45424B00DA12EF /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC10E022A45424B00DA12EF /* VideoPlayerView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -186,6 +188,8 @@
 		4EC081572A34D93900B86052 /* ConversationsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationsViewModel.swift; sourceTree = "<group>"; };
 		4EC081592A34D95700B86052 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
 		4EC0815B2A34DE2A00B86052 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
+		4EC10E002A45291000DA12EF /* VideoThumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoThumbnail.swift; sourceTree = "<group>"; };
+		4EC10E022A45424B00DA12EF /* VideoPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -253,6 +257,7 @@
 				4E97702C2A1C6E2C00919F88 /* ImageUploader.swift */,
 				4EC081282A2962F800B86052 /* VideoUploader.swift */,
 				4EA3A74E2A40BCDD005C548D /* NotificationService.swift */,
+				4EC10E002A45291000DA12EF /* VideoThumbnail.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -487,6 +492,7 @@
 				4E85EBBF2A16AC440074A346 /* FeedView.swift */,
 				4E85EBC12A16AC6A0074A346 /* FeedCell.swift */,
 				4E2F6BEB2A38C02000BA0A89 /* OptionsView.swift */,
+				4EC10E022A45424B00DA12EF /* VideoPlayerView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -791,6 +797,7 @@
 				4EA3A7492A40BC5A005C548D /* NotificationsViewModel.swift in Sources */,
 				4EC0813B2A32B4A000B86052 /* LocationSearchView.swift in Sources */,
 				4EC0815A2A34D95700B86052 /* ChatViewModel.swift in Sources */,
+				4EC10E012A45291000DA12EF /* VideoThumbnail.swift in Sources */,
 				4E9770492A256EB500919F88 /* MapViewActionButton.swift in Sources */,
 				4E85EBBE2A16A2A00074A346 /* UserStatView.swift in Sources */,
 				4EA3A74B2A40BC7B005C548D /* NotificationCellViewModel.swift in Sources */,
@@ -813,6 +820,7 @@
 				4EC0812B2A2CEE2600B86052 /* MapViewForUserPins.swift in Sources */,
 				4E9770472A256E7900919F88 /* LocationManager.swift in Sources */,
 				4EC081292A2962F800B86052 /* VideoUploader.swift in Sources */,
+				4EC10E032A45424B00DA12EF /* VideoPlayerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
