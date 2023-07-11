@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import LinkPresentation
 import Kingfisher
 import AVKit
 
@@ -15,7 +16,8 @@ struct FeedCell: View {
     @State private var selectedOptionsOption: OptionsItemModel?
     @State private var showDetail = false
     @State private var showDeleteConfirmation = false
-    @StateObject private var playerManager = AVPlayerManager()
+    @State private var isCaptionExpanded = false
+    //@StateObject private var playerManager = AVPlayerManager()
     @Environment(\.colorScheme) var colorScheme
     
     
@@ -68,7 +70,7 @@ struct FeedCell: View {
                     .contentShape(Rectangle())
             }
             else if let videoUrl = viewModel.post.videoUrl {
-                VideoPlayerView(url: videoUrl, playerManager: playerManager)
+                VideoPlayer(player: AVPlayer(url: URL(string: videoUrl)!))
                                     .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.1)
                         }
             

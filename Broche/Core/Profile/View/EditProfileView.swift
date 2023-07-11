@@ -80,12 +80,24 @@ struct EditProfileView: View {
                 EditProfileRowView(title: "Name", placeholder: "Enter your name..", text: $viewModel.fullname)
                 
                 EditProfileRowView(title: "Bio", placeholder: "Enter your bio..", text: $viewModel.bio)
-            }
-            
-            Spacer()
-        }
-    }
-}
+                
+                EditProfileRowView(title: "Link", placeholder: "Add a link here...", text: $viewModel.link)
+               
+             if !viewModel.link.isEmpty {
+                                   Button(action: {
+                                       viewModel.link = "" // Clear the link
+                                   }) {
+                                       Text("Clear Link")
+                                           .font(.subheadline)
+                                           .foregroundColor(.red)
+                                   }
+                               }
+                           }
+
+                           Spacer()
+                       }
+                   }
+               }
 
 struct EditProfileRowView: View {
     let title: String

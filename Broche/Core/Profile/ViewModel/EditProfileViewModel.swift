@@ -19,6 +19,7 @@ class EditProfileViewModel: ObservableObject {
     
     @Published  var fullname = ""
     @Published  var bio = ""
+    @Published  var link = ""
     
     private var uiImage: UIImage?
     
@@ -31,6 +32,10 @@ class EditProfileViewModel: ObservableObject {
         
         if let bio = user.bio {
             self.bio = bio
+        }
+        
+        if let link = user.link {
+            self.link = link
         }
     }
     
@@ -61,6 +66,11 @@ class EditProfileViewModel: ObservableObject {
         //update bio if chnaged
         if !bio.isEmpty && user.bio != bio {
             data["bio"] = bio
+        }
+        
+        //update link if changed
+        if !link.isEmpty && user.link != link {
+            data["link"] = link
         }
         
         if !data.isEmpty {

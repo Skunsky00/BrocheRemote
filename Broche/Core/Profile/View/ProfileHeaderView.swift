@@ -47,6 +47,18 @@ struct ProfileHeaderView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.horizontal)
+            
+            VStack {
+                if let link = viewModel.user.link {
+                    Text(link)
+                        .font(.footnote)
+                        .overlay(
+                            TextLinkView(text: viewModel.user.link!, linkColor: .cyan)
+                                )
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 2)
         
         }
         .navigationDestination(for: SearchViewModelConfig.self) { config in
