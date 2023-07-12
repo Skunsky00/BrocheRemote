@@ -60,9 +60,9 @@ struct UploadPostView: View {
 //                if let image = viewModel.postImage {
 //                    image
             if let videoUrl = viewModel.selectedVideoUrl {
-                VideoPlayer(player: AVPlayer(url: videoUrl))
-                    .frame(width: 200, height: 200)
-            }
+                VideoPlayerView(videoURL: videoUrl)
+                      .frame(width: 200, height: 200)
+              }
             
             /*else if let videoUrl = viewModel.videoUrl {
                     VideoPlayer(url: videoUrl)
@@ -71,9 +71,12 @@ struct UploadPostView: View {
          //   }
             
             VStack(spacing: 8) {
+                Spacer()
+                
                 TextField("Enter your caption...", text: $caption, axis: .vertical)
                 TextField("Enter the location", text: $location, axis: .vertical)
                 TextField("Label", text: $label)
+                Spacer()
             }
             .padding(.horizontal, 8)
             

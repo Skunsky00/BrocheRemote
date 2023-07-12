@@ -369,7 +369,6 @@
 			isa = PBXGroup;
 			children = (
 				4E9770342A1D28ED00919F88 /* View */,
-				4EC10E022A45424B00DA12EF /* VideoPlayerView.swift */,
 				4E9770332A1D28E400919F88 /* ViewModel */,
 			);
 			path = UploadPost;
@@ -477,6 +476,7 @@
 			isa = PBXGroup;
 			children = (
 				4E85EBDD2A17D9C70074A346 /* UploadPostView.swift */,
+				4EC10E022A45424B00DA12EF /* VideoPlayerView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -950,6 +950,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Broche/Broche.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Broche/Preview Content\"";
@@ -983,6 +984,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Broche/Broche.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Broche/Preview Content\"";

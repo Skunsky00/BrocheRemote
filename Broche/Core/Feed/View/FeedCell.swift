@@ -70,9 +70,8 @@ struct FeedCell: View {
                     .contentShape(Rectangle())
             }
             else if let videoUrl = viewModel.post.videoUrl {
-                VideoPlayer(player: AVPlayer(url: URL(string: videoUrl)!))
-                                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.1)
-                        }
+                VideoPlayerView(videoURL: URL(string: videoUrl)!)
+                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.3)}
             
             //action buttons
             HStack(spacing: 16) {
