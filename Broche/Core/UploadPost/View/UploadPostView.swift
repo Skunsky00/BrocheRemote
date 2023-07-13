@@ -17,6 +17,7 @@ struct UploadPostView: View {
     @State private var selectedVideo: URL?
     @StateObject var viewModel = UploadPostViewModel()
     @Binding var tabIndex: Int
+    @State private var isUploading = false
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
@@ -41,11 +42,14 @@ struct UploadPostView: View {
                 Button {
                     Task {
                         do {
+                            isUploading = true
                             try await viewModel.uploadPost(caption: caption, location: location, label: label)
                             clearPostDataAndReturnToFeed()
+                            isUploading = false
                         } catch {
                             print("Error uploading post: \(error)")
                             // Handle the error (e.g., show an alert)
+                            isUploading = false
                         }
                     }
                 } label: {
@@ -86,6 +90,15 @@ struct UploadPostView: View {
             imagePickerPresented.toggle()
         }
         .photosPicker(isPresented: $imagePickerPresented, selection: $viewModel.selectedItem, matching: .any(of: [.videos, .not(.images)]))
+        .overlay {
+                    if isUploading {
+                        ProgressView("Uploading...")
+                            .padding()
+                            .background(Color.black.opacity(0.5))
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    }
+                }
     }
     
     func clearPostDataAndReturnToFeed() {
