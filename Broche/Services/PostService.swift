@@ -10,25 +10,27 @@ import Foundation
 
 
 struct PostService {
-    static func fetchPosts(startingAfter document: DocumentSnapshot?) async throws -> [Post] {
-        var query = COLLECTION_POSTS.order(by: "timestamp", descending: true)
-        
-        if let document = document {
-            query = query.start(afterDocument: document)
+    static func fetchPosts(startingAfter document: DocumentSnapshot?) async throws -> ([Post], DocumentSnapshot?) {
+            var query = COLLECTION_POSTS.order(by: "timestamp", descending: true)
+            
+            if let document = document {
+                query = query.start(afterDocument: document)
+            }
+            
+            let snapshot = try await query.limit(to: 20).getDocuments()
+            var posts = try snapshot.documents.compactMap({ try $0.data(as: Post.self) })
+            
+            for i in 0..<posts.count {
+                let post = posts[i]
+                let ownerUid = post.ownerUid
+                let postUser = try await UserService.fetchUser(withUid: ownerUid)
+                posts[i].user = postUser
+            }
+            
+            let lastDocument = snapshot.documents.last // Get the last document snapshot
+            
+            return (posts, lastDocument)
         }
-        
-        let snapshot = try await query.limit(to: 20).getDocuments()
-        var posts = try snapshot.documents.compactMap({ try $0.data(as: Post.self) })
-        
-        for i in 0 ..< posts.count {
-            let post = posts[i]
-            let ownerUid = post.ownerUid
-            let postUser = try await UserService.fetchUser(withUid: ownerUid)
-            posts[i].user = postUser
-        }
-        
-        return posts
-    }
 
     
     static func fetchUserPosts(user: User) async throws -> [Post] {

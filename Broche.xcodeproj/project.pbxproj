@@ -231,9 +231,9 @@
 			children = (
 				4E85EBB02A1698180074A346 /* App */,
 				4E85EBAF2A1698160074A346 /* Core */,
-				4E85EBAD2A16980C0074A346 /* Extensions */,
 				4E85EBAC2A1698050074A346 /* Model */,
 				4E85EBAB2A1698020074A346 /* Services */,
+				4E85EBAD2A16980C0074A346 /* Extensions */,
 				4EC0810C2A26B60900B86052 /* Utils */,
 				4E85EBE12A17E4D20074A346 /* GoogleService-Info.plist */,
 				4E85EBA12A16972F0074A346 /* Assets.xcassets */,
@@ -369,7 +369,6 @@
 			isa = PBXGroup;
 			children = (
 				4E9770342A1D28ED00919F88 /* View */,
-				4E9770332A1D28E400919F88 /* ViewModel */,
 			);
 			path = UploadPost;
 			sourceTree = "<group>";
@@ -477,6 +476,7 @@
 			children = (
 				4E85EBDD2A17D9C70074A346 /* UploadPostView.swift */,
 				4EC10E022A45424B00DA12EF /* VideoPlayerView.swift */,
+				4E9770332A1D28E400919F88 /* ViewModel */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -952,7 +952,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Broche/Broche.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"Broche/Preview Content\"";
 				DEVELOPMENT_TEAM = 5K8U9AH5WN;
 				ENABLE_PREVIEWS = YES;
@@ -970,7 +970,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.brochetravel.broche;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -986,7 +986,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Broche/Broche.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"Broche/Preview Content\"";
 				DEVELOPMENT_TEAM = 5K8U9AH5WN;
 				ENABLE_PREVIEWS = YES;
@@ -1004,7 +1004,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.brochetravel.broche;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
