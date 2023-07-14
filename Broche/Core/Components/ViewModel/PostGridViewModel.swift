@@ -28,7 +28,7 @@ class PostGridViewModel: ObservableObject {
     func fetchPosts(forConfig config: PostGridConfiguration) {
         switch config {
         case .explore:
-            fetchExplorePagePosts()
+            Task { await fetchExplorePagePosts() }
         case .profile(let user):
             Task { try await fetchUserPosts(forUser: user) }
         case .likedPosts(let user):
@@ -37,25 +37,31 @@ class PostGridViewModel: ObservableObject {
             Task { try await fetchBookmarkedPosts(forUser: user) }
         }
     }
-    
-    func fetchExplorePagePosts() {
+    @MainActor
+    func fetchExplorePagePosts() async {
         let query = COLLECTION_POSTS.limit(to: 20).order(by: "timestamp", descending: true)
-        
-        if let last = lastDoc {
-            let next = query.start(afterDocument: last)
-            next.getDocuments { snapshot, _ in
-                guard let documents = snapshot?.documents, !documents.isEmpty else { return }
-                self.lastDoc = snapshot?.documents.last
-                self.posts.append(contentsOf: documents.compactMap({ try? $0.data(as: Post.self) }))
+
+        do {
+            if let last = lastDoc {
+                let next = query.start(afterDocument: last)
+                let snapshot = try await next.getDocuments()
+                if !snapshot.documents.isEmpty {
+                    self.lastDoc = snapshot.documents.last
+                    self.posts.append(contentsOf: snapshot.documents.compactMap({ try? $0.data(as: Post.self) }))
+                }
+            } else {
+                let snapshot = try await query.getDocuments()
+                if !snapshot.documents.isEmpty {
+                    self.posts = snapshot.documents.compactMap({ try? $0.data(as: Post.self) })
+                    self.lastDoc = snapshot.documents.last
+                }
             }
-        } else {
-            query.getDocuments { snapshot, _ in
-                guard let documents = snapshot?.documents else { return }
-                self.posts = documents.compactMap({ try? $0.data(as: Post.self) })
-                self.lastDoc = snapshot?.documents.last
-            }
+        } catch {
+            print("Error fetching explore page posts: \(error)")
         }
     }
+
+
     
     
     @MainActor
@@ -74,6 +80,14 @@ class PostGridViewModel: ObservableObject {
         self.posts = posts
             
         }
+    
+    func filteredPosts(_ query: String) -> [Post] {
+        let lowercasedQuery = query.lowercased()
+        return posts.filter({
+            $0.location.lowercased().contains(lowercasedQuery) ||
+            $0.label.contains(lowercasedQuery)
+        })
+    }
 }
 //    @MainActor
 //    func fetchUserPosts(forUser user: User) async throws {

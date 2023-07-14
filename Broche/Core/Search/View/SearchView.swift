@@ -8,17 +8,35 @@
 import SwiftUI
 
 struct SearchView: View {
-    @State var searchText = ""
-    @State var inSearchMode = false
+    @State private var selectedFilter: SearchFilterSelector = .posts
     
     var body: some View {
         NavigationStack {
-            UserListView(config: .search)
-                .navigationTitle("Explore")
-                .navigationBarTitleDisplayMode(.inline)
-                .navigationDestination(for: User.self) { user in
-                    ProfileView(user: user)
+            ScrollView {
+                SearchFilterView(selectedFilter: $selectedFilter)
+                
+                searchView
+//                    .padding(.top, -0)
+            }
+            .navigationTitle("Explore")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(for: User.self) { user in
+                                ProfileView(user: user)
+                            }
+        }
+    }
+    
+    
+    var searchView: some View {
+        ScrollView {
+            LazyVStack {
+                switch self.selectedFilter {
+                case .posts:
+                    PostGridView(config: .explore)
+                case .accounts:
+                    UserListView(config: .search)
                 }
+            }
         }
     }
 }

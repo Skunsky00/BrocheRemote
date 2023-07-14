@@ -64,6 +64,8 @@
 		4EA3A74B2A40BC7B005C548D /* NotificationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA3A74A2A40BC7B005C548D /* NotificationCellViewModel.swift */; };
 		4EA3A74D2A40BCA8005C548D /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA3A74C2A40BCA8005C548D /* Notification.swift */; };
 		4EA3A74F2A40BCDD005C548D /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA3A74E2A40BCDD005C548D /* NotificationService.swift */; };
+		4EB997BC2A60C37F003537FD /* SearchFilterSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB997BB2A60C37F003537FD /* SearchFilterSelector.swift */; };
+		4EB997BE2A60C50C003537FD /* SearchFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB997BD2A60C50C003537FD /* SearchFilterView.swift */; };
 		4EC081092A2588F700B86052 /* ProfileFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC081082A2588F700B86052 /* ProfileFilterView.swift */; };
 		4EC0810B2A25897100B86052 /* ProfileFilterSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC0810A2A25897100B86052 /* ProfileFilterSelector.swift */; };
 		4EC0810E2A26B62200B86052 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC0810D2A26B62200B86052 /* Constants.swift */; };
@@ -156,6 +158,8 @@
 		4EA3A74A2A40BC7B005C548D /* NotificationCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCellViewModel.swift; sourceTree = "<group>"; };
 		4EA3A74C2A40BCA8005C548D /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		4EA3A74E2A40BCDD005C548D /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		4EB997BB2A60C37F003537FD /* SearchFilterSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchFilterSelector.swift; sourceTree = "<group>"; };
+		4EB997BD2A60C50C003537FD /* SearchFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchFilterView.swift; sourceTree = "<group>"; };
 		4EC081082A2588F700B86052 /* ProfileFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFilterView.swift; sourceTree = "<group>"; };
 		4EC0810A2A25897100B86052 /* ProfileFilterSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFilterSelector.swift; sourceTree = "<group>"; };
 		4EC0810D2A26B62200B86052 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -425,7 +429,7 @@
 			isa = PBXGroup;
 			children = (
 				4E85EBC32A16CF730074A346 /* SearchView.swift */,
-				4EC0815B2A34DE2A00B86052 /* SearchBar.swift */,
+				4EB997BD2A60C50C003537FD /* SearchFilterView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -434,6 +438,7 @@
 			isa = PBXGroup;
 			children = (
 				4E9770242A1C4EAD00919F88 /* SearchViewModel.swift */,
+				4EB997BB2A60C37F003537FD /* SearchFilterSelector.swift */,
 			);
 			path = "View Model";
 			sourceTree = "<group>";
@@ -517,6 +522,7 @@
 				4E9770312A1D210E00919F88 /* CircularProfileImageView.swift */,
 				4EC0813E2A34CF5900B86052 /* UserListView.swift */,
 				4EC081422A34D01500B86052 /* UserCell.swift */,
+				4EC0815B2A34DE2A00B86052 /* SearchBar.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -794,6 +800,7 @@
 				4E97701D2A19197200919F88 /* RegistrationViewModel.swift in Sources */,
 				4E85EBE02A17DE040074A346 /* UploadPostViewModel.swift in Sources */,
 				4EC081212A27A9D000B86052 /* CommentViewModel.swift in Sources */,
+				4EB997BC2A60C37F003537FD /* SearchFilterSelector.swift in Sources */,
 				4E85EBD22A16E2D40074A346 /* CompleteSignUpView.swift in Sources */,
 				4EC081162A279ADC00B86052 /* Color.swift in Sources */,
 				4E85EBD42A16EA330074A346 /* User.swift in Sources */,
@@ -803,6 +810,7 @@
 				4EC0815A2A34D95700B86052 /* ChatViewModel.swift in Sources */,
 				4EC10E012A45291000DA12EF /* VideoThumbnail.swift in Sources */,
 				4E9770492A256EB500919F88 /* MapViewActionButton.swift in Sources */,
+				4EB997BE2A60C50C003537FD /* SearchFilterView.swift in Sources */,
 				4E85EBBE2A16A2A00074A346 /* UserStatView.swift in Sources */,
 				4EA3A74B2A40BC7B005C548D /* NotificationCellViewModel.swift in Sources */,
 				4E85EBDE2A17D9C70074A346 /* UploadPostView.swift in Sources */,
