@@ -69,6 +69,11 @@ class ChatViewModel: ObservableObject {
 
         receivingUserRef.document(messageID).setData(recipientData)
         receivingRecentRef.document(currentUid).setData(recipientData)
+        
+        Task {
+                // Notify the user of a new message
+                await NotificationsViewModel.uploadNotification(toUid: uid, type: .message)
+            }
     }
 }
 

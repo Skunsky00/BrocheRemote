@@ -66,6 +66,8 @@
 		4EA3A74F2A40BCDD005C548D /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA3A74E2A40BCDD005C548D /* NotificationService.swift */; };
 		4EB997BC2A60C37F003537FD /* SearchFilterSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB997BB2A60C37F003537FD /* SearchFilterSelector.swift */; };
 		4EB997BE2A60C50C003537FD /* SearchFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB997BD2A60C50C003537FD /* SearchFilterView.swift */; };
+		4EB997C12A63007B003537FD /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 4EB997C02A63007B003537FD /* FirebaseMessaging */; };
+		4EB997C52A65C954003537FD /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 4EB997C42A65C954003537FD /* FirebaseAnalytics */; };
 		4EC081092A2588F700B86052 /* ProfileFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC081082A2588F700B86052 /* ProfileFilterView.swift */; };
 		4EC0810B2A25897100B86052 /* ProfileFilterSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC0810A2A25897100B86052 /* ProfileFilterSelector.swift */; };
 		4EC0810E2A26B62200B86052 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC0810D2A26B62200B86052 /* Constants.swift */; };
@@ -160,6 +162,8 @@
 		4EA3A74E2A40BCDD005C548D /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		4EB997BB2A60C37F003537FD /* SearchFilterSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchFilterSelector.swift; sourceTree = "<group>"; };
 		4EB997BD2A60C50C003537FD /* SearchFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchFilterView.swift; sourceTree = "<group>"; };
+		4EB997C22A65BB51003537FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		4EB997C32A65BEE1003537FD /* Broche.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Broche.entitlements; sourceTree = "<group>"; };
 		4EC081082A2588F700B86052 /* ProfileFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFilterView.swift; sourceTree = "<group>"; };
 		4EC0810A2A25897100B86052 /* ProfileFilterSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFilterSelector.swift; sourceTree = "<group>"; };
 		4EC0810D2A26B62200B86052 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -203,6 +207,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4EB997C52A65C954003537FD /* FirebaseAnalytics in Frameworks */,
+				4EB997C12A63007B003537FD /* FirebaseMessaging in Frameworks */,
 				4E85EBE52A17E5900074A346 /* FirebaseAuth in Frameworks */,
 				4E85EBEB2A17E5900074A346 /* FirebaseStorage in Frameworks */,
 				4E85EBE72A17E5900074A346 /* FirebaseFirestore in Frameworks */,
@@ -219,6 +225,7 @@
 			children = (
 				4E85EB9C2A16972C0074A346 /* Broche */,
 				4E85EB9B2A16972C0074A346 /* Products */,
+				4EB997BF2A63007B003537FD /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -233,6 +240,8 @@
 		4E85EB9C2A16972C0074A346 /* Broche */ = {
 			isa = PBXGroup;
 			children = (
+				4EB997C22A65BB51003537FD /* Info.plist */,
+				4EB997C32A65BEE1003537FD /* Broche.entitlements */,
 				4E85EBB02A1698180074A346 /* App */,
 				4E85EBAF2A1698160074A346 /* Core */,
 				4E85EBAC2A1698050074A346 /* Model */,
@@ -589,6 +598,13 @@
 			path = "New Group/View";
 			sourceTree = "<group>";
 		};
+		4EB997BF2A63007B003537FD /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		4EC0810C2A26B60900B86052 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -686,6 +702,8 @@
 				4E85EBE82A17E5900074A346 /* FirebaseFirestoreSwift */,
 				4E85EBEA2A17E5900074A346 /* FirebaseStorage */,
 				4E97702F2A1D209400919F88 /* Kingfisher */,
+				4EB997C02A63007B003537FD /* FirebaseMessaging */,
+				4EB997C42A65C954003537FD /* FirebaseAnalytics */,
 			);
 			productName = Broche;
 			productReference = 4E85EB9A2A16972C0074A346 /* Broche.app */;
@@ -960,11 +978,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Broche/Broche.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Broche/Preview Content\"";
 				DEVELOPMENT_TEAM = 5K8U9AH5WN;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Broche/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Broche;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Please allow us to access your location to display the best Broches";
@@ -978,7 +997,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4;
+				MARKETING_VERSION = 1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.brochetravel.broche;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -994,11 +1013,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Broche/Broche.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Broche/Preview Content\"";
 				DEVELOPMENT_TEAM = 5K8U9AH5WN;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Broche/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Broche;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Please allow us to access your location to display the best Broches";
@@ -1012,7 +1032,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4;
+				MARKETING_VERSION = 1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.brochetravel.broche;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1088,6 +1108,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4E97702E2A1D209400919F88 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		4EB997C02A63007B003537FD /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4E85EBE32A17E5900074A346 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		4EB997C42A65C954003537FD /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4E85EBE32A17E5900074A346 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

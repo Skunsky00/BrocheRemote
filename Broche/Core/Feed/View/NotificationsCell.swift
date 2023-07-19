@@ -11,46 +11,67 @@ import Kingfisher
 struct NotificationCell: View {
     @ObservedObject var viewModel: NotificationCellViewModel
     @Binding var notification: Notification
-    
+
     var isFollowed: Bool {
         return notification.isFollowed ?? false
     }
-    
+
     init(notification: Binding<Notification>) {
         self.viewModel = NotificationCellViewModel(notification: notification.wrappedValue)
         self._notification = notification
     }
-    
+
     var body: some View {
         HStack {
             if let user = notification.user {
-                NavigationLink(destination: ProfileView(user: user)) {
-                    CircularProfileImageView(user: user, size: .xSmall)
+                        NavigationLink(destination: ProfileView(user: user)) {
+                            CircularProfileImageView(user: user, size: .xSmall)
+                            
+                            VStack(alignment: .leading) {
+                                Text(user.username)
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .lineLimit(1)
+                                
+                                if notification.type == .comment {
+                                    Text("commented on one of your posts.")
+                                        .font(.system(size: 14))
+                                } else if notification.type == .message {
+                                    Text("sent you a new message.")
+                                        .font(.system(size: 14))
+                                } else {
+                                    Text(notification.type.notificationMessage)
+                                        .font(.system(size: 14))
+                                }
+                            }
+                            .multilineTextAlignment(.leading)
                     
-                    HStack {
-                        Text(user.username)
-                            .font(.system(size: 14, weight: .semibold)) +
-                        
-                            Text(notification.type.notificationMessage)
-                            .font(.system(size: 14)) +
-                        
+                            
+                            Spacer() // Add a spacer to push the timestamp to the right edge of the cell
+                            
                             Text(" \(viewModel.timestampString)")
-                            .foregroundColor(.gray).font(.system(size: 12))
+                                .foregroundColor(.gray)
+                                .font(.system(size: 12))
+                        }
                     }
-                    .multilineTextAlignment(.leading)
-                }
-            }
-            
+
+
             Spacer()
-            
+
             if notification.type != .follow {
                 if let post = notification.post {
                     NavigationLink(destination: FeedCell(viewModel: FeedCellViewModel(post: post))) {
-                        KFImage(URL(string: post.imageUrl!))
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 40, height: 40)
-                            .clipped()
+                        if let imageUrl = post.imageUrl {
+                            KFImage(URL(string: imageUrl))
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 40, height: 40)
+                                .clipped()
+                        } else if let videoUrlString = post.videoUrl, let videoUrl = URL(string: videoUrlString) {
+                            VideoThumbnail(url: videoUrl)
+                                .scaledToFill()
+                                .frame(width: 40, height: 40)
+                                .clipped()
+                        }
                     }
                 }
             } else {
@@ -70,9 +91,9 @@ struct NotificationCell: View {
                         )
                 })
             }
-            
         }
         .padding(.horizontal)
     }
 }
+
 

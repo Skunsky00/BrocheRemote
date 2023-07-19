@@ -41,8 +41,6 @@ struct CurrentUserProfileView: View {
                         ScrollView {
                             PostGridView(config: .profile(user))
                         }
-                    case .notification:
-                        NotificationsView()
                     default:
                         Text(option.title)
                     }
@@ -53,23 +51,31 @@ struct CurrentUserProfileView: View {
                     .presentationDetents([.height(CGFloat(SettingsItemModel.allCases.count * 56))])
             }
             .toolbar(content: {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        selectedSettingsOption = nil
-                        showSettingsSheet.toggle()
-                    } label: {
-                        Image(systemName: "line.3.horizontal")
-                            .foregroundColor(colorScheme == .dark ? .white : .black)
-                    }
-                }
-            })
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            NavigationLink {
+                                NotificationsView()
+                            } label: {
+                                Image(systemName: "bell")
+                            }
+                        }
+                        
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button {
+                                selectedSettingsOption = nil
+                                showSettingsSheet.toggle()
+                            } label: {
+                                Image(systemName: "line.3.horizontal")
+                                    .foregroundColor(colorScheme == .dark ? .white : .black)
+                            }
+                        }
+                    })
             .onChange(of: selectedSettingsOption) { newValue in
                 guard let option = newValue else { return }
                 
                 switch option {
                 case .logout:
                     AuthService.shared.signout()
-                case .yourPost, .notification, .settings:
+                case .yourPost, .settings:
                     showDetail = true
                 }
             }

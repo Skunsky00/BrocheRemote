@@ -24,12 +24,14 @@ enum NotificationType: Int, Decodable {
     case like
     case comment
     case follow
+    case message // New case for message
     
     var notificationMessage: String {
         switch self {
-        case .like: return " liked one of your posts."
-        case .comment: return " commented on one of your posts."
-        case .follow: return " started following you."
+        case .like: return "liked one of your posts."
+        case .comment: return "commented on one of your posts."
+        case .follow: return "started following you."
+        case .message: return "sent you a new message." // Message-specific notification
         }
     }
 }
