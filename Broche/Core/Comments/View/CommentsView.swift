@@ -32,11 +32,17 @@ struct CommentsView: View {
     }
     
     func uploadComment() {
-        Task {
-            await viewModel.uploadComment(commentText: commentText)
-            commentText = ""
+            // Check if the commentText is empty before uploading the comment
+            guard !commentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                return
+            }
+
+            Task {
+                await viewModel.uploadComment(commentText: commentText)
+                commentText = ""
+            }
         }
-    }
+    
 }
 
 

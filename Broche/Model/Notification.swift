@@ -15,6 +15,7 @@ struct Notification: Identifiable, Decodable {
     let type: NotificationType
     let uid: String
     
+    var isViewed: Bool = false
     var isFollowed: Bool? = false
     var post: Post?
     var user: User?

@@ -11,6 +11,7 @@ import Firebase
 @MainActor
 class NotificationsViewModel: ObservableObject {
     @Published var notifications = [Notification]()
+    @Published var hasNewNotifications = false
     
     init() {
         Task { try await updateNotifications() }
@@ -35,6 +36,38 @@ class NotificationsViewModel: ObservableObject {
                 group.addTask { try await self.updateNotificationMetadata(notification: notification) }
             }
         })
+        checkForNewNotifications()
+        
+        print("DEBUG: hasNewNotifications after update: \(hasNewNotifications)")
+    }
+    
+    private func checkForNewNotifications() {
+        // Filter the notifications to get only the unviewed ones
+        let unviewedNotifications = notifications.filter { !$0.isViewed }
+
+        // Check if there are any new, unviewed notifications
+        hasNewNotifications = !unviewedNotifications.isEmpty
+
+        print("DEBUG: hasNewNotifications after checkForNewNotifications: \(hasNewNotifications)")
+    }
+    
+    func markNotificationAsViewed(notification: Notification) {
+        guard let notificationID = notification.id, let uid = Auth.auth().currentUser?.uid else {
+            print("Error: Invalid notification ID or user ID.")
+            return
+        }
+        
+        COLLECTION_NOTIFICATIONS
+            .document(uid) // Accessing the current user's notifications
+            .collection("user-notifications")
+            .document(notificationID)
+            .updateData(["isViewed": true]) { error in
+                if let error = error {
+                    print("Error updating notification: \(error)")
+                } else {
+                    print("Notification marked as viewed successfully.")
+                }
+            }
     }
     
     static func deleteNotification(toUid uid: String, type: NotificationType, postId: String? = nil) {
@@ -61,7 +94,8 @@ class NotificationsViewModel: ObservableObject {
         
         var data: [String: Any] = ["timestamp": Timestamp(date: Date()),
                                    "uid": currentUid,
-                                   "type": type.rawValue]
+                                   "type": type.rawValue,
+                                   "isViewed": false]
         
         if let post = post, let id = post.id {
             data["postId"] = id

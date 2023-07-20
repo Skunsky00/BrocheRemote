@@ -10,6 +10,7 @@ import SwiftUI
 struct CurrentUserProfileView: View {
     let user: User
     @StateObject var viewModel: ProfileViewModel
+    @StateObject var notiViewModel: NotificationsViewModel
     @State private var showSettingsSheet = false
     @State private var selectedSettingsOption: SettingsItemModel?
     @State private var showDetail = false
@@ -20,6 +21,7 @@ struct CurrentUserProfileView: View {
     init(user: User) {
         self.user = user
         self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
+        self._notiViewModel = StateObject(wrappedValue: NotificationsViewModel())
     }
     
     var body: some View {
@@ -51,13 +53,19 @@ struct CurrentUserProfileView: View {
                     .presentationDetents([.height(CGFloat(SettingsItemModel.allCases.count * 56))])
             }
             .toolbar(content: {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            NavigationLink {
-                                NotificationsView()
-                            } label: {
-                                Image(systemName: "bell")
-                            }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink {
+                        NotificationsView(viewModel: notiViewModel) // Pass the ViewModel to NotificationsView
+                    } label: {
+                        if notiViewModel.hasNewNotifications {
+                            Image(systemName: "bell.badge")
+                                .foregroundColor(.red)
+                                // Bell icon with a red dot
+                        } else {
+                            Image(systemName: "bell") // Normal bell icon
                         }
+                    }
+                }
                         
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button {
@@ -69,6 +77,10 @@ struct CurrentUserProfileView: View {
                             }
                         }
                     })
+            .onChange(of: notiViewModel.hasNewNotifications) { newValue in
+                        // Print statement to check hasNewNotifications in the CurrentUserProfileView
+                        print("DEBUG: CurrentUserProfileView - hasNewNotifications: \(newValue)")
+                    }
             .onChange(of: selectedSettingsOption) { newValue in
                 guard let option = newValue else { return }
                 
