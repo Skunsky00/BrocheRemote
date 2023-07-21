@@ -38,8 +38,11 @@ struct MapView: View {
             }
             
             if mapState == .locationSelected {
-                LocationBookMarkView(viewModel: locationViewModel, coordinator: MapViewRepresentable.MapCoordinator(parent: MapViewRepresentable(mapState: $mapState, user: user), user: user))
-                    .transition(.move(edge: .bottom))
+                if let mapCoordinator = locationViewModel.mapCoordinator {
+                                LocationBookMarkView(viewModel: locationViewModel, coordinator: mapCoordinator)
+                                    .environmentObject(locationViewModel)
+                                    .transition(.move(edge: .bottom))
+                            }
             }
         }
     }

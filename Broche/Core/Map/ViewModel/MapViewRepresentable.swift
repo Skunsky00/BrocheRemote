@@ -11,7 +11,7 @@ import MapKit
 struct MapViewRepresentable: UIViewRepresentable {
     
     let mapView = MKMapView()
-    //@EnvironmentObject var locationManager: LocationManager
+//    @EnvironmentObject var locationManager: LocationManager
     let locationManager = LocationManager()
     @Binding var mapState: MapViewState
     @EnvironmentObject var locationViewModel: LocationSearchViewModel
@@ -62,8 +62,9 @@ struct MapViewRepresentable: UIViewRepresentable {
     }
     
     func makeCoordinator() -> MapCoordinator {
-        let coordinator = MapCoordinator(parent: self, user: user)
+        let coordinator = MapCoordinator(parent: self, user: user, locationViewModel: locationViewModel)
         coordinator.mapView = mapView // Pass the mapView reference to the coordinator
+        locationViewModel.mapCoordinator = coordinator
         return coordinator
     }
 }
@@ -80,13 +81,15 @@ extension MapViewRepresentable {
                 var selectedAnnotation: MKPointAnnotation?
                 @Published var user: User
                 weak var mapView: MKMapView?
+                var locationViewModel: LocationSearchViewModel
                 
         
         // MARK: - Lifecycle
         
-        init(parent: MapViewRepresentable, user: User) {
+        init(parent: MapViewRepresentable, user: User, locationViewModel: LocationSearchViewModel) {
                 self.parent = parent
                 self.user = user
+                self.locationViewModel = locationViewModel
                 super.init()
             }
         
@@ -139,6 +142,7 @@ extension MapViewRepresentable {
             mapView.addAnnotations(annotations)
         }
         
+        @MainActor
         func fetchSaveLocations(forUser user: User) async throws {
             do {
                 self.locations = try await UserService.fetchSavedLocations(forUserID: user.id)

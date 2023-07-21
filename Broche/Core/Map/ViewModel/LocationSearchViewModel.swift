@@ -44,6 +44,9 @@ class LocationSearchViewModel: NSObject, ObservableObject {
             let coordinate = item.placemark.coordinate
             self.selectedLocationCoordinate = coordinate
             print("DEBUG: Location coordinates \(coordinate)")
+            self.mapCoordinator?.selectedAnnotation = nil // Clear the previous selection
+            self.mapCoordinator?.addAndSelectAnnotation(withCoordinate: coordinate)
+            Task { try await self.mapCoordinator?.checkIfSaved(coordinate: coordinate) }
         }
     }
     

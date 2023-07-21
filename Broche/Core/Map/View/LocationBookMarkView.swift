@@ -62,9 +62,9 @@ struct LocationBookMarkView: View {
                             .fontWeight(.semibold)
                     }
                     .frame(width: UIScreen.main.bounds.width - 32, height: 30)
-                    .background(.red)
+                    .background( didSaveLocation ? .white : .red)
                     .cornerRadius(8)
-                    .foregroundColor(.white)
+                    .foregroundColor(didSaveLocation ? .red : .white)
                 }
 
                 
@@ -93,6 +93,6 @@ struct LocationBookMarkView: View {
 
 //struct LocationBookMarkView_Previews: PreviewProvider {
 //    static var previews: some View {
-//        LocationBookMarkView()
+//        LocationBookMarkView(viewModel: LocationSearchViewModel, coordinator: <#MapViewRepresentable.MapCoordinator#>)
 //    }
 //}
