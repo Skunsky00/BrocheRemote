@@ -17,6 +17,7 @@ struct FeedCell: View {
     @State private var showDetail = false
     @State private var showDeleteConfirmation = false
     @State private var isCaptionExpanded = false
+    @State private var showCommentsSheet = false
     //@StateObject private var playerManager = AVPlayerManager()
     @Environment(\.colorScheme) var colorScheme
     
@@ -98,7 +99,9 @@ struct FeedCell: View {
                 
                 Spacer()
                 
-                NavigationLink(destination: CommentsView(post: viewModel.post)) {
+                Button {
+                    showCommentsSheet.toggle()
+                } label: {
                     Image(systemName: "bubble.left")
                         .imageScale(.large)
                         .accentColor(colorScheme == .dark ? .white : .black)
@@ -166,6 +169,11 @@ struct FeedCell: View {
             
             
         }
+        .sheet(isPresented: $showCommentsSheet, content: {
+            CommentsView(post: viewModel.post)
+                .presentationDetents([.fraction(0.8), .large])
+                .presentationDragIndicator(.visible)
+        })
         .navigationDestination(isPresented: $showDetail, destination: {
                    Text(selectedOptionsOption?.title ?? "")
                })

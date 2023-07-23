@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MapViewForUserPins: View {
     @State private var mapState = MapViewState.noInput
+    @StateObject private var locationViewModel = LocationSearchViewModel()
     var user: User
     
     var body: some View {
@@ -16,6 +17,7 @@ struct MapViewForUserPins: View {
             
             
             MapViewRepresentable(mapState: $mapState, user: user)
+                .environmentObject(locationViewModel)
             Rectangle()
                 .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.1)
                 .foregroundColor(.clear)
