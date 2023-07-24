@@ -33,8 +33,8 @@ struct PostGridView: View {
     var body: some View {
         VStack {
             SearchBar(text: $searchText, isEditing: $isEditing)
-                            .padding(.horizontal)
-                            .padding(.bottom, 16)
+                .padding(.horizontal)
+                .padding(.bottom, 16)
             ScrollView {
                 LazyVGrid(columns: gridItems, spacing: 1) {
                     ForEach(posts) { post in
@@ -53,13 +53,21 @@ struct PostGridView: View {
                                         .clipped()
                                 }
                                 
-                                Text(post.location)
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.leading, 8)
-                                    .padding(.top, 140)
-                                    .foregroundColor(.white)
+                                VStack {
+                                    Text(post.location)
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    
+                                        .foregroundColor(.white)
+                                    
+                                    Text(post.label!)
+                                        .font(.footnote)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .foregroundColor(.white)
+                                }
+                                .padding(.leading, 8)
+                                .padding(.top, 140)
                             }
                         }
                         .onAppear {

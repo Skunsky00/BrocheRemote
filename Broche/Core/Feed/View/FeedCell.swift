@@ -137,7 +137,7 @@ struct FeedCell: View {
                 Spacer()
                 
                 // filter name
-                Text(viewModel.post.label)
+                Text(viewModel.post.label!)
                     .font(.footnote)
                     .fontWeight(.semibold)
                     .lineLimit(1)

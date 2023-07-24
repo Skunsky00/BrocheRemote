@@ -85,7 +85,7 @@ class PostGridViewModel: ObservableObject {
         let lowercasedQuery = query.lowercased()
         return posts.filter({
             $0.location.lowercased().contains(lowercasedQuery) ||
-            $0.label.contains(lowercasedQuery)
+            ($0.label?.lowercased().contains(lowercasedQuery) ?? false)
         })
     }
 }

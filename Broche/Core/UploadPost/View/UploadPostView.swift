@@ -22,6 +22,7 @@ struct UploadPostView: View {
     @StateObject var locationSearchViewModel = UploadPostSearchViewModel()
     @State private var isShowingLocationSearch = false
     @State private var selectedLocation: MKLocalSearchCompletion?
+    @State private var showAlert = false
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
@@ -46,15 +47,20 @@ struct UploadPostView: View {
                     
                     Button {
                         Task {
-                            do {
-                                isUploading = true
-                                try await viewModel.uploadPost(caption: caption, location: location, label: label)
-                                clearPostDataAndReturnToFeed()
-                                isUploading = false
-                            } catch {
-                                print("Error uploading post: \(error)")
-                                // Handle the error (e.g., show an alert)
-                                isUploading = false
+                            if location.isEmpty || label.isEmpty {
+                                // Show an alert if either location or label is empty
+                                showAlert = true
+                            } else {
+                                do {
+                                    isUploading = true
+                                    try await viewModel.uploadPost(caption: caption, location: location, label: label)
+                                    clearPostDataAndReturnToFeed()
+                                    isUploading = false
+                                } catch {
+                                    print("Error uploading post: \(error)")
+                                    // Handle the error (e.g., show an alert)
+                                    isUploading = false
+                                }
                             }
                         }
                     } label: {
@@ -104,6 +110,13 @@ struct UploadPostView: View {
                 .padding(.horizontal, 8)
                 
                 Spacer()
+            }
+            .alert(isPresented: $showAlert) {
+                Alert(
+                    title: Text("Validation Error"),
+                    message: Text("Please fill in both the location and label fields."),
+                    dismissButton: .default(Text("OK"))
+                )
             }
             .onAppear {
                 imagePickerPresented.toggle()
