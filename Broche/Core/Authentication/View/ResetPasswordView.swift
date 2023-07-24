@@ -21,7 +21,7 @@ struct ResetPasswordView: View {
     var color = #colorLiteral(red: 0.1698683487, green: 0.3265062064, blue: 0.74163749, alpha: 1)
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [Color.cyan, Color.teal, Color.green]), startPoint: .top, endPoint: .bottom)
+            LinearGradient(gradient: Gradient(colors: [Color(red: 1.0, green: 0.4, blue: 0.0), Color(red: 1.0, green: 0.6, blue: 0.1), Color(red: 1.0, green: 0.7, blue: 0.3), Color(red: 0.8, green: 0.3, blue: 0.7)]), startPoint: .bottom, endPoint: .top)
                 .ignoresSafeArea()
             VStack {
                 
