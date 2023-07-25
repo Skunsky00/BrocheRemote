@@ -131,4 +131,73 @@ extension UserService {
     }
 }
 
+extension UserService {
+    
+    static func fetchFutureSavedLocations(forUserID uid: String) async throws -> [Location] {
+            let collectionRef = COLLECTION_FUTURE_LOCATIONS.document(uid).collection("user-locations")
+            let querySnapshot = try await collectionRef.getDocuments()
+            let locations = querySnapshot.documents.compactMap { document -> Location? in
+                if let location = try? document.data(as: Location.self) {
+                    return location
+                } else {
+                    print("Error: Failed to decode future visit location document with ID: \(document.documentID)")
+                    return nil
+                }
+            }
+            return locations
+        }
+    
+    static func saveFutureLocation(uid: String, coordinate: Location) async throws {
+        let collectionRef = COLLECTION_FUTURE_LOCATIONS.document(uid).collection("user-locations")
+        let querySnapshot = try await collectionRef.getDocuments()
+        
+        for document in querySnapshot.documents {
+            if let location = try? document.data(as: Location.self),
+               location.latitude == coordinate.latitude && location.longitude == coordinate.longitude {
+                print("Future location already saved!")
+                return
+            }
+        }
+        
+        let documentRef = collectionRef.document()
+        let locationData = try Firestore.Encoder().encode(coordinate)
+        try await documentRef.setData(locationData)
+        print("Future location saved successfully!")
+    }
+
+    static func unSaveFutureLocation(uid: String, coordinate: Location) async throws {
+        let collectionRef = COLLECTION_FUTURE_LOCATIONS.document(uid).collection("user-locations")
+        let querySnapshot = try await collectionRef.getDocuments()
+        
+        for document in querySnapshot.documents {
+            if let location = try? document.data(as: Location.self),
+               location.latitude == coordinate.latitude && location.longitude == coordinate.longitude {
+                try await document.reference.delete()
+                print("Future location unsaved successfully!")
+                return
+            }
+        }
+        
+        print("Error: Failed to find and unsave the future location.")
+    }
+
+    static func checkIfUserSavedFutureLocation(uid: String, coordinate: Location) async throws -> Bool {
+        let collectionRef = COLLECTION_FUTURE_LOCATIONS.document(uid).collection("user-locations")
+        let querySnapshot = try await collectionRef.getDocuments()
+        
+        for document in querySnapshot.documents {
+            if let location = try? document.data(as: Location.self) {
+                let latDiff = abs(location.latitude - coordinate.latitude)
+                let lonDiff = abs(location.longitude - coordinate.longitude)
+                if latDiff < 0.0001 && lonDiff < 0.0001 { // Adjust the threshold as needed
+                    print("Future location found: \(location)")
+                    return true
+                }
+            }
+        }
+        
+        print("Future location not found!")
+        return false
+    }
+}
 

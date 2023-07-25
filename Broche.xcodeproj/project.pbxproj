@@ -38,6 +38,7 @@
 		4E85EBEB2A17E5900074A346 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 4E85EBEA2A17E5900074A346 /* FirebaseStorage */; };
 		4E85EBEF2A17E78C0074A346 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E85EBEE2A17E78C0074A346 /* AuthService.swift */; };
 		4E85EBF42A17E9270074A346 /* ContentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E85EBF32A17E9270074A346 /* ContentViewModel.swift */; };
+		4E8D3E922A704B31000907A5 /* CustomAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E8D3E912A704B31000907A5 /* CustomAnnotation.swift */; };
 		4E97701D2A19197200919F88 /* RegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E97701C2A19197200919F88 /* RegistrationViewModel.swift */; };
 		4E97701F2A1C38B100919F88 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E97701E2A1C38B100919F88 /* LoginViewModel.swift */; };
 		4E9770212A1C4DBD00919F88 /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E9770202A1C4DBD00919F88 /* UserService.swift */; };
@@ -137,6 +138,7 @@
 		4E85EBE12A17E4D20074A346 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		4E85EBEE2A17E78C0074A346 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		4E85EBF32A17E9270074A346 /* ContentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewModel.swift; sourceTree = "<group>"; };
+		4E8D3E912A704B31000907A5 /* CustomAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAnnotation.swift; sourceTree = "<group>"; };
 		4E97701C2A19197200919F88 /* RegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewModel.swift; sourceTree = "<group>"; };
 		4E97701E2A1C38B100919F88 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		4E9770202A1C4DBD00919F88 /* UserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
@@ -558,6 +560,7 @@
 				4E9770462A256E7900919F88 /* LocationManager.swift */,
 				4E9770522A25703400919F88 /* MapViewState.swift */,
 				4E9770542A2570D400919F88 /* LocationSearchViewModel.swift */,
+				4E8D3E912A704B31000907A5 /* CustomAnnotation.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -817,6 +820,7 @@
 				4E97703E2A1D725700919F88 /* PostGridViewModel.swift in Sources */,
 				4E97701F2A1C38B100919F88 /* LoginViewModel.swift in Sources */,
 				4E97702D2A1C6E2C00919F88 /* ImageUploader.swift in Sources */,
+				4E8D3E922A704B31000907A5 /* CustomAnnotation.swift in Sources */,
 				4E9770452A256E4E00919F88 /* MapViewRepresentable.swift in Sources */,
 				4EC0811D2A27A94000B86052 /* CommentsView.swift in Sources */,
 				4EC081102A26C4DD00B86052 /* ProfileViewModel.swift in Sources */,

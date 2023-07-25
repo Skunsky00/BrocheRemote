@@ -20,6 +20,7 @@ struct User: Identifiable, Codable {
     var location: Location?
     var isFollowed: Bool? = false
     var didSaveLocation: Bool? = false
+    var didSaveFutureLocation: Bool? = false
     
     var isCurrentUser: Bool {
         guard let currentUid = Auth.auth().currentUser?.uid else { return false }

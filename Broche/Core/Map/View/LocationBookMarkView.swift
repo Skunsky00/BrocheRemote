@@ -11,6 +11,7 @@ struct LocationBookMarkView: View {
     @ObservedObject var viewModel: LocationSearchViewModel
     @ObservedObject var coordinator: MapViewRepresentable.MapCoordinator
     var didSaveLocation: Bool { return coordinator.user.didSaveLocation ?? false }
+    var didSaveFutureLocation: Bool { return coordinator.user.didSaveFutureLocation ?? false }
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
@@ -68,22 +69,27 @@ struct LocationBookMarkView: View {
                 }
 
                 
-                
-                HStack{
-                    Image(systemName: "airplane.departure")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 20, height: 20)
-                    
-                    Text("Future Visits")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
+                Button {
+                    if let coordinate = viewModel.selectedLocationCoordinate {
+                        Task { didSaveFutureLocation ? try await coordinator.unsaveFuture(coordinate: coordinate) : try await coordinator.saveFuture(coordinate: coordinate) }
+                    }
+                    } label: {
+                        HStack{
+                            Image(systemName: "airplane.departure")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 20, height: 20)
+                            
+                            Text("Future Visits")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                        }
+                        .frame(width: UIScreen.main.bounds.width - 32, height: 30)
+                        .background( didSaveFutureLocation ? .white : .blue)
+                        .cornerRadius(8)
+                        .foregroundColor( didSaveFutureLocation ? .blue : .white)
+                    }
                 }
-                .frame(width: UIScreen.main.bounds.width - 32, height: 30)
-                .background(.blue)
-                .cornerRadius(8)
-                .foregroundColor(.white)
-            }
             .padding(.bottom)
         }
         .background(colorScheme == .dark ? Color.black : Color.white)
