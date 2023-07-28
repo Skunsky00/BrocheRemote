@@ -36,14 +36,15 @@ struct FeedCell: View {
                         .foregroundColor(.gray)
                         .frame(width: 55, height: 55)
                     
-                    Button(action: {
-                        print("open location page")
-                    }, label: {
-                        Image(systemName: "mappin.circle")
-                            .imageScale(.large)
-                            .foregroundColor(.black)
-                    })
-                }
+                    NavigationLink(
+                                            destination: MapViewForLocation(location: viewModel.post.location),
+                                            label: {
+                                                Image(systemName: "mappin.circle")
+                                                    .imageScale(.large)
+                                                    .foregroundColor(.black)
+                                            }
+                                        )
+                                    }
                 Text(viewModel.post.location)
                     .font(.footnote)
                 

@@ -38,6 +38,7 @@ struct VideoPlayerController: UIViewControllerRepresentable {
         controller.updatesNowPlayingInfoCenter = false
         controller.player?.allowsExternalPlayback = false
         controller.videoGravity = .resizeAspectFill
+        controller.view.contentMode = .scaleAspectFill
         return controller
     }
 
