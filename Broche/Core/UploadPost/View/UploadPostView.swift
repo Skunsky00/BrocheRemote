@@ -75,7 +75,7 @@ struct UploadPostView: View {
                 //                if let image = viewModel.postImage {
                 //                    image
                 if let videoUrl = viewModel.selectedVideoUrl {
-                    VideoPlayerView(videoURL: videoUrl)
+                    VideoPlayerForUploadView(videoURL: videoUrl)
                         .frame(width: 200, height: 200)
                 }
                 
