@@ -98,17 +98,60 @@ extension MapViewRepresentable {
         
         // MARK: - MKMapViewDelegate
         
-//        func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
-//            let region = MKCoordinateRegion(
-//                center: CLLocationCoordinate2D(latitude: userLocation.coordinate.latitude, longitude: userLocation.coordinate.longitude),
-//                span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-//            )
-//
-//            self.currentRegion = region
-//
-//            parent.mapView.setRegion(region, animated: true)
-//        }
+        func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        guard !(annotation is MKUserLocation) else {
+            // Return nil to use the default blue dot for user location
+            return nil
+        }
+
+        // Check the type of the annotation and create a custom view accordingly
+        if let visitedAnnotation = annotation as? VisitedLocationAnnotation {
+            return createVisitedAnnotationView(for: visitedAnnotation, in: mapView)
+        } else if let futureVisitAnnotation = annotation as? FutureVisitAnnotation {
+            return createFutureVisitAnnotationView(for: futureVisitAnnotation, in: mapView)
+        } else {
+            // If it's not one of the custom annotation types, return nil for the default annotation view
+            return nil
+        }
+    }
         
+        private func createVisitedAnnotationView(for annotation: VisitedLocationAnnotation, in mapView: MKMapView) -> MKAnnotationView {
+            let identifier = "VisitedAnnotationIdentifier"
+            var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView
+
+            if annotationView == nil {
+                annotationView = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+                annotationView?.canShowCallout = true
+            } else {
+                annotationView?.annotation = annotation
+            }
+
+            // Customize the marker color to red
+            annotationView?.markerTintColor = .red
+            // Remove the glyph image for visited annotations
+            annotationView?.glyphImage = nil
+
+            return annotationView!
+        }
+
+        private func createFutureVisitAnnotationView(for annotation: FutureVisitAnnotation, in mapView: MKMapView) -> MKAnnotationView {
+            let identifier = "FutureVisitAnnotationIdentifier"
+            var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView
+
+            if annotationView == nil {
+                annotationView = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+                annotationView?.canShowCallout = true
+            } else {
+                annotationView?.annotation = annotation
+            }
+
+            // Customize the marker color to blue
+            annotationView?.markerTintColor = .blue
+            // Customize the marker image for future visit annotations
+            annotationView?.glyphImage = UIImage(systemName: "airplane.departure")?.withTintColor(.blue)
+
+            return annotationView!
+        }
         // MARK: - Helpers
         
         func addAndSelectAnnotation(withCoordinate coordinate: CLLocationCoordinate2D) {
