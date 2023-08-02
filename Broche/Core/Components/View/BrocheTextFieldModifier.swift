@@ -12,7 +12,7 @@ struct BrocheTextFieldModifier: ViewModifier {
         content
         .font(.subheadline)
         .padding(12)
-        .background(Color(.init(white: 1, alpha: 0.15)))
+        .background(Color(.init(white: 1, alpha: 0.1)))
         .cornerRadius(10)
         .padding(.horizontal, 24)
     }

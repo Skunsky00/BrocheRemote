@@ -41,11 +41,11 @@ struct FeedCell: View {
                 VideoPlayerView(videoURL: URL(string: videoUrl)!)
                                     .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 16/9)
                             }
+            
             VStack(alignment: .leading) {
                 
                 //user profile and username and location
                 HStack {
-                    
                     
                     NavigationLink(
                         destination: MapViewForLocation(location: viewModel.post.location),
@@ -54,14 +54,11 @@ struct FeedCell: View {
                                 .imageScale(.large)
                                 .foregroundColor(.black)
                                 .background(.thinMaterial)
-                       
-                    
+                                .frame(width: 20, height: 20)
+                                
                     Text(viewModel.post.location)
                         .font(.footnote)
-                    
-                }
-                )
-                    
+                })
                     
                     Spacer()
                     
@@ -70,7 +67,6 @@ struct FeedCell: View {
                             CircularProfileImageView(user: user, size: .xSmall)
                         }
                     }
-                    
                 }
                 .padding(.horizontal,12 )
                 .padding(.top, 5)
@@ -83,9 +79,9 @@ struct FeedCell: View {
                         print("like post")
                         Task { didLike ? try await viewModel.unlike() : try await viewModel.like() }
                     } label: {
-                        Image(systemName: didLike ? "heart.fill" : "heart")
+                        Image(systemName: "heart.fill")
                             .imageScale(.large)
-                            .foregroundColor(didLike ? .red : colorScheme == .dark ? .white : .black)
+                            .foregroundColor(didLike ? .red :  .white )
                     }
                     
                     Spacer()
@@ -94,10 +90,10 @@ struct FeedCell: View {
                         print("save post")
                         Task {  didBookmark ? try await viewModel.unbookmark() : try await viewModel.bookmark() }
                     } label: {
-                        Image(systemName: didBookmark ? "bookmark.fill" : "bookmark")
+                        Image(systemName: "bookmark.fill")
                             .imageScale(.large)
-                            .accentColor(colorScheme == .dark ? .white : .black)
-                            .foregroundColor(colorScheme == .dark ? .white : .black)
+                            .accentColor(.white )
+                            .foregroundColor(didBookmark ? .cyan : .white)
                     }
                     
                     Spacer()
@@ -105,10 +101,10 @@ struct FeedCell: View {
                     Button {
                         showCommentsSheet.toggle()
                     } label: {
-                        Image(systemName: "bubble.left")
+                        Image(systemName: "bubble.left.fill")
                             .imageScale(.large)
-                            .accentColor(colorScheme == .dark ? .white : .black)
-                            .foregroundColor(colorScheme == .dark ? .white : .black)
+                            .accentColor(.white)
+                            .foregroundColor(.white)
                     }
                     
                     Spacer()
@@ -119,12 +115,13 @@ struct FeedCell: View {
                     } label: {
                         Image(systemName: "ellipsis")
                             .imageScale(.large)
-                            .accentColor(colorScheme == .dark ? .white : .black)
-                            .foregroundColor(colorScheme == .dark ? .white : .black)
+                            .frame(width: 30, height: 30)
+                            .accentColor(.white)
+                            .foregroundColor(.white)
                     }
                 }
                 .padding(.horizontal, 10)
-                .padding(.top, 3)
+          //      .padding(.top, 3)
                 .foregroundColor(.black)
                 
                 //likes and comments lable
@@ -218,8 +215,8 @@ struct FeedCell: View {
 
     
 
-//struct FeedCell_Previews: PreviewProvider {
-//    static var previews: some View {
-//        FeedCell(viewModel: FeedCellViewModel(post: Post.MOCK_POSTS[4]))
-//    }
-//}
+struct FeedCell_Previews: PreviewProvider {
+    static var previews: some View {
+        FeedCell(viewModel: FeedCellViewModel(post: Post.MOCK_POSTS[1]))
+    }
+}

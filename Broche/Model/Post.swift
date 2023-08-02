@@ -49,8 +49,8 @@ extension Post {
         caption: "Im batman, ill steal your girl anytome of the night",
         location: "Gothom,  IL",
         likes: 130,
-        imageUrl: "example",
-        videoUrl: "example",
+        imageUrl: nil,
+        videoUrl: "example2",
         label: "Air BnB",
         timestamp: Timestamp(),
         user: User.MOCK_USERS[1]

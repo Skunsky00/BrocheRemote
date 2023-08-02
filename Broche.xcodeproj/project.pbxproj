@@ -350,6 +350,7 @@
 			isa = PBXGroup;
 			children = (
 				4E9770362A1D3D6D00919F88 /* View */,
+				4EC10E022A45424B00DA12EF /* VideoPlayerView.swift */,
 				4E9770352A1D3D6600919F88 /* ViewModel */,
 			);
 			path = Feed;
@@ -504,7 +505,6 @@
 			children = (
 				4E85EBDD2A17D9C70074A346 /* UploadPostView.swift */,
 				4EB997C62A683790003537FD /* UploadPostLocationSearchView.swift */,
-				4EC10E022A45424B00DA12EF /* VideoPlayerView.swift */,
 				4E8D3E992A782570000907A5 /* VideoPlayerForUploadView.swift */,
 			);
 			path = View;

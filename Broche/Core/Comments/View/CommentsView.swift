@@ -17,6 +17,13 @@ struct CommentsView: View {
     
     var body: some View {
         VStack {
+            Text("Comments")
+                .font(.subheadline)
+                .fontWeight(.bold)
+                .padding(.top, 10)
+                .padding(.bottom, -20)
+        
+            
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 24) {
                     ForEach(viewModel.comments) { comment in
