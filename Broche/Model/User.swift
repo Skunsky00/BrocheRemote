@@ -48,6 +48,8 @@ struct UserStats: Codable {
 struct Location: Codable {
     let latitude: Double
     let longitude: Double
+    var date: String?
+    var description: String?
 }
 
 extension User {

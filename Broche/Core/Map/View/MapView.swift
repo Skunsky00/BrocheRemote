@@ -10,12 +10,13 @@ import SwiftUI
 struct MapView: View {
     @State private var mapState = MapViewState.noInput
     @StateObject private var locationViewModel = LocationSearchViewModel()
+    @State private var showFutureMarkerSheet = false
     
     var user: User
     var body: some View {
         ZStack(alignment: .bottom) {
             ZStack(alignment: .top) {
-                MapViewRepresentable(mapState: $mapState, user: user)
+                MapViewRepresentable(mapState: $mapState, user: user, showFutureMarkerSheet: $showFutureMarkerSheet)
                     .environmentObject(locationViewModel)
                     .ignoresSafeArea(.all, edges: .top)
                 
@@ -45,6 +46,11 @@ struct MapView: View {
                             }
             }
         }
+        .sheet(isPresented: $showFutureMarkerSheet) {
+                    FutureMarkerSheet(viewModel: FutureMarkerSheetViewmodel(user: user))
+                .presentationDetents([.fraction(0.8), .large])
+                .presentationDragIndicator(.visible)
+                }
     }
 }
 

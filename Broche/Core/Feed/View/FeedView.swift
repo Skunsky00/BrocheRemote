@@ -9,6 +9,8 @@ import SwiftUI
 
 struct FeedView: View {
     @StateObject var viewModel = FeedViewModel()
+   // @State private var currentVisiblePost: Post?
+    
     var body: some View {
         NavigationStack {
             ScrollViewReader { scrollView in
@@ -26,38 +28,39 @@ struct FeedView: View {
                                         }
                                     }
                                 }
+                                .padding(.top, 8)
                         }
                     }
-                    .padding(.top, 8)
-                }
-                .navigationTitle("Feed")
-                .navigationBarTitleDisplayMode(.inline)
-                .refreshable {
-                                    Task {
-                                        // Clear existing posts before fetching new ones
-                                        viewModel.posts.removeAll()
-                                        try await viewModel.fetchPosts()
-                                    }
-                                }
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Text("Broche")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .frame(width: 100, height: 32)
+                    
+                    .navigationTitle("Feed")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .refreshable {
+                        Task {
+                            // Clear existing posts before fetching new ones
+                            viewModel.posts.removeAll()
+                            try await viewModel.fetchPosts()
+                        }
                     }
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        NavigationLink(
-                            destination: ConversationsView(),
-                            label: {
-                                Image(systemName: "paperplane")
-                                    .imageScale(.large)
-                                    .scaledToFit()
-                            })
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Text("Broche")
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .frame(width: 100, height: 32)
+                        }
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            NavigationLink(
+                                destination: ConversationsView(),
+                                label: {
+                                    Image(systemName: "paperplane")
+                                        .imageScale(.large)
+                                        .scaledToFit()
+                                })
+                        }
                     }
-                }
-                .navigationDestination(for: User.self) { user in
-                    ProfileView(user: user)
+                    .navigationDestination(for: User.self) { user in
+                        ProfileView(user: user)
+                    }
                 }
             }
         }

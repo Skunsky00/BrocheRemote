@@ -10,13 +10,14 @@ import SwiftUI
 struct MapViewForUserPins: View {
     @State private var mapState = MapViewState.noInput
     @StateObject private var locationViewModel = LocationSearchViewModel()
+    @State private var showFutureMarkerSheet = false
     var user: User
     
     var body: some View {
         ZStack {
             
             
-            MapViewRepresentable(mapState: $mapState, user: user)
+            MapViewRepresentable(mapState: $mapState, user: user, showFutureMarkerSheet: $showFutureMarkerSheet)
                 .environmentObject(locationViewModel)
             Rectangle()
                 .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.1)

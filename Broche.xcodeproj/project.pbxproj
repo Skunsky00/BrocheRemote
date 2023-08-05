@@ -42,6 +42,11 @@
 		4E8D3E962A73094A000907A5 /* MapViewForLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E8D3E952A73094A000907A5 /* MapViewForLocation.swift */; };
 		4E8D3E982A730CB6000907A5 /* MapViewForLocationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E8D3E972A730CB6000907A5 /* MapViewForLocationViewModel.swift */; };
 		4E8D3E9A2A782570000907A5 /* VideoPlayerForUploadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E8D3E992A782570000907A5 /* VideoPlayerForUploadView.swift */; };
+		4E8D3E9C2A7C8C2A000907A5 /* CustomScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E8D3E9B2A7C8C2A000907A5 /* CustomScrollView.swift */; };
+		4E8D3E9E2A7D7043000907A5 /* FutureMarkerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E8D3E9D2A7D7043000907A5 /* FutureMarkerSheet.swift */; };
+		4E8D3EA02A7D7E80000907A5 /* FutureMarkerSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E8D3E9F2A7D7E80000907A5 /* FutureMarkerSheetViewModel.swift */; };
+		4E8D3EA22A7D8854000907A5 /* EditFutureMarkerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E8D3EA12A7D8854000907A5 /* EditFutureMarkerView.swift */; };
+		4E8D3EA42A7D88E8000907A5 /* EditFutureMarkerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E8D3EA32A7D88E8000907A5 /* EditFutureMarkerViewModel.swift */; };
 		4E97701D2A19197200919F88 /* RegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E97701C2A19197200919F88 /* RegistrationViewModel.swift */; };
 		4E97701F2A1C38B100919F88 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E97701E2A1C38B100919F88 /* LoginViewModel.swift */; };
 		4E9770212A1C4DBD00919F88 /* UserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E9770202A1C4DBD00919F88 /* UserService.swift */; };
@@ -145,6 +150,11 @@
 		4E8D3E952A73094A000907A5 /* MapViewForLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewForLocation.swift; sourceTree = "<group>"; };
 		4E8D3E972A730CB6000907A5 /* MapViewForLocationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewForLocationViewModel.swift; sourceTree = "<group>"; };
 		4E8D3E992A782570000907A5 /* VideoPlayerForUploadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerForUploadView.swift; sourceTree = "<group>"; };
+		4E8D3E9B2A7C8C2A000907A5 /* CustomScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomScrollView.swift; sourceTree = "<group>"; };
+		4E8D3E9D2A7D7043000907A5 /* FutureMarkerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FutureMarkerSheet.swift; sourceTree = "<group>"; };
+		4E8D3E9F2A7D7E80000907A5 /* FutureMarkerSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FutureMarkerSheetViewModel.swift; sourceTree = "<group>"; };
+		4E8D3EA12A7D8854000907A5 /* EditFutureMarkerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditFutureMarkerView.swift; sourceTree = "<group>"; };
+		4E8D3EA32A7D88E8000907A5 /* EditFutureMarkerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditFutureMarkerViewModel.swift; sourceTree = "<group>"; };
 		4E97701C2A19197200919F88 /* RegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewModel.swift; sourceTree = "<group>"; };
 		4E97701E2A1C38B100919F88 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		4E9770202A1C4DBD00919F88 /* UserService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserService.swift; sourceTree = "<group>"; };
@@ -350,7 +360,6 @@
 			isa = PBXGroup;
 			children = (
 				4E9770362A1D3D6D00919F88 /* View */,
-				4EC10E022A45424B00DA12EF /* VideoPlayerView.swift */,
 				4E9770352A1D3D6600919F88 /* ViewModel */,
 			);
 			path = Feed;
@@ -526,7 +535,9 @@
 				4E85EBBF2A16AC440074A346 /* FeedView.swift */,
 				4E85EBC12A16AC6A0074A346 /* FeedCell.swift */,
 				4E2F6BEB2A38C02000BA0A89 /* OptionsView.swift */,
+				4EC10E022A45424B00DA12EF /* VideoPlayerView.swift */,
 				4E8D3E952A73094A000907A5 /* MapViewForLocation.swift */,
+				4E8D3E9B2A7C8C2A000907A5 /* CustomScrollView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -570,6 +581,8 @@
 				4E9770522A25703400919F88 /* MapViewState.swift */,
 				4E9770542A2570D400919F88 /* LocationSearchViewModel.swift */,
 				4E8D3E912A704B31000907A5 /* CustomAnnotation.swift */,
+				4E8D3E9F2A7D7E80000907A5 /* FutureMarkerSheetViewModel.swift */,
+				4E8D3EA32A7D88E8000907A5 /* EditFutureMarkerViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -584,6 +597,8 @@
 				4E97704E2A256FD300919F88 /* LocationSearchResultCell.swift */,
 				4E9770502A25701400919F88 /* LocationBookMarkView.swift */,
 				4EC0812A2A2CEE2600B86052 /* MapViewForUserPins.swift */,
+				4E8D3E9D2A7D7043000907A5 /* FutureMarkerSheet.swift */,
+				4E8D3EA12A7D8854000907A5 /* EditFutureMarkerView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -782,6 +797,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4E8D3E9C2A7C8C2A000907A5 /* CustomScrollView.swift in Sources */,
 				4EC0810B2A25897100B86052 /* ProfileFilterSelector.swift in Sources */,
 				4E97704F2A256FD300919F88 /* LocationSearchResultCell.swift in Sources */,
 				4E85EBC22A16AC6A0074A346 /* FeedCell.swift in Sources */,
@@ -800,12 +816,14 @@
 				4EC0812E2A2D86E200B86052 /* AuthenticationFormProtocol.swift in Sources */,
 				4EC0814E2A34D89200B86052 /* ChatView.swift in Sources */,
 				4EC081092A2588F700B86052 /* ProfileFilterView.swift in Sources */,
+				4E8D3E9E2A7D7043000907A5 /* FutureMarkerSheet.swift in Sources */,
 				4E97702B2A1C67A400919F88 /* EditProfileViewModel.swift in Sources */,
 				4E85EBD82A16F35C0074A346 /* Post.swift in Sources */,
 				4E9770432A256E0F00919F88 /* MapView.swift in Sources */,
 				4E8D3E9A2A782570000907A5 /* VideoPlayerForUploadView.swift in Sources */,
 				4E85EBEF2A17E78C0074A346 /* AuthService.swift in Sources */,
 				4E85EB9E2A16972C0074A346 /* BrocheApp.swift in Sources */,
+				4E8D3EA02A7D7E80000907A5 /* FutureMarkerSheetViewModel.swift in Sources */,
 				4E85EBD62A16F12D0074A346 /* CurrentUserProfileView.swift in Sources */,
 				4EC081252A27BB7800B86052 /* SettingsView.swift in Sources */,
 				4EC10E052A4CB36400DA12EF /* TextLinkView.swift in Sources */,
@@ -830,6 +848,7 @@
 				4E9770272A1C58D300919F88 /* EditProfileView.swift in Sources */,
 				4E97703E2A1D725700919F88 /* PostGridViewModel.swift in Sources */,
 				4E97701F2A1C38B100919F88 /* LoginViewModel.swift in Sources */,
+				4E8D3EA42A7D88E8000907A5 /* EditFutureMarkerViewModel.swift in Sources */,
 				4E97702D2A1C6E2C00919F88 /* ImageUploader.swift in Sources */,
 				4E8D3E922A704B31000907A5 /* CustomAnnotation.swift in Sources */,
 				4E9770452A256E4E00919F88 /* MapViewRepresentable.swift in Sources */,
@@ -838,6 +857,7 @@
 				4E9770552A2570D400919F88 /* LocationSearchViewModel.swift in Sources */,
 				4E97701D2A19197200919F88 /* RegistrationViewModel.swift in Sources */,
 				4E85EBE02A17DE040074A346 /* UploadPostViewModel.swift in Sources */,
+				4E8D3EA22A7D8854000907A5 /* EditFutureMarkerView.swift in Sources */,
 				4EC081212A27A9D000B86052 /* CommentViewModel.swift in Sources */,
 				4EB997BC2A60C37F003537FD /* SearchFilterSelector.swift in Sources */,
 				4E85EBD22A16E2D40074A346 /* CompleteSignUpView.swift in Sources */,

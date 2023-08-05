@@ -16,6 +16,7 @@ struct MapViewRepresentable: UIViewRepresentable {
     @Binding var mapState: MapViewState
     @EnvironmentObject var locationViewModel: LocationSearchViewModel
     var user: User
+    @Binding var showFutureMarkerSheet: Bool
     
     
     
@@ -85,6 +86,7 @@ extension MapViewRepresentable {
                 @Published var user: User
                 weak var mapView: MKMapView?
                 var locationViewModel: LocationSearchViewModel
+                var selectedFutureAnnotation: FutureVisitAnnotation?
                 
         
         // MARK: - Lifecycle
@@ -97,6 +99,13 @@ extension MapViewRepresentable {
             }
         
         // MARK: - MKMapViewDelegate
+        func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+                if let futureAnnotation = view.annotation as? FutureVisitAnnotation {
+                    // A future visit annotation was tapped, set the state variable to display the sheet
+                    selectedFutureAnnotation = futureAnnotation
+                    parent.showFutureMarkerSheet = true // Step 2
+                }
+            }
         
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         guard !(annotation is MKUserLocation) else {
