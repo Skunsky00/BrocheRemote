@@ -9,7 +9,7 @@ import SwiftUI
 
 struct FutureMarkerSheet: View {
     @ObservedObject var viewModel: FutureMarkerSheetViewmodel
-   
+    @State var showEditMarker = false
     
     var body: some View {
         
@@ -27,12 +27,24 @@ struct FutureMarkerSheet: View {
                 
                 Spacer()
                 
-                Button {
-                    print("edit marker sheet")
-                } label: {
-                    Image(systemName: "square.and.pencil")
-                        .imageScale(.large)
-                        .foregroundColor(.black)
+                if viewModel.user.isCurrentUser {
+                    Button {
+                        showEditMarker.toggle()
+                    } label: {
+                        Image(systemName: "square.and.pencil")
+                            .imageScale(.large)
+                            .foregroundColor(.black)
+                    }.fullScreenCover(isPresented: $showEditMarker) {
+                        EditFutureMarkerView(user: viewModel.user)
+                    }
+                } else {
+                    Button {
+                        print("like sheet")
+                    } label: {
+                        Image(systemName: "heart.fill")
+                            .imageScale(.large)
+                            .foregroundColor(.black)
+                    }
                 }
                 
             }
@@ -64,19 +76,29 @@ struct FutureMarkerSheet: View {
                 
                 // date
                 HStack() {
-                    Text("Date: Aug, 13, 2023")
-                        .font(.subheadline)
-                        .fontWeight(.regular)
-                        .foregroundColor(Color.gray)
+                    if let date = viewModel.user.location?.date {
+                        Text(date)
+                            .font(.subheadline)
+                            .fontWeight(.regular)
+                            .foregroundColor(Color.gray)
+                    } else {
+                        Text("No date added yet")
+                            .font(.subheadline)
+                            .fontWeight(.regular)
+                            .foregroundColor(Color.gray)
+                    }
+
                     
                     Spacer()
                 }
                 .padding(.leading)
                 
                 HStack {
-                    Text("This trip we plan to travel to anchorage alaska and then also go to homer to see otto from alask the last frontier")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .font(.body)
+                    if let description = viewModel.user.location?.description {
+                        Text(description)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .font(.body)
+                    }
                 }
                 .padding(.leading)
                 .padding(.vertical, 6)

@@ -58,7 +58,9 @@ struct MapViewRepresentable: UIViewRepresentable {
         case .locationSelected:
             if let coordinate = locationViewModel.selectedLocationCoordinate {
                 context.coordinator.addAndSelectAnnotation(withCoordinate: coordinate)
-                Task { try await context.coordinator.checkIfSaved(coordinate: coordinate) }
+                Task { try await context.coordinator.checkIfSaved(coordinate: coordinate)
+                    try await context.coordinator.checkIfSavedFuture(coordinate: coordinate)
+                }
             }
             break
         }
@@ -183,7 +185,7 @@ extension MapViewRepresentable {
             }
         }
         
-        func createAnnotationsForSavedLocations() {
+        private func createAnnotationsForSavedLocations() {
             guard let mapView = mapView else {
                 return
             }
@@ -192,15 +194,14 @@ extension MapViewRepresentable {
 
             // Create and add annotations for visited locations
             let visitedAnnotations = locations.map { location -> VisitedLocationAnnotation in
-                let annotation = VisitedLocationAnnotation(coordinate: CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude))
-                
+                let annotation = VisitedLocationAnnotation(coordinate: CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude), title: location.city)
                 return annotation
             }
             mapView.addAnnotations(visitedAnnotations)
 
             // Create and add annotations for future visits
             let futureVisitAnnotations = futureVisitLocations.map { location -> FutureVisitAnnotation in
-                let annotation = FutureVisitAnnotation(coordinate: CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude))
+                let annotation = FutureVisitAnnotation(coordinate: CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude), title: location.city)
                 return annotation
             }
             mapView.addAnnotations(futureVisitAnnotations)
@@ -229,7 +230,7 @@ extension MapViewRepresentable {
         
         @MainActor
         func save(coordinate: CLLocationCoordinate2D) async throws {
-            let location = Location(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            let location = Location(documentID: "", latitude: coordinate.latitude, longitude: coordinate.longitude)
             
             do {
                 try await UserService.saveLocation(uid: user.id, coordinate: location)
@@ -242,7 +243,7 @@ extension MapViewRepresentable {
         
         @MainActor
         func unSave(coordinate: CLLocationCoordinate2D) async throws {
-            let location = Location(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            let location = Location(documentID: "", latitude: coordinate.latitude, longitude: coordinate.longitude)
             
             do {
                 try await UserService.unSaveLocation(uid: user.id, coordinate: location)
@@ -255,27 +256,27 @@ extension MapViewRepresentable {
         
         @MainActor
         func checkIfSaved(coordinate: CLLocationCoordinate2D) async throws {
-            let location = Location(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            let location = Location(documentID: "", latitude: coordinate.latitude, longitude: coordinate.longitude)
             self.user.didSaveLocation = try await UserService.checkIfUserSavedLocation(uid: user.id, coordinate: location)
         }
         
         @MainActor
         func saveFuture(coordinate: CLLocationCoordinate2D) async throws {
-                let location = Location(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            let location = Location(documentID: "", latitude: coordinate.latitude, longitude: coordinate.longitude)
                 try await UserService.saveFutureLocation(uid: user.id, coordinate: location)
                 self.user.didSaveFutureLocation = true
             }
             
         @MainActor
             func unsaveFuture(coordinate: CLLocationCoordinate2D) async throws {
-                let location = Location(latitude: coordinate.latitude, longitude: coordinate.longitude)
+                let location = Location(documentID: "", latitude: coordinate.latitude, longitude: coordinate.longitude)
                 try await UserService.unSaveFutureLocation(uid: user.id, coordinate: location)
                 self.user.didSaveFutureLocation = false
             }
             
         @MainActor
             func checkIfSavedFuture(coordinate: CLLocationCoordinate2D) async throws {
-                let location = Location(latitude: coordinate.latitude, longitude: coordinate.longitude)
+                let location = Location(documentID: "", latitude: coordinate.latitude, longitude: coordinate.longitude)
                 self.user.didSaveFutureLocation = try await UserService.checkIfUserSavedFutureLocation(uid: user.id, coordinate: location)
             }
     }

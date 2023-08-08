@@ -14,6 +14,7 @@ class LocationSearchViewModel: NSObject, ObservableObject {
     
     @Published var results = [MKLocalSearchCompletion]()
     @Published var selectedLocationCoordinate: CLLocationCoordinate2D?
+    @Published var selectedLocationTitle: String? // Property to store the selected title
     var mapCoordinator: MapViewRepresentable.MapCoordinator?
     
     private let searchCompleter = MKLocalSearchCompleter()
@@ -33,7 +34,6 @@ class LocationSearchViewModel: NSObject, ObservableObject {
     
     // MARK: Helpers
     
-
     func selectLocation(_ localSearch: MKLocalSearchCompletion) {
         locationSearch(forLocalSearchCompletion: localSearch) { response, error in
             if let error = error {
@@ -42,8 +42,10 @@ class LocationSearchViewModel: NSObject, ObservableObject {
             }
             guard let item = response?.mapItems.first else { return }
             let coordinate = item.placemark.coordinate
+            let title = localSearch.title // Get the selected title
             self.selectedLocationCoordinate = coordinate
-            print("DEBUG: Location coordinates \(coordinate)")
+            self.selectedLocationTitle = title // Update the selected title
+            print("DEBUG: Location coordinates \(coordinate), Title: \(title)")
             self.mapCoordinator?.selectedAnnotation = nil // Clear the previous selection
             self.mapCoordinator?.addAndSelectAnnotation(withCoordinate: coordinate)
             Task { try await self.mapCoordinator?.checkIfSaved(coordinate: coordinate) }
@@ -67,3 +69,4 @@ extension LocationSearchViewModel: MKLocalSearchCompleterDelegate {
         self.results = completer.results
     }
 }
+

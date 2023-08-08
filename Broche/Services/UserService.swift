@@ -104,13 +104,6 @@ extension UserService {
         print("Error: Failed to find and unsave the location.")
     }
     
-//    static func checkIfUserSavedLocation(uid: String, coordinate: Location) async throws -> Bool {
-//        guard let currentUid = Auth.auth().currentUser?.uid else { return false }
-//        let collection = COLLECTION_LOCATION.document(currentUid).collection("user-locations")
-//        guard let snapshot = try? await collection.document(uid).getDocument() else { return false }
-//        return snapshot.exists
-//
-//    }
     static func checkIfUserSavedLocation(uid: String, coordinate: Location) async throws -> Bool {
         let collectionRef = COLLECTION_LOCATION.document(uid).collection("user-locations")
         let querySnapshot = try await collectionRef.getDocuments()

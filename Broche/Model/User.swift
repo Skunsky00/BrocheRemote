@@ -46,8 +46,10 @@ struct UserStats: Codable {
 }
 
 struct Location: Codable {
+    let documentID: String
     let latitude: Double
     let longitude: Double
+    var city: String?
     var date: String?
     var description: String?
 }

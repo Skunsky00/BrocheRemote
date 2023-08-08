@@ -26,6 +26,11 @@ struct MapViewForUserPins: View {
                 
             
         }
+        .sheet(isPresented: $showFutureMarkerSheet) {
+                    FutureMarkerSheet(viewModel: FutureMarkerSheetViewmodel(user: user))
+                .presentationDetents([.fraction(0.8), .large])
+                .presentationDragIndicator(.visible)
+                }
     }
 }
 

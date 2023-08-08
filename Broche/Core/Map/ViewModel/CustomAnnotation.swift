@@ -12,9 +12,9 @@ class VisitedLocationAnnotation: NSObject, MKAnnotation {
     var title: String?
     var subtitle: String?
 
-    init(coordinate: CLLocationCoordinate2D) {
+    init(coordinate: CLLocationCoordinate2D, title: String?) {
         self.coordinate = coordinate
-        self.title = "Visited"
+        self.title = title
         // You can set other properties like subtitle, image, etc. as needed.
     }
 }
@@ -25,9 +25,9 @@ class FutureVisitAnnotation: NSObject, MKAnnotation {
     var subtitle: String?
     var image: UIImage?
 
-    init(coordinate: CLLocationCoordinate2D) {
+    init(coordinate: CLLocationCoordinate2D, title: String?) {
         self.coordinate = coordinate
-        self.title = "Future Visit"
+        self.title = title
         self.image = UIImage(systemName: "airplane.departure")
         // You can set other properties like subtitle, image, etc. as needed.
     }

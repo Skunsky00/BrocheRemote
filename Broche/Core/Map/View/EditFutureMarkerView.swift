@@ -10,6 +10,12 @@ import SwiftUI
 struct EditFutureMarkerView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject var viewModel: EditFutureMarkerViewModel
+    
+    
+    init(user: User) {
+        
+        self._viewModel = StateObject(wrappedValue: EditFutureMarkerViewModel(user: user))
+    }
     var body: some View {
         VStack{
             // toolbar
@@ -29,7 +35,10 @@ struct EditFutureMarkerView: View {
                     Spacer ()
                     
                     Button {
-                        print("update info")
+                        Task {
+                            try await viewModel.updateUserDataForSelectedLocation()
+                            dismiss()
+                        }
                     } label: {
                         Text("Done")
                             .font(.subheadline)
@@ -45,6 +54,7 @@ struct EditFutureMarkerView: View {
                 EditMarkerRowView(title: "Description", placeholder: "Add details...", text: $viewModel.description)
                 
             }
+            Spacer()
         }
     }
 }
@@ -62,18 +72,18 @@ struct EditMarkerRowView: View {
                 .frame(width: 100, alignment: .leading)
             
             VStack {
-                TextField(placeholder, text: $text)
+                TextField(placeholder, text: $text, axis: .vertical)
                 
                 Divider()
             }
         }
         .font(.subheadline)
-        .frame(height: 36)
+        .frame(height: 70)
     }
 }
 
 struct EditFutureMarkerView_Previews: PreviewProvider {
     static var previews: some View {
-        EditFutureMarkerView(viewModel: EditFutureMarkerViewModel(user: User.MOCK_USERS[1]))
+        EditFutureMarkerView(user: User.MOCK_USERS[1])
     }
 }
