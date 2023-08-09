@@ -32,10 +32,14 @@ class RegistrationViewModel: ObservableObject {
     }
     
     @MainActor
-    func validateUsername() async throws {
-        self.isLoading = true
-        let snapshot = try await COLLECTION_USERS.whereField("username", isEqualTo: username).getDocuments()
-        self.usernameIsValid = snapshot.isEmpty
-        self.isLoading = false
-    }
-}
+       func validateUsername() async throws {
+           self.isLoading = true
+           let snapshot = try await COLLECTION_USERS.whereField("username", isEqualTo: username).getDocuments()
+           let containsSpace = username.contains(" ")
+           let specialCharacterSet = CharacterSet(charactersIn: "!@#$%^&*()+-=[]{}|;:'\",<>/?")
+           let containsSpecialCharacter = username.rangeOfCharacter(from: specialCharacterSet) != nil
+           
+           self.usernameIsValid = snapshot.isEmpty && !containsSpace && !containsSpecialCharacter
+           self.isLoading = false
+       }
+   }

@@ -61,10 +61,20 @@ struct PostGridView: View {
                                     
                                         .foregroundColor(.white)
                                     
-                                    Text(post.label!)
-                                        .font(.footnote)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                        .foregroundColor(.white)
+                                    HStack {
+                                        Text(post.label!)
+                                            .font(.footnote)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .foregroundColor(.white)
+                                        
+                                        Spacer()
+                                        
+                                        Text("\(post.likes)")
+                                            .font(.footnote)
+                                            .frame(maxWidth: .infinity, alignment: .trailing)
+                                            .foregroundColor(.white)
+                                    }
+                                    .padding(.trailing, 8)
                                 }
                                 .padding(.leading, 8)
                                 .padding(.top, 140)

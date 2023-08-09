@@ -35,7 +35,7 @@ struct FutureMarkerSheet: View {
                     } label: {
                         Image(systemName: "square.and.pencil")
                             .imageScale(.large)
-                            .foregroundColor(.black)
+                            .foregroundColor(Color(.label))
                     }.fullScreenCover(isPresented: $showEditMarker) {
                         EditFutureMarkerView(user: viewModel.user, location: locationViewModel.selectedLocation!)
                     }
@@ -45,7 +45,7 @@ struct FutureMarkerSheet: View {
                     } label: {
                         Image(systemName: "heart.fill")
                             .imageScale(.large)
-                            .foregroundColor(.black)
+                            .foregroundColor(Color(.label))
                     }
                 }
                 
@@ -112,5 +112,6 @@ struct FutureMarkerSheet: View {
 struct FutureMarkerSheet_Previews: PreviewProvider {
     static var previews: some View {
         FutureMarkerSheet(viewModel: FutureMarkerSheetViewmodel(user: User.MOCK_USERS[1]))
+            .environmentObject(LocationSearchViewModel())
     }
 }

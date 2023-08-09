@@ -11,6 +11,7 @@ import MapKit
 struct MapViewForLocation: View {
     let location: String
     @ObservedObject private var viewModel: MapViewForLocationViewModel
+    @State private var mapSelection: MKMapItem?
 
     init(location: String) {
         self.location = location
@@ -28,6 +29,22 @@ struct MapViewForLocation: View {
             } else {
                 Text("Location coordinate not available.")
             }
+            
+            
+            HStack {
+                Button {
+                    if let mapSelection = mapSelection { // Fix the variable name here
+                                mapSelection.openInMaps() // Call openInMaps on the mapSelection
+                            }
+                } label: {
+                    Text("Open in Maps")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(width: 170, height: 48)
+                        .background(.blue)
+                        .cornerRadius(12)
+                }
+            }
             Spacer()
         }
         .navigationTitle("Location Map")
@@ -35,8 +52,8 @@ struct MapViewForLocation: View {
 }
 
 
-//struct MapViewForLocation_Previews: PreviewProvider {
-//    static var previews: some View {
-//        MapViewForLocation()
-//    }
-//}
+struct MapViewForLocation_Previews: PreviewProvider {
+    static var previews: some View {
+        MapViewForLocation(location: "Tennessee")
+    }
+}

@@ -50,11 +50,12 @@ struct FeedCell: View {
                     NavigationLink(
                         destination: MapViewForLocation(location: viewModel.post.location),
                         label: {
-                            Image(systemName: "mappin.circle")
+                            Image(systemName: "mappin")
                                 .imageScale(.large)
                                 .foregroundColor(.black)
+                                .frame(width: 28, height: 28)
                                 .background(.thinMaterial)
-                                .frame(width: 20, height: 20)
+                                .cornerRadius(2)
                                 
                     Text(viewModel.post.location)
                         .font(.footnote)

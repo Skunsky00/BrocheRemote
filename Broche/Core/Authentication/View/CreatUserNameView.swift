@@ -29,7 +29,9 @@ struct CreatUserNameView: View {
                     .padding(.horizontal, 24)
                 
                 ZStack(alignment: .trailing) {
-                    TextField("Username", text: $viewModel.username)
+                    TextField("Username", text: $viewModel.username, onCommit: {
+                            viewModel.username = viewModel.username.lowercased() // Convert to lowercase
+                        })
                         .modifier(BrocheTextFieldModifier())
                         .padding(.top)
                         .autocapitalization(.none)
@@ -72,7 +74,11 @@ struct CreatUserNameView: View {
 
 extension CreatUserNameView: AuthenticationFormProtocol {
     var formIsValid: Bool {
-        return !viewModel.username.isEmpty
+        let containsSpace = viewModel.username.contains(" ")
+        let specialCharacterSet = CharacterSet(charactersIn: "!@#$%^&*()+-=[]{}|;:'\",<>/?")
+        let containsSpecialCharacter = viewModel.username.rangeOfCharacter(from: specialCharacterSet) != nil
+        
+        return !viewModel.username.isEmpty && !containsSpace && !containsSpecialCharacter
     }
 }
 
