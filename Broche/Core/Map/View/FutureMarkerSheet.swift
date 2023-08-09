@@ -9,7 +9,9 @@ import SwiftUI
 
 struct FutureMarkerSheet: View {
     @ObservedObject var viewModel: FutureMarkerSheetViewmodel
+    @EnvironmentObject var locationViewModel: LocationSearchViewModel
     @State var showEditMarker = false
+    
     
     var body: some View {
         
@@ -35,7 +37,7 @@ struct FutureMarkerSheet: View {
                             .imageScale(.large)
                             .foregroundColor(.black)
                     }.fullScreenCover(isPresented: $showEditMarker) {
-                        EditFutureMarkerView(user: viewModel.user)
+                        EditFutureMarkerView(user: viewModel.user, location: locationViewModel.selectedLocation!)
                     }
                 } else {
                     Button {
@@ -76,7 +78,7 @@ struct FutureMarkerSheet: View {
                 
                 // date
                 HStack() {
-                    if let date = viewModel.user.location?.date {
+                    if let date = locationViewModel.selectedLocation?.date {
                         Text(date)
                             .font(.subheadline)
                             .fontWeight(.regular)
@@ -94,7 +96,7 @@ struct FutureMarkerSheet: View {
                 .padding(.leading)
                 
                 HStack {
-                    if let description = viewModel.user.location?.description {
+                    if let description = locationViewModel.selectedLocation?.description {
                         Text(description)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .font(.body)

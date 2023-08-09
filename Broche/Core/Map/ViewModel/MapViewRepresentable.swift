@@ -102,12 +102,16 @@ extension MapViewRepresentable {
         
         // MARK: - MKMapViewDelegate
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-                if let futureAnnotation = view.annotation as? FutureVisitAnnotation {
-                    // A future visit annotation was tapped, set the state variable to display the sheet
-                    selectedFutureAnnotation = futureAnnotation
-                    parent.showFutureMarkerSheet = true // Step 2
-                }
+            if let futureAnnotation = view.annotation as? FutureVisitAnnotation,
+               let location = futureVisitLocations.first(where: { $0.latitude == futureAnnotation.coordinate.latitude && $0.longitude == futureAnnotation.coordinate.longitude }) {
+                selectedFutureAnnotation = futureAnnotation
+                parent.showFutureMarkerSheet = true
+                locationViewModel.selectedLocationCoordinate = futureAnnotation.coordinate
+                locationViewModel.selectedLocationTitle = futureAnnotation.title
+                locationViewModel.selectedLocation = location // Pass the selected Location to the view model
             }
+        }
+
         
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         guard !(annotation is MKUserLocation) else {
@@ -230,7 +234,7 @@ extension MapViewRepresentable {
         
         @MainActor
         func save(coordinate: CLLocationCoordinate2D) async throws {
-            let location = Location(documentID: "", latitude: coordinate.latitude, longitude: coordinate.longitude)
+            let location = Location( latitude: coordinate.latitude, longitude: coordinate.longitude, city: locationViewModel.selectedLocationTitle)
             
             do {
                 try await UserService.saveLocation(uid: user.id, coordinate: location)
@@ -243,7 +247,7 @@ extension MapViewRepresentable {
         
         @MainActor
         func unSave(coordinate: CLLocationCoordinate2D) async throws {
-            let location = Location(documentID: "", latitude: coordinate.latitude, longitude: coordinate.longitude)
+            let location = Location( latitude: coordinate.latitude, longitude: coordinate.longitude)
             
             do {
                 try await UserService.unSaveLocation(uid: user.id, coordinate: location)
@@ -256,27 +260,27 @@ extension MapViewRepresentable {
         
         @MainActor
         func checkIfSaved(coordinate: CLLocationCoordinate2D) async throws {
-            let location = Location(documentID: "", latitude: coordinate.latitude, longitude: coordinate.longitude)
+            let location = Location( latitude: coordinate.latitude, longitude: coordinate.longitude)
             self.user.didSaveLocation = try await UserService.checkIfUserSavedLocation(uid: user.id, coordinate: location)
         }
         
         @MainActor
         func saveFuture(coordinate: CLLocationCoordinate2D) async throws {
-            let location = Location(documentID: "", latitude: coordinate.latitude, longitude: coordinate.longitude)
+            let location = Location( latitude: coordinate.latitude, longitude: coordinate.longitude, city: locationViewModel.selectedLocationTitle)
                 try await UserService.saveFutureLocation(uid: user.id, coordinate: location)
                 self.user.didSaveFutureLocation = true
             }
             
         @MainActor
             func unsaveFuture(coordinate: CLLocationCoordinate2D) async throws {
-                let location = Location(documentID: "", latitude: coordinate.latitude, longitude: coordinate.longitude)
+                let location = Location( latitude: coordinate.latitude, longitude: coordinate.longitude)
                 try await UserService.unSaveFutureLocation(uid: user.id, coordinate: location)
                 self.user.didSaveFutureLocation = false
             }
             
         @MainActor
             func checkIfSavedFuture(coordinate: CLLocationCoordinate2D) async throws {
-                let location = Location(documentID: "", latitude: coordinate.latitude, longitude: coordinate.longitude)
+                let location = Location( latitude: coordinate.latitude, longitude: coordinate.longitude)
                 self.user.didSaveFutureLocation = try await UserService.checkIfUserSavedFutureLocation(uid: user.id, coordinate: location)
             }
     }

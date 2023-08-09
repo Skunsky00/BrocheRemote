@@ -12,10 +12,11 @@ struct EditFutureMarkerView: View {
     @StateObject var viewModel: EditFutureMarkerViewModel
     
     
-    init(user: User) {
-        
-        self._viewModel = StateObject(wrappedValue: EditFutureMarkerViewModel(user: user))
-    }
+    init(user: User, location: Location) {
+            
+                self._viewModel = StateObject(wrappedValue: EditFutureMarkerViewModel(user: user, location: location))
+            
+        }
     var body: some View {
         VStack{
             // toolbar
@@ -35,8 +36,7 @@ struct EditFutureMarkerView: View {
                     Spacer ()
                     
                     Button {
-                        Task {
-                            try await viewModel.updateUserDataForSelectedLocation()
+                        Task { try await viewModel.updateUserData()
                             dismiss()
                         }
                     } label: {
@@ -84,6 +84,6 @@ struct EditMarkerRowView: View {
 
 struct EditFutureMarkerView_Previews: PreviewProvider {
     static var previews: some View {
-        EditFutureMarkerView(user: User.MOCK_USERS[1])
+        EditFutureMarkerView(user: User.MOCK_USERS[1], location: Location.MOCK_LOCATIONS[0] )
     }
 }

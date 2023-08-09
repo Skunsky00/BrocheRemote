@@ -16,6 +16,7 @@ class LocationSearchViewModel: NSObject, ObservableObject {
     @Published var selectedLocationCoordinate: CLLocationCoordinate2D?
     @Published var selectedLocationTitle: String? // Property to store the selected title
     var mapCoordinator: MapViewRepresentable.MapCoordinator?
+    @Published var selectedLocation: Location?
     
     private let searchCompleter = MKLocalSearchCompleter()
     var queryFragment: String = "" {

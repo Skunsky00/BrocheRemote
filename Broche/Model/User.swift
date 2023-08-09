@@ -45,10 +45,10 @@ struct UserStats: Codable {
     var followers: Int
 }
 
-struct Location: Codable {
-    let documentID: String
-    let latitude: Double
-    let longitude: Double
+struct Location: Codable, Identifiable {
+    var id: String? // This will store the Firestore document ID
+    var latitude: Double
+    var longitude: Double
     var city: String?
     var date: String?
     var description: String?
@@ -61,5 +61,10 @@ extension User {
         .init(id: NSUUID().uuidString, username: "ironman", profileImageUrl: nil, fullname: "tony stark", bio: "catch you in the skys", email: "ironman@gmail.com"),
         .init(id: NSUUID().uuidString, username: "hulk", profileImageUrl: nil, fullname: "hulk baner smash", bio: "i like to smash things", email: "hulk@gmail.com"),
         .init(id: NSUUID().uuidString, username: "thor", profileImageUrl: nil, fullname: "thor asgard", bio: "god of thunder baby.", email: "thor@gmail.com")
+    ]
+}
+extension Location {
+    static var MOCK_LOCATIONS: [Location] = [
+        .init(latitude: 0, longitude: 0)
     ]
 }
