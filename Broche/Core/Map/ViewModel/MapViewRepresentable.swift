@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MapKit
+import Firebase
 
 struct MapViewRepresentable: UIViewRepresentable {
     
@@ -17,7 +18,8 @@ struct MapViewRepresentable: UIViewRepresentable {
     @EnvironmentObject var locationViewModel: LocationSearchViewModel
     var user: User
     @Binding var showFutureMarkerSheet: Bool
-    
+    @Binding var showVisitedMarkerSheet: Bool
+
     
     
     func makeUIView(context: Context) -> some UIView {
@@ -102,6 +104,14 @@ extension MapViewRepresentable {
         
         // MARK: - MKMapViewDelegate
         func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+            if let visitedAnnotation = view.annotation as? VisitedLocationAnnotation,
+                   let location = locations.first(where: { $0.latitude == visitedAnnotation.coordinate.latitude && $0.longitude == visitedAnnotation.coordinate.longitude }) {
+                    parent.showVisitedMarkerSheet = true
+                    locationViewModel.selectedLocationCoordinate = visitedAnnotation.coordinate
+                    locationViewModel.selectedLocationTitle = visitedAnnotation.title
+                    locationViewModel.selectedLocation = location
+                }
+            
             if let futureAnnotation = view.annotation as? FutureVisitAnnotation,
                let location = futureVisitLocations.first(where: { $0.latitude == futureAnnotation.coordinate.latitude && $0.longitude == futureAnnotation.coordinate.longitude }) {
                 selectedFutureAnnotation = futureAnnotation
@@ -234,7 +244,10 @@ extension MapViewRepresentable {
         
         @MainActor
         func save(coordinate: CLLocationCoordinate2D) async throws {
-            let location = Location( latitude: coordinate.latitude, longitude: coordinate.longitude, city: locationViewModel.selectedLocationTitle)
+            guard let uid = Auth.auth().currentUser?.uid else { return }
+            let postRef = COLLECTION_LOCATION.document()
+            
+            let location = Location(id:postRef.documentID, ownerUid: uid, latitude: coordinate.latitude, longitude: coordinate.longitude, city: locationViewModel.selectedLocationTitle)
             
             do {
                 try await UserService.saveLocation(uid: user.id, coordinate: location)
@@ -247,7 +260,10 @@ extension MapViewRepresentable {
         
         @MainActor
         func unSave(coordinate: CLLocationCoordinate2D) async throws {
-            let location = Location( latitude: coordinate.latitude, longitude: coordinate.longitude)
+            guard let uid = Auth.auth().currentUser?.uid else { return }
+            let postRef = COLLECTION_LOCATION.document()
+            
+            let location = Location(id:postRef.documentID, ownerUid: uid, latitude: coordinate.latitude, longitude: coordinate.longitude)
             
             do {
                 try await UserService.unSaveLocation(uid: user.id, coordinate: location)
@@ -260,27 +276,39 @@ extension MapViewRepresentable {
         
         @MainActor
         func checkIfSaved(coordinate: CLLocationCoordinate2D) async throws {
-            let location = Location( latitude: coordinate.latitude, longitude: coordinate.longitude)
+            guard let uid = Auth.auth().currentUser?.uid else { return }
+            let postRef = COLLECTION_LOCATION.document()
+            
+            let location = Location(id:postRef.documentID, ownerUid: uid, latitude: coordinate.latitude, longitude: coordinate.longitude)
             self.user.didSaveLocation = try await UserService.checkIfUserSavedLocation(uid: user.id, coordinate: location)
         }
         
         @MainActor
         func saveFuture(coordinate: CLLocationCoordinate2D) async throws {
-            let location = Location( latitude: coordinate.latitude, longitude: coordinate.longitude, city: locationViewModel.selectedLocationTitle)
+            guard let uid = Auth.auth().currentUser?.uid else { return }
+            let postRef = COLLECTION_FUTURE_LOCATIONS.document()
+            
+            let location = Location(id:postRef.documentID, ownerUid: uid, latitude: coordinate.latitude, longitude: coordinate.longitude, city: locationViewModel.selectedLocationTitle)
                 try await UserService.saveFutureLocation(uid: user.id, coordinate: location)
                 self.user.didSaveFutureLocation = true
             }
             
         @MainActor
             func unsaveFuture(coordinate: CLLocationCoordinate2D) async throws {
-                let location = Location( latitude: coordinate.latitude, longitude: coordinate.longitude)
+                guard let uid = Auth.auth().currentUser?.uid else { return }
+                let postRef = COLLECTION_FUTURE_LOCATIONS.document()
+                
+                let location = Location(id:postRef.documentID, ownerUid: uid, latitude: coordinate.latitude, longitude: coordinate.longitude)
                 try await UserService.unSaveFutureLocation(uid: user.id, coordinate: location)
                 self.user.didSaveFutureLocation = false
             }
             
         @MainActor
             func checkIfSavedFuture(coordinate: CLLocationCoordinate2D) async throws {
-                let location = Location( latitude: coordinate.latitude, longitude: coordinate.longitude)
+                guard let uid = Auth.auth().currentUser?.uid else { return }
+                let postRef = COLLECTION_FUTURE_LOCATIONS.document()
+                
+                let location = Location(id:postRef.documentID, ownerUid: uid, latitude: coordinate.latitude, longitude: coordinate.longitude)
                 self.user.didSaveFutureLocation = try await UserService.checkIfUserSavedFutureLocation(uid: user.id, coordinate: location)
             }
     }

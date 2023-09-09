@@ -1,20 +1,19 @@
 //
-//  EditFutureMarkerView.swift
+//  EditVisitedMarkerSheet.swift
 //  Broche
 //
-//  Created by Jacob Johnson on 8/4/23.
+//  Created by Jacob Johnson on 8/13/23.
 //
 
 import SwiftUI
 
-struct EditFutureMarkerView: View {
+struct EditVisitedMarkerSheet: View {
     @Environment(\.dismiss) var dismiss
-    @StateObject var viewModel: EditFutureMarkerViewModel
-    
+    @StateObject var viewModel: EditVisitedViewModel
     
     init(user: User, location: Location) {
             
-                self._viewModel = StateObject(wrappedValue: EditFutureMarkerViewModel(user: user, location: location))
+                self._viewModel = StateObject(wrappedValue: EditVisitedViewModel(user: user, location: location))
             
         }
     var body: some View {
@@ -28,7 +27,7 @@ struct EditFutureMarkerView: View {
                     
                     Spacer()
                     
-                    Text("Edit Profile")
+                    Text("Edit Pin")
                         .font(.subheadline)
                         .fontWeight(.semibold)
                     
@@ -37,8 +36,8 @@ struct EditFutureMarkerView: View {
                     
                     Button {
                         Task { try await viewModel.updateUserData()
-                            dismiss()
-                        }
+                        dismiss()
+                                                }
                     } label: {
                         Text("Done")
                             .font(.subheadline)
@@ -53,37 +52,27 @@ struct EditFutureMarkerView: View {
                 
                 EditMarkerRowView(title: "Description", placeholder: "Add details...", text: $viewModel.description)
                 
-            }
-            Spacer()
-        }
-    }
-}
+                EditMarkerRowView(title: "Link", placeholder: "Add link here", text: $viewModel.link)
+                if !viewModel.link.isEmpty {
+                                      Button(action: {
+                                          viewModel.link = "" // Clear the link
+                                      }) {
+                                          Text("Clear Link")
+                                              .font(.subheadline)
+                                              .foregroundColor(.red)
+                                      }
+                                  }
 
-struct EditMarkerRowView: View {
-    let title: String
-    let placeholder: String
-    @Binding var text: String
-    
-    var body: some View {
-        
-        HStack {
-            Text(title)
-                .padding(.leading, 8)
-                .frame(width: 100, alignment: .leading)
-            
-            VStack {
-                TextField(placeholder, text: $text, axis: .vertical)
                 
-                Divider()
+                Spacer()
             }
+            .padding(.top)
         }
-        .font(.subheadline)
-        .frame(height: 70)
     }
 }
 
-struct EditFutureMarkerView_Previews: PreviewProvider {
+struct EditVisitedMarkerSheet_Previews: PreviewProvider {
     static var previews: some View {
-        EditFutureMarkerView(user: User.MOCK_USERS[1], location: Location.MOCK_LOCATIONS[0] )
+        EditVisitedMarkerSheet(user: User.MOCK_USERS[1], location: Location.MOCK_LOCATIONS[0])
     }
 }

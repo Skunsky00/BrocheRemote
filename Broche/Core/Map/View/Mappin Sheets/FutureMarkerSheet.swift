@@ -23,11 +23,15 @@ struct FutureMarkerSheet: View {
                     .foregroundColor(.blue)
                 Spacer()
                 
-                Text("Itinerary")
+                Text(locationViewModel.selectedLocationTitle ?? "Visit")
                     .font(.title3)
                     .fontWeight(.semibold)
                 
                 Spacer()
+                
+                Image(systemName: "bubble.left.fill")
+                    .imageScale(.large)
+                    .foregroundColor(Color(.label))
                 
                 if viewModel.user.isCurrentUser {
                     Button {
@@ -88,10 +92,12 @@ struct FutureMarkerSheet: View {
                             .font(.subheadline)
                             .fontWeight(.regular)
                             .foregroundColor(Color.gray)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
                     }
 
                     
-                    Spacer()
+                    
                 }
                 .padding(.leading)
                 

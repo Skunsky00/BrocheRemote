@@ -17,7 +17,7 @@ struct PostService {
                 query = query.start(afterDocument: document)
             }
             
-            let snapshot = try await query.limit(to: 20).getDocuments()
+            let snapshot = try await query.limit(to: 5).getDocuments()
             var posts = try snapshot.documents.compactMap({ try $0.data(as: Post.self) })
             
             for i in 0..<posts.count {

@@ -43,7 +43,7 @@ class EditFutureMarkerViewModel: ObservableObject {
         
         if !data.isEmpty {
             // Use the existing `location` instance to update the correct document
-            let documentRef = COLLECTION_FUTURE_LOCATIONS.document(user.id).collection("user-locations").document(location.id!)
+            let documentRef = COLLECTION_FUTURE_LOCATIONS.document(user.id).collection("user-locations").document(location.id)
             try await documentRef.updateData(data)
             print("Data updated successfully!")
         }

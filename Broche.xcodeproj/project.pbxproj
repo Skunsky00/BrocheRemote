@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4E188F472A89B9F40049AE0A /* VisitedMarkerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E188F462A89B9F40049AE0A /* VisitedMarkerSheet.swift */; };
+		4E188F4A2A89C4930049AE0A /* EditVisitedMarkerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E188F492A89C4930049AE0A /* EditVisitedMarkerSheet.swift */; };
+		4E188F4C2A89C6740049AE0A /* EditVisitedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E188F4B2A89C6740049AE0A /* EditVisitedViewModel.swift */; };
 		4E2F6BEC2A38C02000BA0A89 /* OptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2F6BEB2A38C02000BA0A89 /* OptionsView.swift */; };
 		4E85EB9E2A16972C0074A346 /* BrocheApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E85EB9D2A16972C0074A346 /* BrocheApp.swift */; };
 		4E85EBA02A16972C0074A346 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E85EB9F2A16972C0074A346 /* ContentView.swift */; };
@@ -24,7 +27,6 @@
 		4E85EBCE2A16DE5F0074A346 /* CreatUserNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E85EBCD2A16DE5F0074A346 /* CreatUserNameView.swift */; };
 		4E85EBD02A16E0E80074A346 /* CreatePasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E85EBCF2A16E0E80074A346 /* CreatePasswordView.swift */; };
 		4E85EBD22A16E2D40074A346 /* CompleteSignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E85EBD12A16E2D40074A346 /* CompleteSignUpView.swift */; };
-		4E85EBD42A16EA330074A346 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E85EBD32A16EA330074A346 /* User.swift */; };
 		4E85EBD62A16F12D0074A346 /* CurrentUserProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E85EBD52A16F12D0074A346 /* CurrentUserProfileView.swift */; };
 		4E85EBD82A16F35C0074A346 /* Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E85EBD72A16F35C0074A346 /* Post.swift */; };
 		4E85EBDA2A1708860074A346 /* PostGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E85EBD92A1708860074A346 /* PostGridView.swift */; };
@@ -73,6 +75,10 @@
 		4EA3A74B2A40BC7B005C548D /* NotificationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA3A74A2A40BC7B005C548D /* NotificationCellViewModel.swift */; };
 		4EA3A74D2A40BCA8005C548D /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA3A74C2A40BCA8005C548D /* Notification.swift */; };
 		4EA3A74F2A40BCDD005C548D /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA3A74E2A40BCDD005C548D /* NotificationService.swift */; };
+		4EB6BC162AABB22800D1586F /* LocationCommentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB6BC152AABB22800D1586F /* LocationCommentViewModel.swift */; };
+		4EB6BC182AABF21B00D1586F /* LocationsCommentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB6BC172AABF21B00D1586F /* LocationsCommentsView.swift */; };
+		4EB6BC1A2AABF3C900D1586F /* LocationCommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB6BC192AABF3C900D1586F /* LocationCommentCell.swift */; };
+		4EB6BC1C2AAD0A6400D1586F /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB6BC1B2AAD0A6400D1586F /* User.swift */; };
 		4EB997BC2A60C37F003537FD /* SearchFilterSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB997BB2A60C37F003537FD /* SearchFilterSelector.swift */; };
 		4EB997BE2A60C50C003537FD /* SearchFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB997BD2A60C50C003537FD /* SearchFilterView.swift */; };
 		4EB997C12A63007B003537FD /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 4EB997C02A63007B003537FD /* FirebaseMessaging */; };
@@ -118,6 +124,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4E188F462A89B9F40049AE0A /* VisitedMarkerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitedMarkerSheet.swift; sourceTree = "<group>"; };
+		4E188F492A89C4930049AE0A /* EditVisitedMarkerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditVisitedMarkerSheet.swift; sourceTree = "<group>"; };
+		4E188F4B2A89C6740049AE0A /* EditVisitedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditVisitedViewModel.swift; sourceTree = "<group>"; };
 		4E2F6BEB2A38C02000BA0A89 /* OptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionsView.swift; sourceTree = "<group>"; };
 		4E85EB9A2A16972C0074A346 /* Broche.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Broche.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E85EB9D2A16972C0074A346 /* BrocheApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrocheApp.swift; sourceTree = "<group>"; };
@@ -136,7 +145,6 @@
 		4E85EBCD2A16DE5F0074A346 /* CreatUserNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatUserNameView.swift; sourceTree = "<group>"; };
 		4E85EBCF2A16E0E80074A346 /* CreatePasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePasswordView.swift; sourceTree = "<group>"; };
 		4E85EBD12A16E2D40074A346 /* CompleteSignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompleteSignUpView.swift; sourceTree = "<group>"; };
-		4E85EBD32A16EA330074A346 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		4E85EBD52A16F12D0074A346 /* CurrentUserProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentUserProfileView.swift; sourceTree = "<group>"; };
 		4E85EBD72A16F35C0074A346 /* Post.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Post.swift; sourceTree = "<group>"; };
 		4E85EBD92A1708860074A346 /* PostGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostGridView.swift; sourceTree = "<group>"; };
@@ -180,6 +188,10 @@
 		4EA3A74A2A40BC7B005C548D /* NotificationCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCellViewModel.swift; sourceTree = "<group>"; };
 		4EA3A74C2A40BCA8005C548D /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		4EA3A74E2A40BCDD005C548D /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		4EB6BC152AABB22800D1586F /* LocationCommentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationCommentViewModel.swift; sourceTree = "<group>"; };
+		4EB6BC172AABF21B00D1586F /* LocationsCommentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsCommentsView.swift; sourceTree = "<group>"; };
+		4EB6BC192AABF3C900D1586F /* LocationCommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationCommentCell.swift; sourceTree = "<group>"; };
+		4EB6BC1B2AAD0A6400D1586F /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		4EB997BB2A60C37F003537FD /* SearchFilterSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchFilterSelector.swift; sourceTree = "<group>"; };
 		4EB997BD2A60C50C003537FD /* SearchFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchFilterView.swift; sourceTree = "<group>"; };
 		4EB997C22A65BB51003537FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -242,6 +254,27 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4E188F452A89B9430049AE0A /* Mappin Sheets */ = {
+			isa = PBXGroup;
+			children = (
+				4E8D3E9D2A7D7043000907A5 /* FutureMarkerSheet.swift */,
+				4E8D3EA12A7D8854000907A5 /* EditFutureMarkerView.swift */,
+				4E188F462A89B9F40049AE0A /* VisitedMarkerSheet.swift */,
+				4E188F492A89C4930049AE0A /* EditVisitedMarkerSheet.swift */,
+			);
+			path = "Mappin Sheets";
+			sourceTree = "<group>";
+		};
+		4E188F482A89C4170049AE0A /* MappinSheetViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				4E8D3E9F2A7D7E80000907A5 /* FutureMarkerSheetViewModel.swift */,
+				4E8D3EA32A7D88E8000907A5 /* EditFutureMarkerViewModel.swift */,
+				4E188F4B2A89C6740049AE0A /* EditVisitedViewModel.swift */,
+			);
+			path = MappinSheetViewModel;
+			sourceTree = "<group>";
+		};
 		4E85EB912A16972C0074A346 = {
 			isa = PBXGroup;
 			children = (
@@ -302,7 +335,7 @@
 		4E85EBAC2A1698050074A346 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				4E85EBD32A16EA330074A346 /* User.swift */,
+				4EB6BC1B2AAD0A6400D1586F /* User.swift */,
 				4E85EBD72A16F35C0074A346 /* Post.swift */,
 				4EC081172A27A7A300B86052 /* Comment.swift */,
 				4EC081442A34D72C00B86052 /* Message.swift */,
@@ -581,8 +614,7 @@
 				4E9770522A25703400919F88 /* MapViewState.swift */,
 				4E9770542A2570D400919F88 /* LocationSearchViewModel.swift */,
 				4E8D3E912A704B31000907A5 /* CustomAnnotation.swift */,
-				4E8D3E9F2A7D7E80000907A5 /* FutureMarkerSheetViewModel.swift */,
-				4E8D3EA32A7D88E8000907A5 /* EditFutureMarkerViewModel.swift */,
+				4E188F482A89C4170049AE0A /* MappinSheetViewModel */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -597,8 +629,7 @@
 				4E97704E2A256FD300919F88 /* LocationSearchResultCell.swift */,
 				4E9770502A25701400919F88 /* LocationBookMarkView.swift */,
 				4EC0812A2A2CEE2600B86052 /* MapViewForUserPins.swift */,
-				4E8D3E9D2A7D7043000907A5 /* FutureMarkerSheet.swift */,
-				4E8D3EA12A7D8854000907A5 /* EditFutureMarkerView.swift */,
+				4E188F452A89B9430049AE0A /* Mappin Sheets */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -659,6 +690,7 @@
 			isa = PBXGroup;
 			children = (
 				4EC081202A27A9D000B86052 /* CommentViewModel.swift */,
+				4EB6BC152AABB22800D1586F /* LocationCommentViewModel.swift */,
 				4EC081222A27AA3200B86052 /* CustomInputView.swift */,
 			);
 			path = ViewModel;
@@ -669,6 +701,8 @@
 			children = (
 				4EC0811C2A27A94000B86052 /* CommentsView.swift */,
 				4EC0811E2A27A99D00B86052 /* CommentCell.swift */,
+				4EB6BC172AABF21B00D1586F /* LocationsCommentsView.swift */,
+				4EB6BC192AABF3C900D1586F /* LocationCommentCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -804,9 +838,12 @@
 				4EC0813D2A34020100B86052 /* LocationSearchActivationView.swift in Sources */,
 				4EC081582A34D93900B86052 /* ConversationsViewModel.swift in Sources */,
 				4E85EBBB2A169AD70074A346 /* ProfileView.swift in Sources */,
+				4EB6BC182AABF21B00D1586F /* LocationsCommentsView.swift in Sources */,
+				4EB6BC1A2AABF3C900D1586F /* LocationCommentCell.swift in Sources */,
 				4E85EBA02A16972C0074A346 /* ContentView.swift in Sources */,
 				4E9770212A1C4DBD00919F88 /* UserService.swift in Sources */,
 				4EC081232A27AA3200B86052 /* CustomInputView.swift in Sources */,
+				4E188F472A89B9F40049AE0A /* VisitedMarkerSheet.swift in Sources */,
 				4EC081142A27966800B86052 /* FeedCellViewModel.swift in Sources */,
 				4EA3A7472A40BC24005C548D /* NotificationsCell.swift in Sources */,
 				4E8D3E962A73094A000907A5 /* MapViewForLocation.swift in Sources */,
@@ -816,12 +853,14 @@
 				4EC0812E2A2D86E200B86052 /* AuthenticationFormProtocol.swift in Sources */,
 				4EC0814E2A34D89200B86052 /* ChatView.swift in Sources */,
 				4EC081092A2588F700B86052 /* ProfileFilterView.swift in Sources */,
+				4E188F4A2A89C4930049AE0A /* EditVisitedMarkerSheet.swift in Sources */,
 				4E8D3E9E2A7D7043000907A5 /* FutureMarkerSheet.swift in Sources */,
 				4E97702B2A1C67A400919F88 /* EditProfileViewModel.swift in Sources */,
 				4E85EBD82A16F35C0074A346 /* Post.swift in Sources */,
 				4E9770432A256E0F00919F88 /* MapView.swift in Sources */,
 				4E8D3E9A2A782570000907A5 /* VideoPlayerForUploadView.swift in Sources */,
 				4E85EBEF2A17E78C0074A346 /* AuthService.swift in Sources */,
+				4EB6BC162AABB22800D1586F /* LocationCommentViewModel.swift in Sources */,
 				4E85EB9E2A16972C0074A346 /* BrocheApp.swift in Sources */,
 				4E8D3EA02A7D7E80000907A5 /* FutureMarkerSheetViewModel.swift in Sources */,
 				4E85EBD62A16F12D0074A346 /* CurrentUserProfileView.swift in Sources */,
@@ -844,6 +883,7 @@
 				4E85EBF42A17E9270074A346 /* ContentViewModel.swift in Sources */,
 				4E97703A2A1D6E6A00919F88 /* PostService.swift in Sources */,
 				4EC081302A2D870700B86052 /* ResetPasswordView.swift in Sources */,
+				4EB6BC1C2AAD0A6400D1586F /* User.swift in Sources */,
 				4EC0810E2A26B62200B86052 /* Constants.swift in Sources */,
 				4E9770272A1C58D300919F88 /* EditProfileView.swift in Sources */,
 				4E97703E2A1D725700919F88 /* PostGridViewModel.swift in Sources */,
@@ -863,7 +903,6 @@
 				4E85EBD22A16E2D40074A346 /* CompleteSignUpView.swift in Sources */,
 				4EC081162A279ADC00B86052 /* Color.swift in Sources */,
 				4E8D3E982A730CB6000907A5 /* MapViewForLocationViewModel.swift in Sources */,
-				4E85EBD42A16EA330074A346 /* User.swift in Sources */,
 				4EB997C72A683791003537FD /* UploadPostLocationSearchView.swift in Sources */,
 				4EC0811F2A27A99D00B86052 /* CommentCell.swift in Sources */,
 				4EB997C92A68401D003537FD /* UploadPostSearchViewModel.swift in Sources */,
@@ -875,6 +914,7 @@
 				4EB997BE2A60C50C003537FD /* SearchFilterView.swift in Sources */,
 				4E85EBBE2A16A2A00074A346 /* UserStatView.swift in Sources */,
 				4EA3A74B2A40BC7B005C548D /* NotificationCellViewModel.swift in Sources */,
+				4E188F4C2A89C6740049AE0A /* EditVisitedViewModel.swift in Sources */,
 				4E85EBDE2A17D9C70074A346 /* UploadPostView.swift in Sources */,
 				4EC081522A34D8CB00B86052 /* MessageView.swift in Sources */,
 				4EC081432A34D01500B86052 /* UserCell.swift in Sources */,
@@ -1022,7 +1062,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Broche/Broche.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Broche/Preview Content\"";
 				DEVELOPMENT_TEAM = 5K8U9AH5WN;
 				ENABLE_PREVIEWS = YES;
@@ -1041,7 +1081,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.6;
+				MARKETING_VERSION = 1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.brochetravel.broche;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1057,7 +1097,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Broche/Broche.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Broche/Preview Content\"";
 				DEVELOPMENT_TEAM = 5K8U9AH5WN;
 				ENABLE_PREVIEWS = YES;
@@ -1076,7 +1116,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.6;
+				MARKETING_VERSION = 1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.brochetravel.broche;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
