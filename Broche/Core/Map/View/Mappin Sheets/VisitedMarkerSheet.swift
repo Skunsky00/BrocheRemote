@@ -11,7 +11,6 @@ struct VisitedMarkerSheet: View {
     @ObservedObject var viewModel: FutureMarkerSheetViewmodel
     @EnvironmentObject var locationViewModel: LocationSearchViewModel
     @State var showEditMarker = false
-    @State var showComment = false
     
     var body: some View {
         NavigationView {
@@ -31,30 +30,16 @@ struct VisitedMarkerSheet: View {
                     Spacer()
                     
                     if let location = locationViewModel.selectedLocation {
-                        // Render content related to the selected location
-                        //                    Button {
-                        //                        showComment.toggle()
-                        //                    } label: {
-                        //                        Image(systemName: "bubble.left")
-                        //                            .imageScale(.large)
-                        //                            .foregroundColor(Color(.label))
-                        //                    }
-                        //                    .fullScreenCover(isPresented: $showComment) {
-                        //                        LocationsCommentsView(location: location)}
+                        
                         NavigationLink(
-                            destination: LocationsCommentsView(location: location),
+                            destination: LocationsCommentsView(location: location, locationType: .visited),
                             label: {
                                 Image(systemName: "bubble.left")
                                     .imageScale(.large)
                                     .foregroundColor(Color(.label))
                             }
                         )
-                    } else {
-                        // Handle the case when no location is selected
-                        Text("No")
-                            .font(.subheadline)
-                            .foregroundColor(Color.gray)
-                    }
+                    } 
                     
                     
                     if viewModel.user.isCurrentUser {
@@ -93,11 +78,14 @@ struct VisitedMarkerSheet: View {
                     
                     Spacer()
                     
-                    Circle()
-                        .frame(width: 30, height: 30)
-                    Text("Friends")
-                        .font(.footnote)
-                        .fontWeight(.semibold)
+                    Button {
+                        print("open following locations userlist")
+                    } label: {
+                        Text("Nearby")
+                            .font(.footnote)
+                            .fontWeight(.semibold)
+                        Image(systemName: "mappin.and.ellipse")
+                    }
                     
                 }
                 .padding(.horizontal, 10)
@@ -110,14 +98,7 @@ struct VisitedMarkerSheet: View {
                             .font(.subheadline)
                             .fontWeight(.regular)
                             .foregroundColor(Color.gray)
-                    } else {
-                        Text("No date added yet")
-                            .font(.subheadline)
-                            .fontWeight(.regular)
-                            .foregroundColor(Color.gray)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        
-                    }
+                    } 
                     
                 }
                 .padding(.leading)

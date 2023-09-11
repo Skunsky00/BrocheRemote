@@ -11,6 +11,7 @@ import Firebase
 enum SearchViewModelConfig: Hashable {
     case followers(String)
     case following(String)
+//    case followingLocation(String)
     case likes(String)
     case search
     case newMessage
@@ -21,6 +22,8 @@ enum SearchViewModelConfig: Hashable {
             return "Followers"
         case .following:
             return "Following"
+//        case .followingLocation:
+//            return "FollowingLocation"
         case .likes:
             return "Likes"
         case .search:
@@ -66,6 +69,8 @@ class SearchViewModel: ObservableObject {
                 try await fetchFollowerUsers(forUid: uid)
             case .following(let uid):
                 try await fetchFollowingUsers(forUid: uid)
+//            case .followingLocation(let uid):
+//                        try await fetchFollowingLocationUsers(forUid: uid, location: )
              case .likes(let postId):
                 try await fetchPostLikesUsers(forPostId: postId)
             case .search, .newMessage:
@@ -90,6 +95,13 @@ class SearchViewModel: ObservableObject {
         try await fetchUsers(snapshot)
     }
     
+    private func fetchFollowingLocationUsers(forUid uid: String, location: Location) async throws {
+        guard let snapshot = try? await COLLECTION_FOLLOWING.document(uid).collection("user-following").getDocuments() else { return }
+        try await fetchUsersWithLocation(snapshot, location: location)
+    }
+
+
+    
     private func fetchUsers(_ snapshot: QuerySnapshot?) async throws {
         guard let documents = snapshot?.documents else { return }
         
@@ -98,6 +110,22 @@ class SearchViewModel: ObservableObject {
             users.append(user)
         }
     }
+    
+    private func fetchUsersWithLocation(_ snapshot: QuerySnapshot?, location: Location) async throws {
+        guard let documents = snapshot?.documents else { return }
+
+        for doc in documents {
+            let friend = try await UserService.fetchUser(withUid: doc.documentID)
+
+            // Check if the friend has a location and it matches the desired location
+            if let friendLocation = friend.location,
+               friendLocation.latitude == location.latitude,
+               friendLocation.longitude == location.longitude {
+                users.append(friend)
+            }
+        }
+    }
+
     
     func filteredUsers(_ query: String) -> [User] {
         let lowercasedQuery = query.lowercased()

@@ -11,8 +11,8 @@ struct LocationsCommentsView: View {
     @State private var commentText = ""
     @StateObject var viewModel: LocationCommentViewModel
     
-    init(location: Location) {
-        self._viewModel = StateObject(wrappedValue: LocationCommentViewModel(location: location))
+    init(location: Location, locationType: LocationType) {
+        self._viewModel = StateObject(wrappedValue: LocationCommentViewModel(location: location, locationType: locationType))
     }
     var body: some View {
         VStack {
