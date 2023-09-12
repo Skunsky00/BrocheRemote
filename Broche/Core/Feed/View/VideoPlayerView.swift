@@ -28,8 +28,8 @@ struct VideoPlayerController: UIViewControllerRepresentable {
     let videoURL: URL
     @Binding var isPlaying: Bool
     private let playerController = AVPlayerViewController()
-    private var player: AVPlayer {
-        playerController.player!
+    private var player: AVPlayer? {
+        playerController.player
     }
 
     func makeUIViewController(context: UIViewControllerRepresentableContext<VideoPlayerController>) -> AVPlayerViewController {
@@ -41,9 +41,10 @@ struct VideoPlayerController: UIViewControllerRepresentable {
 
     func updateUIViewController(_ uiViewController: AVPlayerViewController, context: UIViewControllerRepresentableContext<VideoPlayerController>) {
         if isPlaying {
-            player.play()
+            player?.play()
         } else {
-            player.pause()
+            player?.pause()
         }
     }
 }
+

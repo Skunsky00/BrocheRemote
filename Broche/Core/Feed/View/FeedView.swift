@@ -31,16 +31,9 @@ struct FeedView: View {
                                 .padding(.top, 8)
                         }
                     }
-                    
                     .navigationTitle("Feed")
                     .navigationBarTitleDisplayMode(.inline)
-                    .refreshable {
-                        Task {
-                            // Clear existing posts before fetching new ones
-                            viewModel.posts.removeAll()
-                            try await viewModel.fetchPosts()
-                        }
-                    }
+                    
                     .toolbar {
                         ToolbarItem(placement: .navigationBarLeading) {
                             Text("Broche")
@@ -60,6 +53,13 @@ struct FeedView: View {
                     }
                     .navigationDestination(for: User.self) { user in
                         ProfileView(user: user)
+                    }
+                }
+                .refreshable {
+                    Task {
+                        // Clear existing posts before fetching new ones
+                        viewModel.posts.removeAll()
+                        try await viewModel.fetchPosts()
                     }
                 }
             }
