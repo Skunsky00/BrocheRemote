@@ -85,6 +85,11 @@
 		4EB997C52A65C954003537FD /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 4EB997C42A65C954003537FD /* FirebaseAnalytics */; };
 		4EB997C72A683791003537FD /* UploadPostLocationSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB997C62A683790003537FD /* UploadPostLocationSearchView.swift */; };
 		4EB997C92A68401D003537FD /* UploadPostSearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB997C82A68401D003537FD /* UploadPostSearchViewModel.swift */; };
+		4EBBF2792AB228CA00AA444C /* SettingsAndPrivacyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EBBF2782AB228CA00AA444C /* SettingsAndPrivacyView.swift */; };
+		4EBBF27B2AB23D3100AA444C /* AccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EBBF27A2AB23D3100AA444C /* AccountView.swift */; };
+		4EBBF27E2AB243AC00AA444C /* AccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EBBF27D2AB243AC00AA444C /* AccountViewModel.swift */; };
+		4EBBF2802AB26E2900AA444C /* PrivacyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EBBF27F2AB26E2900AA444C /* PrivacyView.swift */; };
+		4EBBF2822AB276B500AA444C /* Itinerary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EBBF2812AB276B500AA444C /* Itinerary.swift */; };
 		4EC081092A2588F700B86052 /* ProfileFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC081082A2588F700B86052 /* ProfileFilterView.swift */; };
 		4EC0810B2A25897100B86052 /* ProfileFilterSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC0810A2A25897100B86052 /* ProfileFilterSelector.swift */; };
 		4EC0810E2A26B62200B86052 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC0810D2A26B62200B86052 /* Constants.swift */; };
@@ -198,6 +203,11 @@
 		4EB997C32A65BEE1003537FD /* Broche.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Broche.entitlements; sourceTree = "<group>"; };
 		4EB997C62A683790003537FD /* UploadPostLocationSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostLocationSearchView.swift; sourceTree = "<group>"; };
 		4EB997C82A68401D003537FD /* UploadPostSearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadPostSearchViewModel.swift; sourceTree = "<group>"; };
+		4EBBF2782AB228CA00AA444C /* SettingsAndPrivacyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAndPrivacyView.swift; sourceTree = "<group>"; };
+		4EBBF27A2AB23D3100AA444C /* AccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountView.swift; sourceTree = "<group>"; };
+		4EBBF27D2AB243AC00AA444C /* AccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountViewModel.swift; sourceTree = "<group>"; };
+		4EBBF27F2AB26E2900AA444C /* PrivacyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyView.swift; sourceTree = "<group>"; };
+		4EBBF2812AB276B500AA444C /* Itinerary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Itinerary.swift; sourceTree = "<group>"; };
 		4EC081082A2588F700B86052 /* ProfileFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFilterView.swift; sourceTree = "<group>"; };
 		4EC0810A2A25897100B86052 /* ProfileFilterSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileFilterSelector.swift; sourceTree = "<group>"; };
 		4EC0810D2A26B62200B86052 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -365,6 +375,7 @@
 				4E85EBB32A16988C0074A346 /* Profile */,
 				4E85EBB42A16989F0074A346 /* Root */,
 				4E85EBB52A1698A50074A346 /* Search */,
+				4EBBF2772AB228A900AA444C /* Settings */,
 				4E85EBB62A1698E90074A346 /* TabBar */,
 				4E85EBB72A1698F00074A346 /* UploadPost */,
 			);
@@ -629,6 +640,7 @@
 				4E97704E2A256FD300919F88 /* LocationSearchResultCell.swift */,
 				4E9770502A25701400919F88 /* LocationBookMarkView.swift */,
 				4EC0812A2A2CEE2600B86052 /* MapViewForUserPins.swift */,
+				4EBBF2812AB276B500AA444C /* Itinerary.swift */,
 				4E188F452A89B9430049AE0A /* Mappin Sheets */,
 			);
 			path = View;
@@ -667,6 +679,25 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4EBBF2772AB228A900AA444C /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				4EBBF2782AB228CA00AA444C /* SettingsAndPrivacyView.swift */,
+				4EBBF27A2AB23D3100AA444C /* AccountView.swift */,
+				4EBBF27F2AB26E2900AA444C /* PrivacyView.swift */,
+				4EBBF27C2AB2439000AA444C /* ViewModel */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		4EBBF27C2AB2439000AA444C /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				4EBBF27D2AB243AC00AA444C /* AccountViewModel.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		4EC0810C2A26B60900B86052 /* Utils */ = {
@@ -831,6 +862,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4EBBF2792AB228CA00AA444C /* SettingsAndPrivacyView.swift in Sources */,
 				4E8D3E9C2A7C8C2A000907A5 /* CustomScrollView.swift in Sources */,
 				4EC0810B2A25897100B86052 /* ProfileFilterSelector.swift in Sources */,
 				4E97704F2A256FD300919F88 /* LocationSearchResultCell.swift in Sources */,
@@ -840,6 +872,7 @@
 				4E85EBBB2A169AD70074A346 /* ProfileView.swift in Sources */,
 				4EB6BC182AABF21B00D1586F /* LocationsCommentsView.swift in Sources */,
 				4EB6BC1A2AABF3C900D1586F /* LocationCommentCell.swift in Sources */,
+				4EBBF27B2AB23D3100AA444C /* AccountView.swift in Sources */,
 				4E85EBA02A16972C0074A346 /* ContentView.swift in Sources */,
 				4E9770212A1C4DBD00919F88 /* UserService.swift in Sources */,
 				4EC081232A27AA3200B86052 /* CustomInputView.swift in Sources */,
@@ -859,6 +892,7 @@
 				4E85EBD82A16F35C0074A346 /* Post.swift in Sources */,
 				4E9770432A256E0F00919F88 /* MapView.swift in Sources */,
 				4E8D3E9A2A782570000907A5 /* VideoPlayerForUploadView.swift in Sources */,
+				4EBBF2822AB276B500AA444C /* Itinerary.swift in Sources */,
 				4E85EBEF2A17E78C0074A346 /* AuthService.swift in Sources */,
 				4EB6BC162AABB22800D1586F /* LocationCommentViewModel.swift in Sources */,
 				4E85EB9E2A16972C0074A346 /* BrocheApp.swift in Sources */,
@@ -890,6 +924,7 @@
 				4E97701F2A1C38B100919F88 /* LoginViewModel.swift in Sources */,
 				4E8D3EA42A7D88E8000907A5 /* EditFutureMarkerViewModel.swift in Sources */,
 				4E97702D2A1C6E2C00919F88 /* ImageUploader.swift in Sources */,
+				4EBBF27E2AB243AC00AA444C /* AccountViewModel.swift in Sources */,
 				4E8D3E922A704B31000907A5 /* CustomAnnotation.swift in Sources */,
 				4E9770452A256E4E00919F88 /* MapViewRepresentable.swift in Sources */,
 				4EC0811D2A27A94000B86052 /* CommentsView.swift in Sources */,
@@ -929,6 +964,7 @@
 				4EC0814A2A34D84A00B86052 /* ConversationsView.swift in Sources */,
 				4EA3A74D2A40BCA8005C548D /* Notification.swift in Sources */,
 				4E9770252A1C4EAD00919F88 /* SearchViewModel.swift in Sources */,
+				4EBBF2802AB26E2900AA444C /* PrivacyView.swift in Sources */,
 				4E85EBB92A16996D0074A346 /* MainTabView.swift in Sources */,
 				4E85EBD02A16E0E80074A346 /* CreatePasswordView.swift in Sources */,
 				4EC0812B2A2CEE2600B86052 /* MapViewForUserPins.swift in Sources */,
@@ -1062,7 +1098,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Broche/Broche.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"Broche/Preview Content\"";
 				DEVELOPMENT_TEAM = 5K8U9AH5WN;
 				ENABLE_PREVIEWS = YES;
@@ -1084,6 +1120,9 @@
 				MARKETING_VERSION = 1.10;
 				PRODUCT_BUNDLE_IDENTIFIER = com.brochetravel.broche;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1097,7 +1136,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Broche/Broche.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"Broche/Preview Content\"";
 				DEVELOPMENT_TEAM = 5K8U9AH5WN;
 				ENABLE_PREVIEWS = YES;
@@ -1119,6 +1158,9 @@
 				MARKETING_VERSION = 1.10;
 				PRODUCT_BUNDLE_IDENTIFIER = com.brochetravel.broche;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

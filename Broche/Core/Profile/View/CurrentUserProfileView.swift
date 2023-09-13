@@ -13,6 +13,7 @@ struct CurrentUserProfileView: View {
     @StateObject var notiViewModel: NotificationsViewModel
     @State private var showSettingsSheet = false
     @State private var selectedSettingsOption: SettingsItemModel?
+    @State private var selectedSettingsPrivacy: SettingsPrivacyModel?
     @State private var showDetail = false
     @State private var selectedFilter: ProfileFilterSelector = .hearts
     @Environment(\.colorScheme) var colorScheme
@@ -37,11 +38,16 @@ struct CurrentUserProfileView: View {
             .navigationTitle(user.username)
             .navigationBarTitleDisplayMode(.inline)
             .refreshable {
-                 viewModel.loadUserData()
+                viewModel.loadUserData()
             }
             .navigationDestination(isPresented: $showDetail) {
                 if let option = selectedSettingsOption {
                     switch option {
+                    case .settings:
+                            NavigationView {
+                                SettingsAndPrivacyView(user: user, selectedOption: $selectedSettingsPrivacy)
+                                    .navigationTitle("Settings") // Add a title for SettingsAndPrivacyView
+                            }
                     case .yourPost:
                         ScrollView {
                             PostGridView(config: .profile(user))
@@ -63,27 +69,27 @@ struct CurrentUserProfileView: View {
                         if notiViewModel.hasNewNotifications {
                             Image(systemName: "bell.badge")
                                 .foregroundColor(.red)
-                                // Bell icon with a red dot
+                            // Bell icon with a red dot
                         } else {
                             Image(systemName: "bell") // Normal bell icon
                         }
                     }
                 }
-                        
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button {
-                                selectedSettingsOption = nil
-                                showSettingsSheet.toggle()
-                            } label: {
-                                Image(systemName: "line.3.horizontal")
-                                    .foregroundColor(colorScheme == .dark ? .white : .black)
-                            }
-                        }
-                    })
-            .onChange(of: notiViewModel.hasNewNotifications) { newValue in
-                        // Print statement to check hasNewNotifications in the CurrentUserProfileView
-                        print("DEBUG: CurrentUserProfileView - hasNewNotifications: \(newValue)")
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        selectedSettingsOption = nil
+                        showSettingsSheet.toggle()
+                    } label: {
+                        Image(systemName: "line.3.horizontal")
+                            .foregroundColor(colorScheme == .dark ? .white : .black)
                     }
+                }
+            })
+            .onChange(of: notiViewModel.hasNewNotifications) { newValue in
+                // Print statement to check hasNewNotifications in the CurrentUserProfileView
+                print("DEBUG: CurrentUserProfileView - hasNewNotifications: \(newValue)")
+            }
             .onChange(of: selectedSettingsOption) { newValue in
                 guard let option = newValue else { return }
                 

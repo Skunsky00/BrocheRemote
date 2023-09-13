@@ -12,6 +12,8 @@ struct MapView: View {
     @StateObject private var locationViewModel = LocationSearchViewModel()
     @State private var showFutureMarkerSheet = false
     @State private var showVisitedMarkerSheet = false
+    @State private var isSheetPresented = false
+
     
     var user: User
     var body: some View {
@@ -34,7 +36,7 @@ struct MapView: View {
                         }
                 }
                 
-                MapViewActionButton(mapState: $mapState)
+                MapViewActionButton(mapState: $mapState, isSheetPresented: $isSheetPresented)
                     .padding(.leading)
                     .padding(.top, 4)
             }
