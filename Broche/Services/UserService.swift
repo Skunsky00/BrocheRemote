@@ -95,13 +95,23 @@ extension UserService {
             if let location = try? document.data(as: Location.self),
                location.latitude == coordinate.latitude && location.longitude == coordinate.longitude {
                 try await document.reference.delete()
-                print("Location unsaved successfully!")
+                
+                // Delete comments associated with the location
+                let commentsRef = document.reference.collection("location-comments")
+                let commentsQuerySnapshot = try await commentsRef.getDocuments()
+                
+                for commentDocument in commentsQuerySnapshot.documents {
+                    try await commentDocument.reference.delete()
+                }
+                
+                print("Location and associated comments unsaved successfully!")
                 return
             }
         }
 
         print("Error: Failed to find and unsave the location.")
     }
+
 
     static func checkIfUserSavedLocation(uid: String, coordinate: Location) async throws -> Bool {
         let collectionRef = COLLECTION_LOCATION.document(uid).collection("user-locations")
@@ -167,13 +177,23 @@ extension UserService {
             if let location = try? document.data(as: Location.self),
                location.latitude == coordinate.latitude && location.longitude == coordinate.longitude {
                 try await document.reference.delete()
-                print("Future location unsaved successfully!")
+                
+                // Delete comments associated with the location
+                let commentsRef = document.reference.collection("location-comments")
+                let commentsQuerySnapshot = try await commentsRef.getDocuments()
+                
+                for commentDocument in commentsQuerySnapshot.documents {
+                    try await commentDocument.reference.delete()
+                }
+                
+                print("Future location and associated comments unsaved successfully!")
                 return
             }
         }
 
         print("Error: Failed to find and unsave the future location.")
     }
+
 
     static func checkIfUserSavedFutureLocation(uid: String, coordinate: Location) async throws -> Bool {
         let collectionRef = COLLECTION_FUTURE_LOCATIONS.document(uid).collection("user-locations")

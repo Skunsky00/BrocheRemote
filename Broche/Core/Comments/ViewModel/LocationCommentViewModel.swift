@@ -34,9 +34,9 @@ class LocationCommentViewModel: ObservableObject {
         let collectionRef: CollectionReference
                 switch locationType {
                 case .visited:
-                    collectionRef = COLLECTION_LOCATION.document(uid).collection("user-locations").document(locationId).collection("location-comments")
+                    collectionRef = COLLECTION_LOCATION.document(location.ownerUid).collection("user-locations").document(locationId).collection("location-comments")
                 case .future:
-                    collectionRef = COLLECTION_FUTURE_LOCATIONS.document(uid).collection("user-locations").document(locationId).collection("location-comments")
+                    collectionRef = COLLECTION_FUTURE_LOCATIONS.document(location.ownerUid).collection("user-locations").document(locationId).collection("location-comments")
                 }
         
         let data: [String: Any] = ["commentOwnerUid": uid,
