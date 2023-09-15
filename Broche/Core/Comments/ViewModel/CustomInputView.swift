@@ -22,7 +22,7 @@ struct CustomInputView: View {
                 .padding(.bottom, 8)
             
             HStack {
-                TextField(placeholder, text: $inputText)
+                TextField(placeholder, text: $inputText, axis: .vertical)
                     .textFieldStyle(PlainTextFieldStyle())
                     .font(.body)
                     .frame(minHeight: 30)
