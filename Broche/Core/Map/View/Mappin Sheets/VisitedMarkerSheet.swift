@@ -39,7 +39,7 @@ struct VisitedMarkerSheet: View {
                                     .foregroundColor(Color(.label))
                             }
                         )
-                    } 
+                    }
                     
                     
                     if viewModel.user.isCurrentUser {
@@ -98,7 +98,7 @@ struct VisitedMarkerSheet: View {
                             .font(.subheadline)
                             .fontWeight(.regular)
                             .foregroundColor(Color.gray)
-                    } 
+                    }
                     
                 }
                 .padding(.leading)
@@ -119,14 +119,18 @@ struct VisitedMarkerSheet: View {
                 
                 HStack {
                     if let link = locationViewModel.selectedLocation?.link {
-                        Text(link)
-                            .font(.footnote)
-                            .overlay(
-                                TextLinkView(text: (locationViewModel.selectedLocation?.link)!, linkColor: .cyan)
-                            )
+                        ZStack(alignment: .bottomLeading) {
+                            Text(link)
+                                .font(.footnote)
+                                .foregroundColor(.cyan)
+                            
+                            TextLinkView(text: link, linkColor: .cyan)
+                        }
                     }
                 }
                 .padding(.top)
+
+
                 
                 Spacer()
             }

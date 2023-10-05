@@ -38,7 +38,7 @@ struct CurrentUserProfileView: View {
             .navigationTitle(user.username)
             .navigationBarTitleDisplayMode(.inline)
             .refreshable {
-                viewModel.loadUserData()
+                viewModel.updateUserData(user: user)
             }
             .navigationDestination(isPresented: $showDetail) {
                 if let option = selectedSettingsOption {

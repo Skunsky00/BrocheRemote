@@ -70,8 +70,11 @@ class EditProfileViewModel: ObservableObject {
         
         //update link if changed
         if !link.isEmpty && user.link != link {
-            data["link"] = link
-        }
+                data["link"] = link
+            } else if link.isEmpty && user.link != nil {
+                // Set the link to nil in the database if it's empty
+                data["link"] = FieldValue.delete()
+            }
         
         if !data.isEmpty {
             try await Firestore.firestore().collection("users").document(user.id).updateData(data)

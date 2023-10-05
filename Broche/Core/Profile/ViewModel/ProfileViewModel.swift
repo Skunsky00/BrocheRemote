@@ -57,4 +57,9 @@ class ProfileViewModel: ObservableObject {
             self.user.isFollowed = await isFollowed
         }
     }
+    
+    func updateUserData(user: User) {
+        self.user = user
+        loadUserData() // Reload the user's data with the updated user instance
+    }
 }

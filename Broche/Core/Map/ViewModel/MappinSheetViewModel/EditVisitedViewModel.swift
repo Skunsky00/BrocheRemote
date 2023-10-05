@@ -34,6 +34,7 @@ class EditVisitedViewModel: ObservableObject {
     
     @MainActor
     func updateUserData() async throws {
+        print("Updating user data...")
         var data = [String: Any]()
         
         if !date.isEmpty && location.date != date {
@@ -45,8 +46,11 @@ class EditVisitedViewModel: ObservableObject {
         }
         
         if !link.isEmpty && location.link != link {
-            data["link"] = link
-        }
+                data["link"] = link
+            } else if link.isEmpty && location.link != nil {
+                // Set the link to nil in the database if it's empty
+                data["link"] = FieldValue.delete()
+            }
         
         if !data.isEmpty {
             // Use the existing `location` instance to update the correct document
