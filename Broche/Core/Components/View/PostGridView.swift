@@ -30,61 +30,106 @@ struct PostGridView: View {
     
     private let imageDimension: CGFloat = (UIScreen.main.bounds.width / 2) - 1
     
+    var noPostsMessage: String {
+        switch config {
+        case .likedPosts:
+            return "No liked posts yet."
+        case .bookmarkedPosts:
+            return "No bookmarked posts yet."
+        case .profile:
+            return "No posts yet."
+        case .explore:
+            return "No posts to display."
+        }
+    }
+    
+    var noPostImage: String {
+        switch config {
+        case .likedPosts:
+            return "heart"
+        case .bookmarkedPosts:
+            return "bookmark"
+        case .profile:
+            return "camera"
+        case .explore:
+            return "camera"
+        }
+    }
+    
     var body: some View {
         VStack {
-            SearchBar(text: $searchText, isEditing: $isEditing)
-                .padding(.horizontal)
-                .padding(.bottom, 16)
-            ScrollView {
-                LazyVGrid(columns: gridItems, spacing: 1) {
-                    ForEach(posts) { post in
-                        NavigationLink(destination: FeedCell(viewModel: FeedCellViewModel(post: post))) {
-                            ZStack {
-                                if let imageUrl = post.imageUrl {
-                                    KFImage(URL(string: imageUrl))
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: imageDimension, height: imageDimension)
-                                        .clipped()
-                                } else if let videoUrlString = post.videoUrl, let videoUrl = URL(string: videoUrlString) {
-                                    VideoThumbnail(url: videoUrl)
-                                        .scaledToFill()
-                                        .frame(width: imageDimension, height: imageDimension)
-                                        .clipped()
-                                }
-                                
-                                VStack {
-                                    Text(post.location)
-                                        .font(.subheadline)
-                                        .fontWeight(.semibold)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                    
-                                        .foregroundColor(.white)
-                                    
-                                    HStack {
-                                        Text(post.label!)
-                                            .font(.footnote)
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                            .foregroundColor(.white)
-                                        
-                                        Spacer()
-                                        
-                                        Text("\(post.likes)")
-                                            .font(.footnote)
-                                            .frame(maxWidth: .infinity, alignment: .trailing)
-                                            .foregroundColor(.white)
+            if !posts.isEmpty {
+                // SearchBar inside the scrollable content, but only if there are posts
+                SearchBar(text: $searchText, isEditing: $isEditing)
+                    .padding(.horizontal)
+                    .padding(.bottom, 16)
+            }
+            
+            if posts.isEmpty {
+                VStack {
+                    Image(systemName: noPostImage)
+                        .imageScale(.large)
+                        .padding()
+                    
+                    Text(noPostsMessage)
+                        .font(.headline)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.top, 150)
+                
+            } else {
+                
+                ScrollView {
+                    LazyVGrid(columns: gridItems, spacing: 1) {
+                        ForEach(posts) { post in
+                            NavigationLink(destination: FeedCell(viewModel: FeedCellViewModel(post: post))) {
+                                ZStack {
+                                    if let imageUrl = post.imageUrl {
+                                        KFImage(URL(string: imageUrl))
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: imageDimension, height: imageDimension)
+                                            .clipped()
+                                    } else if let videoUrlString = post.videoUrl, let videoUrl = URL(string: videoUrlString) {
+                                        VideoThumbnail(url: videoUrl)
+                                            .scaledToFill()
+                                            .frame(width: imageDimension, height: imageDimension)
+                                            .clipped()
                                     }
-                                    .padding(.trailing, 8)
+                                    
+                                    VStack {
+                                        Text(post.location)
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                        
+                                            .foregroundColor(.white)
+                                        
+                                        HStack {
+                                            Text(post.label!)
+                                                .font(.footnote)
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                                .foregroundColor(.white)
+                                            
+                                            Spacer()
+                                            
+                                            Text("\(post.likes)")
+                                                .font(.footnote)
+                                                .frame(maxWidth: .infinity, alignment: .trailing)
+                                                .foregroundColor(.white)
+                                        }
+                                        .padding(.trailing, 8)
+                                    }
+                                    .padding(.leading, 8)
+                                    .padding(.top, 140)
                                 }
-                                .padding(.leading, 8)
-                                .padding(.top, 140)
                             }
-                        }
-                        .onAppear {
-                            guard let index = viewModel.posts.firstIndex(where: { $0.id == post.id }) else { return }
-                            if case .explore = config, index == viewModel.posts.count - 1 {
-                                Task {
-                                    await viewModel.fetchExplorePagePosts()
+                            .onAppear {
+                                guard let index = viewModel.posts.firstIndex(where: { $0.id == post.id }) else { return }
+                                if case .explore = config, index == viewModel.posts.count - 1 {
+                                    Task {
+                                        await viewModel.fetchExplorePagePosts()
+                                    }
                                 }
                             }
                         }

@@ -14,7 +14,7 @@ struct EditFutureMarkerView: View {
     
     init(user: User, location: Location) {
             
-                self._viewModel = StateObject(wrappedValue: EditFutureMarkerViewModel(user: user, location: location))
+    self._viewModel = StateObject(wrappedValue: EditFutureMarkerViewModel(user: user, location: location))
             
         }
     var body: some View {
