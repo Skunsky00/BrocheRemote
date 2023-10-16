@@ -104,11 +104,21 @@ struct AddEmailView: View {
 
 extension AddEmailView: AuthenticationFormProtocol {
     var formIsValid: Bool {
-        return !viewModel.email.isEmpty
-        && viewModel.email.contains("@")
-        && viewModel.email.contains(".")
+        guard !viewModel.email.isEmpty else { return false }
+        
+        // Check if the email contains one of the allowed domain endings
+        let allowedDomainEndings = [".com", ".gov", ".edu", ".net", ".int", ".mil", ".org", ".arpa"]
+        let emailComponents = viewModel.email.split(separator: "@")
+        
+        if emailComponents.count == 2 {
+            let domain = String(emailComponents[1])
+            return allowedDomainEndings.contains(where: { domain.hasSuffix($0) })
+        }
+        
+        return false
     }
 }
+
 
 struct AddEmailView_Previews: PreviewProvider {
     static var previews: some View {
