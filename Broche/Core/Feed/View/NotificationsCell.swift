@@ -24,35 +24,43 @@ struct NotificationCell: View {
     var body: some View {
         HStack {
             if let user = notification.user {
-                        NavigationLink(destination: ProfileView(user: user)) {
-                            CircularProfileImageView(user: user, size: .xSmall)
-                            
-                            VStack(alignment: .leading) {
-                                Text(user.username)
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .lineLimit(1)
-                                
-                                if notification.type == .comment {
-                                    Text("commented on one of your posts.")
-                                        .font(.system(size: 14))
-                                } else if notification.type == .message {
-                                    Text("sent you a new message.")
-                                        .font(.system(size: 14))
-                                } else {
-                                    Text(notification.type.notificationMessage)
-                                        .font(.system(size: 14))
-                                }
-                            }
-                            .multilineTextAlignment(.leading)
+                NavigationLink(destination: ProfileView(user: user)) {
+                    CircularProfileImageView(user: user, size: .xSmall)
                     
-                            
-                            Spacer() // Add a spacer to push the timestamp to the right edge of the cell
-                            
-                            Text(" \(viewModel.timestampString)")
-                                .foregroundColor(.gray)
-                                .font(.system(size: 12))
+                    VStack(alignment: .leading) {
+                        Text(user.username)
+                            .font(.system(size: 14, weight: .semibold))
+                            .lineLimit(1)
+                        
+                        if notification.type == .comment {
+                            Text("commented on one of your posts.")
+                                .font(.system(size: 14))
+                        } else if notification.type == .locationComment {
+                            if let city = notification.city {
+                                Text("commented on your \(city) pin.")
+                                    .font(.system(size: 14))
+                            } else {
+                                Text("commented on one of your locations.")
+                                    .font(.system(size: 14))
+                            }
+                        } else if notification.type == .message {
+                            Text("sent you a new message.")
+                                .font(.system(size: 14))
+                        } else {
+                            Text(notification.type.notificationMessage)
+                                .font(.system(size: 14))
                         }
                     }
+                    .multilineTextAlignment(.leading)
+
+                    Spacer() // Add a spacer to push the timestamp to the right edge of the cell
+
+                    Text(" \(viewModel.timestampString)")
+                        .foregroundColor(.gray)
+                        .font(.system(size: 12))
+                }
+            }
+
 
 
             Spacer()
@@ -91,6 +99,11 @@ struct NotificationCell: View {
                         )
                 })
             }
+            if notification.type == .locationComment {
+                            Image(systemName: "mappin")
+                                .font(.system(size: 20))
+                                .foregroundColor(.red)
+                        }
         }
         .padding(.horizontal)
     }

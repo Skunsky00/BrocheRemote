@@ -19,11 +19,11 @@ class NotificationsViewModel: ObservableObject {
     
     private func fetchNotifications() async {
         guard let uid = Auth.auth().currentUser?.uid else { return }
-
+        
         let query = COLLECTION_NOTIFICATIONS
             .document(uid).collection("user-notifications")
             .order(by: "timestamp", descending: true)
-
+        
         guard let snapshot = try? await query.getDocuments() else { return }
         self.notifications = snapshot.documents.compactMap({ try? $0.data(as: Notification.self) })
     }
@@ -44,10 +44,10 @@ class NotificationsViewModel: ObservableObject {
     private func checkForNewNotifications() {
         // Filter the notifications to get only the unviewed ones
         let unviewedNotifications = notifications.filter { !$0.isViewed }
-
+        
         // Check if there are any new, unviewed notifications
         hasNewNotifications = !unviewedNotifications.isEmpty
-
+        
         print("DEBUG: hasNewNotifications after checkForNewNotifications: \(hasNewNotifications)")
     }
     
@@ -88,7 +88,7 @@ class NotificationsViewModel: ObservableObject {
             }
     }
     
-    static func uploadNotification(toUid uid: String, type: NotificationType, post: Post? = nil) {
+    static func uploadNotification(toUid uid: String, type: NotificationType, post: Post? = nil, location: Location? = nil) {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
         guard uid != currentUid else { return }
         
@@ -101,6 +101,11 @@ class NotificationsViewModel: ObservableObject {
             data["postId"] = id
         }
         
+        if let location = location {
+            data["locationId"] = location.id
+            data["city"] = location.city ?? ""
+        }
+        
         COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").addDocument(data: data)
     }
     
@@ -109,15 +114,25 @@ class NotificationsViewModel: ObservableObject {
         
         async let notificationUser = try await UserService.fetchUser(withUid: notification.uid)
         self.notifications[indexOfNotification].user = try await notificationUser
-
+        
         if notification.type == .follow {
             async let isFollowed = await UserService.checkIfUserIsFollowed(uid: notification.uid)
             self.notifications[indexOfNotification].isFollowed = await isFollowed
         }
-
+        
         if let postId = notification.postId {
             async let postSnapshot = await COLLECTION_POSTS.document(postId).getDocument()
             self.notifications[indexOfNotification].post = try? await postSnapshot.data(as: Post.self)
+        }
+        
+        if let locationId = notification.locationId {
+            // Check both collections for location data
+            async let locationSnapshot = await COLLECTION_LOCATION.document(locationId).getDocument()
+            self.notifications[indexOfNotification].location = try? await locationSnapshot.data(as: Location.self)
+            if self.notifications[indexOfNotification].location == nil {
+                async let futureLocationSnapshot = await COLLECTION_FUTURE_LOCATIONS.document(locationId).getDocument()
+                self.notifications[indexOfNotification].location = try? await futureLocationSnapshot.data(as: Location.self)
+            }
         }
     }
 }
