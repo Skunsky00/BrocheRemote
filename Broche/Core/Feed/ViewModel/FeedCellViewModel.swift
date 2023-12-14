@@ -13,9 +13,39 @@ class FeedCellViewModel: ObservableObject {
     @Published var post: Post
     
     var likeString: String {
-        let label = post.likes == 1 ? "like" : "likes"
-        return "\(post.likes) \(label)"
+        let likes = post.likes
+
+        switch likes {
+        case 0..<1000:
+            return "\(likes)"
+        case 1000..<10000:
+            let formattedLikes = Double(likes) / 1000.0
+            return String(format: "%.1fK", formattedLikes)
+        case 10000...:
+            let formattedLikes = Double(likes) / 1000.0
+            return String(format: "%.0fK", formattedLikes)
+        default:
+            return "\(likes)"
+        }
     }
+
+    var commentString: String {
+        let comments = post.comments ?? 0
+        
+        switch comments {
+        case 0..<1000:
+            return "\(comments)"
+        case 1000..<10000:
+            let formattedLikes = Double(comments) / 1000.0
+            return String(format: "%.1fK", formattedLikes)
+        case 10000...:
+            let formattedLikes = Double(comments) / 1000.0
+            return String(format: "%.0fK", formattedLikes)
+        default:
+            return "\(comments)"
+        }
+    }
+
     
     var timestampString: String {
         let formatter = DateComponentsFormatter()

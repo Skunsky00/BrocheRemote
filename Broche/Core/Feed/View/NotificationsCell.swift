@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import AVKit
 
 struct NotificationCell: View {
     @ObservedObject var viewModel: NotificationCellViewModel
@@ -67,7 +68,7 @@ struct NotificationCell: View {
 
             if notification.type != .follow {
                 if let post = notification.post {
-                    NavigationLink(destination: FeedCell(viewModel: FeedCellViewModel(post: post))) {
+                    NavigationLink(destination: FeedCell(viewModel: FeedCellViewModel(post: post), player: AVPlayer())) {
                         if let imageUrl = post.imageUrl {
                             KFImage(URL(string: imageUrl))
                                 .resizable()

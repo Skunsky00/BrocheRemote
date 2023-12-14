@@ -11,6 +11,7 @@ struct UserListView: View {
     @StateObject var viewModel: SearchViewModel
     private let config: SearchViewModelConfig
     @State private var searchText = ""
+    @State private var isEditing = false
     
     init(config: SearchViewModelConfig) {
         self.config = config
@@ -22,23 +23,27 @@ struct UserListView: View {
     }
     
     var body: some View {
-        ScrollView {
-            LazyVStack {
-                ForEach(users) { user in
-                    NavigationLink(value: user) {
-                        UserCell(user: user)
-                            .padding(.leading)
-                            .onAppear {
-                                if user.id == users.last?.id ?? "" {
-                                }
+            ScrollView {
+                LazyVStack {
+                    SearchBar(text: $searchText, isEditing: $isEditing) // Create a custom SearchBar view.
+                        .onSubmit {
+                                viewModel.clearUsers()
+                                viewModel.updateSearchQuery(searchText)
                             }
+                    
+                    ForEach(users) { user in
+                        NavigationLink(value: user) {
+                            UserCell(user: user)
+                                .padding(.leading)
+                                .onAppear {
+                                    if user.id == users.last?.id ?? "" {
+                                    }
+                                }
+                        }
                     }
                 }
-                
+                .navigationTitle(config.navigationTitle)
+                .padding(.top)
             }
-            .navigationTitle(config.navigationTitle)
-            .padding(.top)
         }
-        .searchable(text: $searchText, placement: .navigationBarDrawer)
     }
-}

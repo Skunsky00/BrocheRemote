@@ -17,6 +17,7 @@ struct Post: Identifiable, Hashable, Codable {
     let imageUrl: String?
     let videoUrl: String?
     let label: String?
+    var comments: Int?
     let timestamp: Timestamp
     var user: User?
     
@@ -36,10 +37,11 @@ extension Post {
         ownerUid:NSUUID().uuidString,
         caption: "creator of broche",
         location: "Orlando, Fl",
-        likes: 195,
+        likes: 195579,
         imageUrl: "example",
         videoUrl: "example",
         label: "Air BnB",
+        comments: 12,
         timestamp: Timestamp(),
         user: User.MOCK_USERS[0]
         ),
@@ -48,10 +50,11 @@ extension Post {
         ownerUid:NSUUID().uuidString,
         caption: "Im batman, ill steal your girl anytome of the night",
         location: "Gothom,  IL",
-        likes: 130,
+        likes: 130567,
         imageUrl: nil,
         videoUrl: "example2",
         label: "Air BnB",
+        comments: 12,
         timestamp: Timestamp(),
         user: User.MOCK_USERS[1]
         ),
@@ -64,6 +67,7 @@ extension Post {
         imageUrl: "example",
         videoUrl: "example",
         label: "Air BnB",
+        comments: 12,
         timestamp: Timestamp(),
         user: User.MOCK_USERS[2]
         ),
@@ -76,6 +80,7 @@ extension Post {
         imageUrl: "example",
         videoUrl: "example",
         label: "Air BnB",
+        comments: 12,
         timestamp: Timestamp(),
         user: User.MOCK_USERS[3]
         ),
@@ -88,6 +93,7 @@ extension Post {
         imageUrl: "example",
         videoUrl: "example",
         label: "Hotle",
+        comments: 12,
         timestamp: Timestamp(),
         user: User.MOCK_USERS[4]
         ),

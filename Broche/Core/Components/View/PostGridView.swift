@@ -7,12 +7,15 @@
 
 import SwiftUI
 import Kingfisher
+import AVKit
 
 struct PostGridView: View {
     let config: PostGridConfiguration
     @StateObject var viewModel: PostGridViewModel
     @State private var isEditing = false
     @State private var searchText = ""
+    
+    
     
     init(config: PostGridConfiguration) {
         self.config = config
@@ -82,7 +85,8 @@ struct PostGridView: View {
                 ScrollView {
                     LazyVGrid(columns: gridItems, spacing: 1) {
                         ForEach(posts) { post in
-                            NavigationLink(destination: FeedCell(viewModel: FeedCellViewModel(post: post))) {
+                            NavigationLink(destination: PostGridFeedCell(viewModel: FeedCellViewModel(post: post))){
+                                
                                 ZStack {
                                     if let imageUrl = post.imageUrl {
                                         KFImage(URL(string: imageUrl))
@@ -141,6 +145,13 @@ struct PostGridView: View {
         .navigationBarHidden(false)
     }
 }
+
+
+
+
+
+
+
 
 
 struct PostGridView_Previews: PreviewProvider {

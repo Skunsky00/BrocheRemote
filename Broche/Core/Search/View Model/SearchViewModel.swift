@@ -39,6 +39,7 @@ class SearchViewModel: ObservableObject {
     @Published var users = [User]()
     private let config: SearchViewModelConfig
     private var lastDoc: QueryDocumentSnapshot?
+    private var searchQuery: String?
     
     init(config: SearchViewModelConfig) {
         self.config = config
@@ -47,9 +48,9 @@ class SearchViewModel: ObservableObject {
     
     
     func fetchUsers() async {
-        //guard let currentUid = Auth.auth().currentUser?.uid else { return }
-        let query = COLLECTION_USERS.limit(to: 20)
-                
+        guard let currentUid = Auth.auth().currentUser?.uid else { return }
+        let query = COLLECTION_USERS
+
         if let last = lastDoc {
             let next = query.start(afterDocument: last)
             guard let snapshot = try? await next.getDocuments() else { return }
@@ -58,9 +59,11 @@ class SearchViewModel: ObservableObject {
         } else {
             guard let snapshot = try? await query.getDocuments() else { return }
             self.lastDoc = snapshot.documents.last
-            self.users = snapshot.documents.compactMap({ try? $0.data(as: User.self) })//.filter({ $0.id != currentUid })
+            self.users = snapshot.documents.compactMap({ try? $0.data(as: User.self) }).filter({ $0.id != currentUid })
         }
     }
+
+
     
     func fetchUsers(forConfig config: SearchViewModelConfig) {
         Task {
@@ -75,10 +78,11 @@ class SearchViewModel: ObservableObject {
                 try await fetchPostLikesUsers(forPostId: postId)
             case .search, .newMessage:
                 print("DEBUG: Fetching users..")
-                await fetchUsers()
+                 await fetchUsers()
             }
         }
     }
+    
     
     private func fetchPostLikesUsers(forPostId postId: String) async throws {
         guard let snapshot = try? await COLLECTION_POSTS.document(postId).collection("post-likes").getDocuments() else { return }
@@ -126,12 +130,25 @@ class SearchViewModel: ObservableObject {
         }
     }
 
+    // Update the search query when the user types in the search bar
+    func updateSearchQuery(_ query: String) {
+        // Reset the list of users before fetching new ones.
+        users.removeAll()
+        searchQuery = query
+        fetchUsers(forConfig: config)
+    }
+
     
     func filteredUsers(_ query: String) -> [User] {
+        
         let lowercasedQuery = query.lowercased()
         return users.filter({
             $0.fullname?.lowercased().contains(lowercasedQuery) ?? false ||
             $0.username.contains(lowercasedQuery)
         })
+    }
+    
+    func clearUsers() {
+        users.removeAll()
     }
 }

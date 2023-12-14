@@ -12,6 +12,11 @@ struct MapViewForLocation: View {
     let location: String
     @ObservedObject private var viewModel: MapViewForLocationViewModel
     @State private var mapSelection: MKMapItem?
+//    @State private var cameraPosistion = MapCameraPosition.region(MKCoordinateRegion(
+//        center: CLLocationCoordinate2D(viewModel.coordinate)
+//        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+//    ))
+
 
     init(location: String) {
         self.location = location
@@ -24,8 +29,12 @@ struct MapViewForLocation: View {
                 .font(.headline)
                 .padding(.top, 5)
             if let coordinate = viewModel.coordinate {
-                Map(coordinateRegion: .constant(MKCoordinateRegion(center: coordinate, span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))))
-                    .frame(height: UIScreen.main.bounds.width * 1.3)
+                Map {
+                    Marker(location, coordinate: coordinate)
+                        .tint(.blue)
+                    
+                }
+                .frame(height: UIScreen.main.bounds.width * 1.3)
             } else {
                 Text("Location coordinate not available.")
             }

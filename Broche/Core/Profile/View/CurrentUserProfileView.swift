@@ -86,12 +86,12 @@ struct CurrentUserProfileView: View {
                     }
                 }
             })
-            .onChange(of: notiViewModel.hasNewNotifications) { newValue in
+            .onChange(of: notiViewModel.hasNewNotifications) {
                 // Print statement to check hasNewNotifications in the CurrentUserProfileView
-                print("DEBUG: CurrentUserProfileView - hasNewNotifications: \(newValue)")
+                print("DEBUG: CurrentUserProfileView - hasNewNotifications: \(notiViewModel.hasNewNotifications)")
             }
-            .onChange(of: selectedSettingsOption) { newValue in
-                guard let option = newValue else { return }
+            .onChange(of: selectedSettingsOption) {
+                guard let option = selectedSettingsOption else { return }
                 
                 switch option {
                 case .logout:

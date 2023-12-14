@@ -39,7 +39,7 @@ struct LocationBookMarkView: View {
             
             Divider()
             
-            Text("SELECT MAPPIN")
+            Text("SELECT PIN")
                 .font(.subheadline)
                 .fontWeight(.semibold)
                 .padding()

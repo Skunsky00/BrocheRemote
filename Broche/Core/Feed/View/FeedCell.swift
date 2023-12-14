@@ -18,13 +18,19 @@ struct FeedCell: View {
     @State private var showDeleteConfirmation = false
     @State private var isCaptionExpanded = false
     @State private var showCommentsSheet = false
-    //@StateObject private var playerManager = AVPlayerManager()
     @Environment(\.colorScheme) var colorScheme
     
     
     var showDeleteOption: Bool { return viewModel.post.isCurrentUser }
     var didLike: Bool { return viewModel.post.didLike ?? false }
     var didBookmark: Bool { return viewModel.post.didBookmark ?? false }
+    
+    var player: AVPlayer?
+    
+    init(viewModel: FeedCellViewModel, player: AVPlayer) {
+            self.viewModel = viewModel
+            self.player = player
+        }
     
     var body: some View {
         ZStack {
@@ -37,9 +43,9 @@ struct FeedCell: View {
                     .clipped()
                     .contentShape(Rectangle())
             }
-            else if let videoUrl = viewModel.post.videoUrl {
-                VideoPlayerView(videoURL: URL(string: videoUrl)!)
-                                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 16/9)
+            else if let player = player {
+                VideoPlayerController(player: player)
+                            .containerRelativeFrame([.horizontal, .vertical])
                             }
             
             VStack(alignment: .leading) {
@@ -55,7 +61,7 @@ struct FeedCell: View {
                                 .foregroundColor(.black)
                                 .frame(width: 28, height: 28)
                                 .background(.thinMaterial)
-                                .cornerRadius(2)
+                                .cornerRadius(10)
                                 
                     Text(viewModel.post.location)
                         .font(.footnote)
@@ -76,101 +82,112 @@ struct FeedCell: View {
                 
                 //MARK: action buttons
                 HStack(spacing: 16) {
-                    Button {
-                        print("like post")
-                        Task { didLike ? try await viewModel.unlike() : try await viewModel.like() }
-                    } label: {
-                        Image(systemName: "heart.fill")
-                            .imageScale(.large)
-                            .foregroundColor(didLike ? .red :  .white )
-                    }
                     
+                    
+                    VStack(spacing: 16) {
+                        Button {
+                            showCommentsSheet.toggle()
+                        } label: {
+                            VStack {
+                                Image(systemName: "bubble.left.fill")
+                                    .resizable()
+                                    .frame(width: 28, height: 28)
+                                    .accentColor(.white)
+                                    .foregroundColor(.white)
+                                Text(viewModel.commentString)
+                                    .font(.footnote)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(.white)
+                            }
+                        }
+                        
+                        
+                        Button {
+                            selectedOptionsOption = nil
+                            showOptionsSheet.toggle()
+                        } label: {
+                                Image(systemName: "ellipsis")
+                                    .imageScale(.large)
+                                    .frame(width: 30, height: 30)
+                                    .accentColor(.white)
+                                    .foregroundColor(.white)
+                        }
+                        
+                    }
                     Spacer()
                     
-                    Button {
-                        print("save post")
-                        Task {  didBookmark ? try await viewModel.unbookmark() : try await viewModel.bookmark() }
-                    } label: {
-                        Image(systemName: "bookmark.fill")
-                            .imageScale(.large)
-                            .accentColor(.white )
-                            .foregroundColor(didBookmark ? .cyan : .white)
-                    }
-                    
-                    Spacer()
-                    
-                    Button {
-                        showCommentsSheet.toggle()
-                    } label: {
-                        Image(systemName: "bubble.left.fill")
-                            .imageScale(.large)
-                            .accentColor(.white)
-                            .foregroundColor(.white)
-                    }
-                    
-                    Spacer()
-                    
-                    Button {
-                        selectedOptionsOption = nil
-                        showOptionsSheet.toggle()
-                    } label: {
-                        Image(systemName: "ellipsis")
-                            .imageScale(.large)
-                            .frame(width: 30, height: 30)
-                            .accentColor(.white)
-                            .foregroundColor(.white)
+                    VStack(spacing: 16) {
+                        Button {
+                            print("like post")
+                            Task { didLike ? try await viewModel.unlike() : try await viewModel.like() }
+                        } label: {
+                            VStack(spacing: 8) {
+                                Image(systemName: "heart.fill")
+                                    .resizable()
+                                    .frame(width: 28, height: 28)
+                                    .foregroundColor(didLike ? .red :  .white )
+                                NavigationLink(value: SearchViewModelConfig.likes(viewModel.post.id ?? "")) {
+                                    Text(viewModel.likeString)
+                                        .font(.footnote)
+                                        .fontWeight(.semibold)
+                                        .foregroundStyle(.white)
+                                }
+                            }
+                        }
+
+                        
+                        Button {
+                            print("save post")
+                            Task {  didBookmark ? try await viewModel.unbookmark() : try await viewModel.bookmark() }
+                        } label: {
+                            Image(systemName: "bookmark.fill")
+                                .resizable()
+                                .frame(width: 22, height: 28)
+                                .accentColor(.white )
+                                .foregroundColor(didBookmark ? .cyan : .white)
+                        }
                     }
                 }
+                .padding(.bottom, 15)
                 .padding(.horizontal, 10)
-          //      .padding(.top, 3)
-                .foregroundColor(.black)
+
                 
                 //likes and comments lable
                 HStack {
-                    NavigationLink(value: SearchViewModelConfig.likes(viewModel.post.id ?? "")) {
-                        Text(viewModel.likeString)
-                            .font(.footnote)
-                            .fontWeight(.semibold)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.top, 1)
-                    }
-                    
-                    Spacer()
-                    
                     // filter name
                     Text(viewModel.post.label!)
-                        .font(.footnote)
+                        .font(.subheadline)
                         .fontWeight(.semibold)
+                        .foregroundStyle(.white)
                         .lineLimit(1)
-                        .frame(minWidth: 50)
-                        .padding(.top, 1)
-                        .background(.thinMaterial)
+                                        
+                    Spacer()
+                    
+                    Text("\(viewModel.post.user?.username ?? "") ")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.white)
                     
                 }
-                .padding(.horizontal, 12)
-                .padding(.bottom, 1)
+                .padding(.horizontal, 16)
+
                 
                 // caption - broche description
                 HStack {
-                    Text("\(viewModel.post.user?.username ?? "") ").fontWeight(.semibold) +
-                    Text(viewModel.post.caption)
+                    Text("\(viewModel.post.caption) ").font(.system(size: 14)).fontWeight(.semibold).foregroundStyle(.white) //+
+                    //Text(viewModel.timestampString)
+                      //  .font(.footnote)
+                     //   .foregroundColor(.gray)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .font(.footnote)
-                
-                .padding(.leading, 10)
+                .padding()
                 .padding(.top, 1)
                 
                 
-                Text(viewModel.timestampString)
-                    .font(.footnote)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, 10)
-                    .padding(.top, 1)
-                    .foregroundColor(.gray)
+                
                 
                 
             }
+//            .containerRelativeFrame([.horizontal, .vertical])
             .sheet(isPresented: $showCommentsSheet, content: {
                 CommentsView(post: viewModel.post)
                     .presentationDetents([.fraction(0.8), .large])
@@ -185,8 +202,8 @@ struct FeedCell: View {
                         .height(CGFloat(OptionsItemModel.allCases.count * 56))
                     ])
             }
-            .onChange(of: selectedOptionsOption) { newValue in
-                guard let option = newValue else { return }
+            .onChange(of: selectedOptionsOption) {
+                guard let option = selectedOptionsOption else { return }
                 if option == .sharepost {
                     showDetail = true
                 } else if option == .delete {
@@ -211,13 +228,25 @@ struct FeedCell: View {
             .navigationDestination(for: SearchViewModelConfig.self) { config in
                 UserListView(config: config)}
         }
+        .onTapGesture {
+            switch player!.timeControlStatus {
+            case .paused:
+                player!.play()
+            case .waitingToPlayAtSpecifiedRate:
+                break
+            case .playing:
+                player!.pause()
+            @unknown default:
+                break
+            }
+        }
     }
 }
 
     
 
-struct FeedCell_Previews: PreviewProvider {
-    static var previews: some View {
-        FeedCell(viewModel: FeedCellViewModel(post: Post.MOCK_POSTS[1]))
-    }
-}
+//struct FeedCell_Previews: PreviewProvider {
+//    static var previews: some View {
+//        FeedCell(viewModel: FeedCellViewModel(post: Post.MOCK_POSTS[1]))
+//    }
+//}

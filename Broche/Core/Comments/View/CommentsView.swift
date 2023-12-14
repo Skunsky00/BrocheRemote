@@ -20,7 +20,7 @@ struct CommentsView: View {
             Text("Comments")
                 .font(.subheadline)
                 .fontWeight(.bold)
-                .padding(.top, 10)
+                .padding(.top, 20)
                 .padding(.bottom, -20)
         
             

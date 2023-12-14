@@ -132,7 +132,7 @@ extension PostService {
         guard let postId = post.id else { return }
         
         async let _ = try await COLLECTION_POSTS.document(postId).collection("post-bookmarks").document(uid).setData([:])
-        async let _ = try await COLLECTION_POSTS.document(postId).updateData(["bookmarks": post.likes + 1])
+//        async let _ = try await COLLECTION_POSTS.document(postId).updateData(["bookmarks": post.likes + 1])
         async let _ = try await COLLECTION_USERS.document(uid).collection("user-bookmarks").document(postId).setData([:])
         
     }
@@ -144,7 +144,7 @@ extension PostService {
         
         async let _ = try await COLLECTION_POSTS.document(postId).collection("post-bookmarks").document(uid).delete()
         async let _ = try await COLLECTION_USERS.document(uid).collection("user-bookmarks").document(postId).delete()
-        async let _ = try await COLLECTION_POSTS.document(postId).updateData(["bookmarks": post.likes - 1])
+//        async let _ = try await COLLECTION_POSTS.document(postId).updateData(["bookmarks": post.likes - 1])
         
     }
     

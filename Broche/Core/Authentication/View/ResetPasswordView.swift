@@ -69,8 +69,8 @@ struct ResetPasswordView: View {
                         resetLinkSent = true // Update the @State variable
                     }
                 }
-                .onChange(of: resetLinkSent) { sent in
-                    if sent {
+                .onChange(of: resetLinkSent) {
+                    if resetLinkSent {
                         self.mode.wrappedValue.dismiss() // Dismiss the view
                     }
                 }

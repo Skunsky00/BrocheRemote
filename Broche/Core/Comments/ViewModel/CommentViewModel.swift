@@ -32,6 +32,7 @@ class CommentViewModel: ObservableObject {
                                    "commentText": commentText]
         
         let _ = try? await COLLECTION_POSTS.document(postId).collection("post-comments").addDocument(data: data)
+        async let _ = try await COLLECTION_POSTS.document(postId).updateData(["comments": (post.comments ?? 0) + 1])
         NotificationsViewModel.uploadNotification(toUid: self.post.ownerUid, type: .comment, post: self.post)
         self.comments.insert(Comment(user: currentUser, data: data), at: 0)
     }

@@ -141,7 +141,7 @@ class UploadPostViewModel: ObservableObject {
                 guard let videoData = try? Data(contentsOf: videoUrl) else { return }
                 guard let uploadedVideoUrl = try await VideoUploader.uploadVideo(withData: videoData) else { return }
                 
-                let post = Post(id: postRef.documentID, ownerUid: uid, caption: caption, location: location, likes: 0, imageUrl: nil, videoUrl: uploadedVideoUrl, label: label, timestamp: Timestamp())
+                let post = Post(id: postRef.documentID, ownerUid: uid, caption: caption, location: location, likes: 0, imageUrl: nil, videoUrl: uploadedVideoUrl, label: label, comments: 0, timestamp: Timestamp())
                 guard let encodedPost = try? Firestore.Encoder().encode(post) else { return }
                 
                 try await postRef.setData(encodedPost)

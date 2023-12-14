@@ -12,9 +12,9 @@ struct AccountView: View {
     var body: some View {
         VStack {
             HStack{
-                if let user = viewModel.user{
-                    CircularProfileImageView(user: user, size: .large)
-                }
+                
+                    CircularProfileImageView(user: viewModel.user, size: .large)
+                
             }
             .padding(.vertical)
             
@@ -25,10 +25,9 @@ struct AccountView: View {
                     .font(.headline)
                     .fontWeight(.semibold)
                 
-                if let username = viewModel.user.username {
-                    Text(username)
+                     Text(viewModel.user.username)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                }
+                
                     
             }
             .padding(.leading, 10)
@@ -41,10 +40,8 @@ struct AccountView: View {
                     .font(.headline)
                     .fontWeight(.semibold)
                 
-                if let email = viewModel.user.email {
-                    Text(email)
+                    Text(viewModel.user.email)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                }
             }
             .padding(.leading, 10)
             .padding(.vertical)
