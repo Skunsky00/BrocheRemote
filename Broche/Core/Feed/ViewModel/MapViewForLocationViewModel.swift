@@ -11,12 +11,7 @@ import MapKit
 class MapViewForLocationViewModel: ObservableObject {
     @Published var coordinate: CLLocationCoordinate2D?
 
-    init(location: String) {
-        fetchCoordinate(for: location)
-    }
-
-    private func fetchCoordinate(for location: String) {
-        // Use a geocoder to get the coordinate from the location string
+    func fetchCoordinate(for location: String) {
         let geocoder = CLGeocoder()
         geocoder.geocodeAddressString(location) { placemarks, error in
             guard let placemark = placemarks?.first, let coordinate = placemark.location?.coordinate else {
@@ -29,3 +24,4 @@ class MapViewForLocationViewModel: ObservableObject {
         }
     }
 }
+

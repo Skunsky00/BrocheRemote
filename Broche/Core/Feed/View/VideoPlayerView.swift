@@ -58,6 +58,7 @@ struct VideoPlayerController: UIViewControllerRepresentable {
         controller.exitsFullScreenWhenPlaybackEnds = true
         controller.allowsPictureInPicturePlayback = true
         controller.videoGravity = .resizeAspectFill
+        try! AVAudioSession.sharedInstance().setCategory(.playback, options: [])
         return controller
     }
 

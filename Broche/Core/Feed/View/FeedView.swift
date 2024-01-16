@@ -36,7 +36,7 @@ struct FeedView: View {
                                 }
                         }
                     }
-                    .navigationTitle("Feed")
+               //     .navigationTitle("Feed")
                     .navigationBarTitleDisplayMode(.inline)
                     .scrollTargetLayout()
                     .toolbar {
@@ -61,6 +61,8 @@ struct FeedView: View {
                     }
                 }
                 .onAppear { player.play() }
+                .onDisappear { player.pause() }
+
                 .scrollPosition(id: $scrollPosition)
                 .scrollTargetBehavior(.paging)
                 .onChange(of: scrollPosition) { oldValue, newValue in

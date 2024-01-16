@@ -10,41 +10,30 @@ import MapKit
 
 struct MapViewForLocation: View {
     let location: String
-    @ObservedObject private var viewModel: MapViewForLocationViewModel
+    @StateObject private var viewModel = MapViewForLocationViewModel() // Create the view model as a StateObject
     @State private var mapSelection: MKMapItem?
-//    @State private var cameraPosistion = MapCameraPosition.region(MKCoordinateRegion(
-//        center: CLLocationCoordinate2D(viewModel.coordinate)
-//        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-//    ))
-
-
-    init(location: String) {
-        self.location = location
-        self.viewModel = MapViewForLocationViewModel(location: location)
-    }
 
     var body: some View {
         VStack {
             Text(location)
                 .font(.headline)
                 .padding(.top, 5)
+            
             if let coordinate = viewModel.coordinate {
                 Map {
                     Marker(location, coordinate: coordinate)
                         .tint(.blue)
-                    
                 }
                 .frame(height: UIScreen.main.bounds.width * 1.3)
             } else {
                 Text("Location coordinate not available.")
             }
             
-            
             HStack {
                 Button {
-                    if let mapSelection = mapSelection { // Fix the variable name here
-                                mapSelection.openInMaps() // Call openInMaps on the mapSelection
-                            }
+                    if let mapSelection = mapSelection {
+                        mapSelection.openInMaps()
+                    }
                 } label: {
                     Text("Open in Maps")
                         .font(.headline)
@@ -54,11 +43,14 @@ struct MapViewForLocation: View {
                         .cornerRadius(12)
                 }
             }
-            Spacer()
+        }
+        .onAppear {
+            viewModel.fetchCoordinate(for: location) // Fetch coordinate when the view appears
         }
         .navigationTitle("Location Map")
     }
 }
+
 
 
 struct MapViewForLocation_Previews: PreviewProvider {

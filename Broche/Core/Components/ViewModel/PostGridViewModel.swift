@@ -19,6 +19,7 @@ class PostGridViewModel: ObservableObject {
     @Published var posts = [Post]()
     private let config: PostGridConfiguration
     private var lastDoc: QueryDocumentSnapshot?
+    private var lastDocument: DocumentSnapshot?
     
     init(config: PostGridConfiguration) {
         self.config = config

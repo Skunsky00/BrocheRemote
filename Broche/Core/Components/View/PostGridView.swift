@@ -128,14 +128,14 @@ struct PostGridView: View {
                                     .padding(.top, 140)
                                 }
                             }
-                            .onAppear {
-                                guard let index = viewModel.posts.firstIndex(where: { $0.id == post.id }) else { return }
-                                if case .explore = config, index == viewModel.posts.count - 1 {
-                                    Task {
-                                        await viewModel.fetchExplorePagePosts()
-                                    }
-                                }
-                            }
+//                            .onAppear {
+//                                guard let index = viewModel.posts.firstIndex(where: { $0.id == post.id }) else { return }
+//                                if case .explore = config, index == viewModel.posts.count - 1 {
+//                                    Task {
+//                                        await viewModel.fetchExplorePagePosts()
+//                                    }
+//                                }
+//                            }
                         }
                     }
                 }
