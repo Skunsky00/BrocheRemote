@@ -30,7 +30,7 @@ class FeedCellViewModel: ObservableObject {
     }
 
     var commentString: String {
-        let comments = post.comments ?? 0
+        let comments = post.comments
         
         switch comments {
         case 0..<1000:

@@ -18,6 +18,7 @@ struct FeedCell: View {
     @State private var showDeleteConfirmation = false
     @State private var isCaptionExpanded = false
     @State private var showCommentsSheet = false
+    @State private var lastTapTime: Date?
     @Environment(\.colorScheme) var colorScheme
     
     
@@ -229,21 +230,46 @@ struct FeedCell: View {
                 UserListView(config: config)}
         }
         .onTapGesture {
+            // Single tap for play/pause
             switch player!.timeControlStatus {
             case .paused:
                 player!.play()
-            case .waitingToPlayAtSpecifiedRate:
-                break
-            case .playing:
+            case .waitingToPlayAtSpecifiedRate, .playing:
                 player!.pause()
+                handleDoubleTap()
             @unknown default:
                 break
             }
         }
-    }
-}
+        .simultaneousGesture(
+            TapGesture(count: 2)
+                .onEnded {
+                    // Double tap for liking
+                    handleDoubleTap()
+                }
+        )
+        
 
-    
+    }
+    private func handleDoubleTap() {
+            let now = Date()
+
+            if let lastTapTime = lastTapTime, now.timeIntervalSince(lastTapTime) < 0.3 {
+                // Perform action on double-tap (e.g., like the post)
+                Task {
+                    do {
+                        try await viewModel.like()
+                    } catch {
+                        print("Error liking post: \(error)")
+                    }
+                }
+            }
+
+            lastTapTime = now
+        }
+}
+//
+//    
 
 //struct FeedCell_Previews: PreviewProvider {
 //    static var previews: some View {
