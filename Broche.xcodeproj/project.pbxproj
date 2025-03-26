@@ -663,9 +663,9 @@
 			isa = PBXGroup;
 			children = (
 				4E9770442A256E4E00919F88 /* MapViewRepresentable.swift */,
+				4E9770542A2570D400919F88 /* LocationSearchViewModel.swift */,
 				4E9770462A256E7900919F88 /* LocationManager.swift */,
 				4E9770522A25703400919F88 /* MapViewState.swift */,
-				4E9770542A2570D400919F88 /* LocationSearchViewModel.swift */,
 				4E8D3E912A704B31000907A5 /* CustomAnnotation.swift */,
 				4E188F482A89C4170049AE0A /* MappinSheetViewModel */,
 			);

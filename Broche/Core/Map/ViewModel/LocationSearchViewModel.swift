@@ -17,6 +17,7 @@ class LocationSearchViewModel: NSObject, ObservableObject {
     @Published var selectedLocationTitle: String? // Property to store the selected title
     var mapCoordinator: MapViewRepresentable.MapCoordinator?
     @Published var selectedLocation: Location?
+    @Published var selectedUser: User?
     
     private let searchCompleter = MKLocalSearchCompleter()
     var queryFragment: String = "" {
@@ -35,7 +36,7 @@ class LocationSearchViewModel: NSObject, ObservableObject {
     
     // MARK: Helpers
     
-    func selectLocation(_ localSearch: MKLocalSearchCompletion) {
+    func selectLocation(_ localSearch: MKLocalSearchCompletion, user: User? = nil) {
         locationSearch(forLocalSearchCompletion: localSearch) { response, error in
             if let error = error {
                 print("DEBUG: Location search failed with error \(error.localizedDescription)")

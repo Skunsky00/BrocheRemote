@@ -68,10 +68,11 @@ struct FutureMarkerSheet: View {
                 Divider()
                 
                 ScrollView{
-                    
-                    // profile and followers
                     HStack(){
-                        CircularProfileImageView(user: viewModel.user, size: .xSmall)
+                        NavigationLink(destination: ProfileView(user: viewModel.user)) { // Navigate to the ProfileView
+                                                    CircularProfileImageView(user: viewModel.user, size: .xSmall)
+                                                }
+                        
                         
                         Text(viewModel.user.username)
                             .font(.subheadline)
@@ -86,7 +87,7 @@ struct FutureMarkerSheet: View {
                                 .fontWeight(.semibold)
                             Image(systemName: "mappin.and.ellipse")
                         }
-
+                        
                         
                         
                     }
@@ -99,7 +100,7 @@ struct FutureMarkerSheet: View {
                                 .font(.subheadline)
                                 .fontWeight(.regular)
                                 .foregroundColor(Color.gray)
-                        } 
+                        }
                         
                         
                         

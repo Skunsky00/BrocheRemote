@@ -35,8 +35,14 @@ enum OptionsItemModel: Int, Identifiable, Hashable, CaseIterable {
 struct OptionsView: View {
     @Binding var selectedOption: OptionsItemModel?
     let showDeleteOption: Bool
+    let post: Post // Add Post to generate the share link
     @Environment(\.dismiss) var dismiss
+    @State private var copied = false // State to show "Copied!" feedback
     
+    // Generate the share link
+    private var shareLink: String {
+        "https://travelbroche.com/p/\(post.id ?? "")" // Replace with your domain
+    }
     
     var body: some View {
         VStack {
@@ -51,18 +57,37 @@ struct OptionsView: View {
                         .onTapGesture {
                             selectedOption = .delete
                             dismiss()
-
                         }
                 }
-
-                OptionsRowView(model: .sharepost)
-                    .onTapGesture {
-                        selectedOption = .sharepost
-                        dismiss()
-
+                
+                HStack {
+                    OptionsRowView(model: .sharepost)
+                    if copied {
+                        Text("Copied!")
+                            .font(.subheadline)
+                            .foregroundColor(.green)
+                            .transition(.opacity)
                     }
+                }
+                .onTapGesture {
+                    copyToClipboard()
+                    selectedOption = .sharepost
+                }
             }
             .listStyle(PlainListStyle())
+        }
+    }
+    
+    private func copyToClipboard() {
+        UIPasteboard.general.string = shareLink
+        withAnimation {
+            copied = true
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation {
+                copied = false
+            }
+            dismiss() // Dismiss after 2 seconds
         }
     }
 }
@@ -86,6 +111,6 @@ struct OptionsRowView: View {
 
 struct OptionsView_Previews: PreviewProvider {
     static var previews: some View {
-        OptionsView(selectedOption: .constant(nil), showDeleteOption: false)
+        OptionsView(selectedOption: .constant(nil), showDeleteOption: false, post: Post.MOCK_POSTS[1])
     }
 }

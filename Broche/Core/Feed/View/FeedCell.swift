@@ -198,7 +198,7 @@ struct FeedCell: View {
                 Text(selectedOptionsOption?.title ?? "")
             })
             .sheet(isPresented: $showOptionsSheet) {
-                OptionsView(selectedOption: $selectedOptionsOption, showDeleteOption: showDeleteOption)
+                OptionsView(selectedOption: $selectedOptionsOption, showDeleteOption: showDeleteOption, post: viewModel.post)
                     .presentationDetents([
                         .height(CGFloat(OptionsItemModel.allCases.count * 56))
                     ])
