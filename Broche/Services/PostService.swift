@@ -156,3 +156,38 @@ extension PostService {
         return snapshot.exists
     }
 }
+
+
+// MARK: - Broche  Pin Post
+
+extension PostService {
+    static func fetchPinnedPosts(forUserID id: String) async throws -> [Post] {
+        let snapshot = try await COLLECTION_USERS.document(id).collection("user-pinned").getDocuments()
+        var posts: [Post] = []
+        for doc in snapshot.documents {
+            let postId = doc.documentID
+            let data = doc.data()
+            let position = data["position"] as? Int
+            let postSnapshot = try await COLLECTION_POSTS.document(postId).getDocument()
+            if var post = try? postSnapshot.data(as: Post.self) {
+                post.position = position
+                posts.append(post)
+            }
+        }
+        return posts
+    }
+    
+    static func savePinnedPost(_ post: Post, forUserID id: String) async throws {
+        guard let postId = post.id, let position = post.position else { return }
+        let pinnedRef = COLLECTION_USERS.document(id).collection("user-pinned")
+        try await pinnedRef.document(postId).setData([
+            "position": position,
+            "timestamp": Timestamp()
+        ], merge: true)
+    }
+    
+    static func removePinnedPost(_ postId: String, forUserID id: String) async throws {
+        let pinnedRef = COLLECTION_USERS.document(id).collection("user-pinned")
+        try await pinnedRef.document(postId).delete()
+    }
+}

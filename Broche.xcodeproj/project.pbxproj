@@ -147,6 +147,8 @@
 		4EC10E012A45291000DA12EF /* VideoThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC10E002A45291000DA12EF /* VideoThumbnail.swift */; };
 		4EC10E032A45424B00DA12EF /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC10E022A45424B00DA12EF /* VideoPlayerView.swift */; };
 		4EC10E052A4CB36400DA12EF /* TextLinkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC10E042A4CB36400DA12EF /* TextLinkView.swift */; };
+		4ECD4E7D2D93A64000292441 /* BrocheGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ECD4E7C2D93A64000292441 /* BrocheGridView.swift */; };
+		4ECD4E7F2D93A68700292441 /* BrocheGridViewModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ECD4E7E2D93A68700292441 /* BrocheGridViewModal.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -265,6 +267,8 @@
 		4EC10E002A45291000DA12EF /* VideoThumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoThumbnail.swift; sourceTree = "<group>"; };
 		4EC10E022A45424B00DA12EF /* VideoPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 		4EC10E042A4CB36400DA12EF /* TextLinkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextLinkView.swift; sourceTree = "<group>"; };
+		4ECD4E7C2D93A64000292441 /* BrocheGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrocheGridView.swift; sourceTree = "<group>"; };
+		4ECD4E7E2D93A68700292441 /* BrocheGridViewModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrocheGridViewModal.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -632,6 +636,7 @@
 			isa = PBXGroup;
 			children = (
 				4E97703D2A1D725700919F88 /* PostGridViewModel.swift */,
+				4ECD4E7E2D93A68700292441 /* BrocheGridViewModal.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -646,6 +651,7 @@
 				4EC0813E2A34CF5900B86052 /* UserListView.swift */,
 				4EC081422A34D01500B86052 /* UserCell.swift */,
 				4EC0815B2A34DE2A00B86052 /* SearchBar.swift */,
+				4ECD4E7C2D93A64000292441 /* BrocheGridView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -976,6 +982,7 @@
 				4EC0815C2A34DE2A00B86052 /* SearchBar.swift in Sources */,
 				4E9770382A1D3D9C00919F88 /* FeedViewModel.swift in Sources */,
 				4EC0813F2A34CF5900B86052 /* UserListView.swift in Sources */,
+				4ECD4E7F2D93A68700292441 /* BrocheGridViewModal.swift in Sources */,
 				4E85EBF42A17E9270074A346 /* ContentViewModel.swift in Sources */,
 				4E97703A2A1D6E6A00919F88 /* PostService.swift in Sources */,
 				4EC081302A2D870700B86052 /* ResetPasswordView.swift in Sources */,
@@ -1034,6 +1041,7 @@
 				4E9770472A256E7900919F88 /* LocationManager.swift in Sources */,
 				4EC081292A2962F800B86052 /* VideoUploader.swift in Sources */,
 				4EC10E032A45424B00DA12EF /* VideoPlayerView.swift in Sources */,
+				4ECD4E7D2D93A64000292441 /* BrocheGridView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -15,7 +15,8 @@ struct CurrentUserProfileView: View {
     @State private var selectedSettingsOption: SettingsItemModel?
     @State private var selectedSettingsPrivacy: SettingsPrivacyModel?
     @State private var showDetail = false
-    @State private var selectedFilter: ProfileFilterSelector = .hearts
+    @State private var selectedFilter: ProfileFilterSelector = .broche
+    @StateObject var brocheViewModel: BrocheGridViewModel
     @Environment(\.colorScheme) var colorScheme
     
     
@@ -23,6 +24,7 @@ struct CurrentUserProfileView: View {
         self.user = user
         self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
         self._notiViewModel = StateObject(wrappedValue: NotificationsViewModel())
+        self._brocheViewModel = StateObject(wrappedValue: BrocheGridViewModel(user: user))
     }
     
     var body: some View {
@@ -37,6 +39,7 @@ struct CurrentUserProfileView: View {
             }
             .navigationTitle(user.username)
             .navigationBarTitleDisplayMode(.inline)
+            .environmentObject(brocheViewModel)
             .refreshable {
                 viewModel.updateUserData(user: user)
             }
@@ -107,14 +110,16 @@ struct CurrentUserProfileView: View {
     var brocheView: some View {
         ScrollView {
             LazyVStack {
-                switch self.selectedFilter {
-                case .hearts:
-                    PostGridView(config: .likedPosts(user))
-                case .bookmarks:
-                    PostGridView(config: .bookmarkedPosts(user))
-                case .mappin:
-                    MapViewForUserPins(user: user)
-                }
+                            switch self.selectedFilter {
+                            case .broche:
+                                BrocheGridView(user: user) // New view we’ll create
+                            case .hearts:
+                                PostGridView(config: .likedPosts(user))
+                            case .bookmarks:
+                                PostGridView(config: .bookmarkedPosts(user))
+                            case .mappin:
+                                MapViewForUserPins(user: user)
+                            }
                 
             }
         }

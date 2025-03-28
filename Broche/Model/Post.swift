@@ -20,6 +20,7 @@ struct Post: Identifiable, Hashable, Codable {
     var comments: Int
     let timestamp: Timestamp
     var user: User?
+    var position: Int?
     
     var didLike: Bool? = false
     var didBookmark: Bool? = false
