@@ -6,27 +6,26 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
 enum OptionsItemModel: Int, Identifiable, Hashable, CaseIterable {
     case sharepost
     case delete
-    
+    case pinToBroche // New option
     
     var title: String {
         switch self {
-        case .sharepost:
-            return "Share Post"
-        case .delete:
-            return "Delete"
+        case .sharepost: return "Share Post"
+        case .delete: return "Delete"
+        case .pinToBroche: return "Pin to Broche"
         }
     }
     
     var imageName: String {
         switch self {
-        case .sharepost:
-            return "paperplane.circle"
-        case .delete:
-            return "trash"
+        case .sharepost: return "paperplane.circle"
+        case .delete: return "trash"
+        case .pinToBroche: return "pin.fill"
         }
     }
     var id: Int { return self.rawValue }
@@ -35,13 +34,14 @@ enum OptionsItemModel: Int, Identifiable, Hashable, CaseIterable {
 struct OptionsView: View {
     @Binding var selectedOption: OptionsItemModel?
     let showDeleteOption: Bool
-    let post: Post // Add Post to generate the share link
+    let post: Post
     @Environment(\.dismiss) var dismiss
-    @State private var copied = false // State to show "Copied!" feedback
+    @State private var copied = false
+    @State private var showPinPicker = false
+    @State private var viewModel: BrocheGridViewModel? // Hold it here temporarily
     
-    // Generate the share link
     private var shareLink: String {
-        "https://travelbroche.com/p/\(post.id ?? "")" // Replace with your domain
+        "https://travelbroche.com/p/\(post.id ?? "")"
     }
     
     var body: some View {
@@ -73,21 +73,74 @@ struct OptionsView: View {
                     copyToClipboard()
                     selectedOption = .sharepost
                 }
+                
+                OptionsRowView(model: .pinToBroche)
+                    .onTapGesture {
+                        selectedOption = .pinToBroche
+                        setupViewModel()
+                        showPinPicker = true
+                    }
             }
             .listStyle(PlainListStyle())
+            .sheet(isPresented: $showPinPicker) {
+                PinPickerView(post: post, pinnedPosts: viewModel?.pinnedPosts ?? []) { position in
+                    pinPost(at: position)
+                    dismiss()
+                }
+                .presentationDetents([.height(200)])
+            }
         }
+    }
+    
+    private func setupViewModel() {
+        guard let currentUser = Auth.auth().currentUser else { return }
+        let user = User(id: currentUser.uid, username: currentUser.displayName ?? "", email: currentUser.email ?? "")
+        viewModel = BrocheGridViewModel(user: user)
     }
     
     private func copyToClipboard() {
         UIPasteboard.general.string = shareLink
-        withAnimation {
-            copied = true
-        }
+        withAnimation { copied = true }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            withAnimation {
-                copied = false
+            withAnimation { copied = false }
+            dismiss()
+        }
+    }
+    
+    private func pinPost(at position: Int) {
+        guard let viewModel = viewModel else { return }
+        viewModel.pinPost(post, at: position)
+    }
+}
+
+struct PinPickerView: View {
+    let post: Post
+    let pinnedPosts: [Post?]
+    let onPin: (Int) -> Void
+    @State private var selectedPosition = 0
+    
+    var body: some View {
+        VStack {
+            Text("Pin \(post.caption.prefix(20))... to Position")
+                .font(.headline)
+                .padding()
+            
+            Picker("Position", selection: $selectedPosition) {
+                ForEach(0..<9) { i in
+                    Text("\(i + 1) \(pinnedPosts[i] != nil ? "(Taken)" : "")")
+                        .tag(i)
+                }
             }
-            dismiss() // Dismiss after 2 seconds
+            .pickerStyle(.menu)
+            
+            Button("Pin") {
+                onPin(selectedPosition)
+            }
+            .font(.subheadline)
+            .padding()
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .cornerRadius(8)
         }
     }
 }

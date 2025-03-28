@@ -10,153 +10,117 @@ import PhotosUI
 import AVKit
 import MapKit
 
+// Main navigation container
 struct UploadPostView: View {
-    @State private var caption = ""
-    @State private var location = ""
-    @State private var label = ""
-    @State private var imagePickerPresented = false
-    @State private var selectedVideo: URL?
-    @StateObject var viewModel = UploadPostViewModel()
     @Binding var tabIndex: Int
-    @State private var isUploading = false
-    @StateObject var locationSearchViewModel = UploadPostSearchViewModel()
-    @State private var isShowingLocationSearch = false
-    @State private var selectedLocation: MKLocalSearchCompletion?
-    @State private var showAlert = false
-    @Environment(\.colorScheme) var colorScheme
+    @State private var path = NavigationPath()
+    @StateObject var viewModel = UploadPostViewModel()
     
     var body: some View {
-        NavigationView {
-            VStack {
-                // Action toolbar
-                HStack {
-                    Button {
-                        clearPostDataAndReturnToFeed()
-                    } label: {
-                        Text("Cancel")
-                            .foregroundColor(colorScheme == .dark ? .white : .black)
-                    }
-                    
-                    Spacer()
-                    
-                    Text("New Post")
-                        .fontWeight(.semibold)
-                    
-                    
-                    Spacer()
-                    
-                    Button {
-                        Task {
-                            if location.isEmpty || label.isEmpty {
-                                // Show an alert if either location or label is empty
-                                showAlert = true
-                            } else {
-                                do {
-                                    isUploading = true
-                                    try await viewModel.uploadPost(caption: caption, location: location, label: label)
-                                    clearPostDataAndReturnToFeed()
-                                    isUploading = false
-                                } catch {
-                                    print("Error uploading post: \(error)")
-                                    // Handle the error (e.g., show an alert)
-                                    isUploading = false
-                                }
-                            }
-                        }
-                    } label: {
-                        Text("Upload")
-                            .fontWeight(.semibold)
-                            .foregroundColor(colorScheme == .dark ? .white : .black)
+        NavigationStack(path: $path) {
+            VideoSelectionView(path: $path, tabIndex: $tabIndex, viewModel: viewModel)
+                .navigationDestination(for: String.self) { destination in
+                    if destination == "postDetails" {
+                        PostDetailsView(viewModel: viewModel, tabIndex: $tabIndex, path: $path)
+                    } else if destination == "locationSearch" {
+                        UploadPostLocationSearchView(
+                            viewModel: UploadPostSearchViewModel(),
+                            location: Binding(
+                                get: { viewModel.location ?? "" },
+                                set: { viewModel.location = $0 }
+                            ),
+                            isShowingLocationSearch: .constant(false),
+                            selectedLocation: Binding(
+                                get: { viewModel.selectedLocation },
+                                set: { viewModel.selectedLocation = $0 }
+                            )
+                        )
                     }
                 }
-                
-                // Post image or video
-                // Group {
-                //                if let image = viewModel.postImage {
-                //                    image
-                if let videoUrl = viewModel.selectedVideoUrl {
-                    VideoPlayerForUploadView(videoURL: videoUrl)
-                        .frame(width: 200, height: 200)
-                }
-                
-                /*else if let videoUrl = viewModel.videoUrl {
-                 VideoPlayer(url: videoUrl)
-                 .frame(width: 200, height: 200)
-                 }*/
-                //   }
-                
-                VStack(spacing: 8) {
-                    Spacer()
-                    
-                    TextField("Enter your caption...", text: $caption, axis: .vertical)
-                    
-                    Divider()
-                    
-                    TextField("Enter the location", text: $location, axis: .vertical)
-                        .onTapGesture {
-                            isShowingLocationSearch = true
-                        }
-                    
-                    Divider()
-                    
-                    Text("Label your post (e.g., Hotel, Restaurant, Airbnb)")
-                            .font(.system(size: 12))
-                            .foregroundColor(Color.gray)
-                            .padding(.horizontal)
-                    
-                    TextField("Label", text: $label)
-                    Spacer()
-                }
-                .padding(.horizontal, 8)
-                
-                Spacer()
-            }
-            .alert(isPresented: $showAlert) {
-                Alert(
-                    title: Text("Validation Error"),
-                    message: Text("Please fill in both the location and label fields."),
-                    dismissButton: .default(Text("OK"))
-                )
-            }
-            .onAppear {
-                imagePickerPresented.toggle()
-            }
-            .photosPicker(isPresented: $imagePickerPresented, selection: $viewModel.selectedItem, matching: .any(of: [.videos, .not(.images)]))
-            .overlay {
-                if isUploading {
-                    ProgressView("Uploading...")
-                        .padding()
-                        .background(Color.black.opacity(0.5))
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
-            }
-            .sheet(isPresented: $isShowingLocationSearch) {
-                UploadPostLocationSearchView(viewModel: locationSearchViewModel, location: $location, isShowingLocationSearch: $isShowingLocationSearch, selectedLocation: $selectedLocation)
-                    .onDisappear {
-                        if let selectedLocation = selectedLocation {
-                            location = selectedLocation.title // Set the location string in UploadPostView
-                        }
-                    }
-            }            .navigationViewStyle(StackNavigationViewStyle())
         }
-    }
-    
-    func clearPostDataAndReturnToFeed() {
-        caption = ""
-        location = ""
-        label = ""
-       // viewModel.selectedImage = nil
-        viewModel.selectedItem = nil
-//        viewModel.postImage = nil
-        viewModel.selectedVideoUrl = nil
-        tabIndex = 0
     }
 }
 
 
-struct UploadPostView_Previews: PreviewProvider {
-    static var previews: some View {
-        UploadPostView(tabIndex: .constant(0))
+struct VideoSelectionView: View {
+    @Binding var path: NavigationPath
+    @Binding var tabIndex: Int
+    @ObservedObject var viewModel: UploadPostViewModel
+    @State private var imagePickerPresented = false
+    @State private var showErrorAlert = false
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            if viewModel.isLoadingVideo {
+                ProgressView("Loading Video...")
+                    .padding()
+            } else if let videoUrl = viewModel.selectedVideoUrl {
+                VideoPlayerForUploadView(videoURL: videoUrl)
+                    .frame(maxWidth: .infinity)
+                    .aspectRatio(9/16, contentMode: .fit)
+                
+                Button("Next") {
+                    print("DEBUG: Next button pressed")
+                    path.append("postDetails")
+                }
+                .buttonStyle(.borderedProminent)
+                .padding()
+            } else {
+                PhotosPicker(
+                    selection: $viewModel.selectedItem,
+                    matching: .videos,
+                    photoLibrary: .shared()
+                ) {
+                    Text("Select Video")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                .tint(.blue)
+                .accentColor(.blue)
+                .environment(\.colorScheme, .light)
+                .padding()
+                .onTapGesture {
+                    print("DEBUG: Select Video tapped, opening PhotosPicker")
+                    imagePickerPresented = true
+                }
+                .onChange(of: viewModel.selectedItem) { _ in
+                    print("DEBUG: PhotosPicker selection changed")
+                    imagePickerPresented = false
+                }
+            }
+            
+            Button("Cancel") {
+                print("DEBUG: Cancel button pressed")
+                viewModel.selectedItem = nil
+                viewModel.selectedVideoUrl = nil
+                viewModel.isLoadingVideo = false
+                tabIndex = 0
+            }
+            .foregroundColor(.red)
+        }
+        .navigationBarBackButtonHidden(true)
+        .onAppear {
+            print("DEBUG: VideoSelectionView appeared")
+            imagePickerPresented = true // Auto-open picker
+        }
+        .photosPicker(isPresented: $imagePickerPresented, selection: $viewModel.selectedItem, matching: .videos)
+        .tint(.blue)
+        .accentColor(.blue)
+        .environment(\.colorScheme, .light)
+        .alert(isPresented: $showErrorAlert) {
+            Alert(
+                title: Text("Error"),
+                message: Text(viewModel.errorMessage ?? "An unknown error occurred"),
+                dismissButton: .default(Text("OK")) {
+                    viewModel.errorMessage = nil
+                }
+            )
+        }
+        .onChange(of: viewModel.errorMessage) { newValue in
+            showErrorAlert = newValue != nil
+        }
     }
 }

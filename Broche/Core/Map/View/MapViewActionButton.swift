@@ -10,6 +10,7 @@ import SwiftUI
 struct MapViewActionButton: View {
     @Binding var mapState: MapViewState
     @Binding var isSheetPresented: Bool // Add this binding
+    let userId: String
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
@@ -28,7 +29,7 @@ struct MapViewActionButton: View {
         })
         .frame(maxWidth: .infinity, alignment: .leading)
         .sheet(isPresented: $isSheetPresented) { 
-            Itinerary()
+            Itinerary(userId: userId)
                 .presentationDragIndicator(.visible)
         }
         
@@ -55,14 +56,4 @@ struct MapViewActionButton: View {
     }
 }
 
-
-
-struct MapViewActionButton_Previews: PreviewProvider {
-    @State private static var mapState: MapViewState = .noInput
-    @State private static var isSheetPresented = false
-
-    static var previews: some View {
-        MapViewActionButton(mapState: $mapState, isSheetPresented: $isSheetPresented)
-    }
-}
 

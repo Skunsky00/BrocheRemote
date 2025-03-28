@@ -10,21 +10,20 @@ import MapKit
 
 class UploadPostSearchViewModel: NSObject, ObservableObject {
     @Published var results = [MKLocalSearchCompletion]()
-    private let searchCompleter = MKLocalSearchCompleter()
-    var queryFragment: String = "" {
+    @Published var queryFragment: String = "" {
         didSet {
             searchCompleter.queryFragment = queryFragment
         }
     }
+    private let searchCompleter = MKLocalSearchCompleter()
     
     override init() {
         super.init()
         searchCompleter.delegate = self
-        searchCompleter.queryFragment = queryFragment
     }
     
     func selectLocation(_ localSearch: MKLocalSearchCompletion) {
-        // Handle selected location
+        // Additional logic if needed (e.g., refine location)
     }
 }
 
@@ -33,3 +32,4 @@ extension UploadPostSearchViewModel: MKLocalSearchCompleterDelegate {
         self.results = completer.results
     }
 }
+

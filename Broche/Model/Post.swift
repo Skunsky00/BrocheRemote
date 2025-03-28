@@ -16,10 +16,12 @@ struct Post: Identifiable, Hashable, Codable {
     var likes: Int
     let imageUrl: String?
     let videoUrl: String?
+    let thumbnailUrl: String? // Added
     let label: String?
     var comments: Int
     let timestamp: Timestamp
     var user: User?
+    var position: Int?
     
     var didLike: Bool? = false
     var didBookmark: Bool? = false
@@ -40,6 +42,7 @@ extension Post {
         likes: 195579,
         imageUrl: "example",
         videoUrl: "example",
+        thumbnailUrl: "example",
         label: "Air BnB",
         comments: 12,
         timestamp: Timestamp(),
@@ -53,6 +56,7 @@ extension Post {
         likes: 130567,
         imageUrl: nil,
         videoUrl: "example2",
+        thumbnailUrl: "example",
         label: "Air BnB",
         comments: 12,
         timestamp: Timestamp(),
@@ -66,6 +70,7 @@ extension Post {
         likes: 12232,
         imageUrl: "example",
         videoUrl: "example",
+        thumbnailUrl: "example",
         label: "Air BnB",
         comments: 12,
         timestamp: Timestamp(),
@@ -79,6 +84,7 @@ extension Post {
         likes: 16433,
         imageUrl: "example",
         videoUrl: "example",
+        thumbnailUrl: "example",
         label: "Air BnB",
         comments: 12,
         timestamp: Timestamp(),
@@ -92,6 +98,7 @@ extension Post {
         likes: 13,
         imageUrl: "example",
         videoUrl: "example",
+        thumbnailUrl: "example",
         label: "Hotle",
         comments: 12,
         timestamp: Timestamp(),

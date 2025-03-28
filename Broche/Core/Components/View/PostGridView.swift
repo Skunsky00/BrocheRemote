@@ -15,8 +15,6 @@ struct PostGridView: View {
     @State private var isEditing = false
     @State private var searchText = ""
     
-    
-    
     init(config: PostGridConfiguration) {
         self.config = config
         self._viewModel = StateObject(wrappedValue: PostGridViewModel(config: config))
@@ -81,14 +79,18 @@ struct PostGridView: View {
                 .padding(.top, 150)
                 
             } else {
-                
                 ScrollView {
                     LazyVGrid(columns: gridItems, spacing: 1) {
                         ForEach(posts) { post in
-                            NavigationLink(destination: PostGridFeedCell(viewModel: FeedCellViewModel(post: post))){
-                                
+                            NavigationLink(destination: PostGridFeedCell(viewModel: FeedCellViewModel(post: post))) {
                                 ZStack {
-                                    if let imageUrl = post.imageUrl {
+                                    if let thumbnailUrl = post.thumbnailUrl {
+                                        KFImage(URL(string: thumbnailUrl))
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: imageDimension, height: imageDimension)
+                                            .clipped()
+                                    } else if let imageUrl = post.imageUrl {
                                         KFImage(URL(string: imageUrl))
                                             .resizable()
                                             .scaledToFill()
@@ -106,11 +108,10 @@ struct PostGridView: View {
                                             .font(.subheadline)
                                             .fontWeight(.semibold)
                                             .frame(maxWidth: .infinity, alignment: .leading)
-                                        
                                             .foregroundColor(.white)
                                         
                                         HStack {
-                                            Text(post.label!)
+                                            Text(post.label ?? "")
                                                 .font(.footnote)
                                                 .frame(maxWidth: .infinity, alignment: .leading)
                                                 .foregroundColor(.white)
@@ -128,14 +129,6 @@ struct PostGridView: View {
                                     .padding(.top, 140)
                                 }
                             }
-//                            .onAppear {
-//                                guard let index = viewModel.posts.firstIndex(where: { $0.id == post.id }) else { return }
-//                                if case .explore = config, index == viewModel.posts.count - 1 {
-//                                    Task {
-//                                        await viewModel.fetchExplorePagePosts()
-//                                    }
-//                                }
-//                            }
                         }
                     }
                 }

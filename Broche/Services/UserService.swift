@@ -54,19 +54,18 @@ struct UserService {
 extension UserService {
     
     static func fetchSavedLocations(forUserID uid: String) async throws -> [Location] {
-        let collectionRef = COLLECTION_LOCATION.document(uid).collection("user-locations")
-        let querySnapshot = try await collectionRef.getDocuments()
-        let locations = querySnapshot.documents.compactMap { document -> Location? in
-            if var location = try? document.data(as: Location.self) {
-                location.id = document.documentID // Assign the document ID
-                return location
-            } else {
-                print("Error: Failed to decode location document with ID: \(document.documentID)")
-                return nil
+            let collectionRef = COLLECTION_LOCATION.document(uid).collection("user-locations")
+            let querySnapshot = try await collectionRef.getDocuments()
+            let locations = querySnapshot.documents.compactMap { document -> Location? in
+                do {
+                    return try document.data(as: Location.self)
+                } catch {
+                    print("Error: Failed to decode location document with ID: \(document.documentID), error: \(error)")
+                    return nil
+                }
             }
+            return locations
         }
-        return locations
-    }
 
     static func saveLocation(uid: String, coordinate: Location) async throws {
         let collectionRef = COLLECTION_LOCATION.document(uid).collection("user-locations")

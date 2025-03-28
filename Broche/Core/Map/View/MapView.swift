@@ -42,7 +42,7 @@ struct MapView: View {
                             }
                     }
                     
-                    MapViewActionButton(mapState: $mapState, isSheetPresented: $isSheetPresented)
+                    MapViewActionButton(mapState: $mapState, isSheetPresented: $isSheetPresented, userId: user.id)
                         .padding(.leading)
                         .padding(.top, 4)
                 }

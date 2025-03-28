@@ -12,54 +12,60 @@ struct UploadPostLocationSearchView: View {
     @ObservedObject var viewModel: UploadPostSearchViewModel
     @Binding var location: String
     @Binding var isShowingLocationSearch: Bool
-    @Environment(\.presentationMode) var presentationMode
     @Binding var selectedLocation: MKLocalSearchCompletion?
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         VStack {
-            //header view
-            
+            // Header
             HStack {
-                Circle()
-                    .fill(Color(.systemGray3))
-                    .frame(width: 6, height: 6)
+                Button {
+                    print("DEBUG: Cancel location search")
+                    dismiss()
+                } label: {
+                    Text("Cancel")
+                        .foregroundColor(.red)
+                        .fontWeight(.semibold)
+                }
+                
+                Spacer()
                 
                 TextField("Search Location", text: $viewModel.queryFragment)
-                    .frame(height: 32)
-                    .background(Color.gray)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
+                    .background(Color.gray.opacity(0.2))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                     .foregroundColor(colorScheme == .dark ? .white : .black)
-                    .padding(.trailing)
-            }.padding(.horizontal)
-                .padding(.top, 64)
+            }
+            .padding(.horizontal)
+            .padding(.top, 16)
             
             Divider()
-                .padding(.vertical)
+                .padding(.vertical, 8)
             
-            //list view
+            // Results
             ScrollView {
-                            VStack(alignment: .leading) {
-                                ForEach(viewModel.results, id: \.self) { result in
-                                    LocationSearchResultCell(title: result.title, subtitle: result.subtitle)
-                                        .background(colorScheme == .dark ? Color.black : Color.white)
-                                        .onTapGesture {
-                                            withAnimation(.spring()) {
-                                                viewModel.selectLocation(result)
-                                                selectedLocation = result // Set the selected location
-                                                presentationMode.wrappedValue.dismiss() // Dismiss the location search view
-                                            }
-                                        }
-                                }
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(viewModel.results, id: \.self) { result in
+                        LocationSearchResultCell(title: result.title, subtitle: result.subtitle)
+                            .padding(.horizontal)
+                            .background(colorScheme == .dark ? Color.black : Color.white)
+                            .onTapGesture {
+                                print("DEBUG: Selected location: \(result.title)")
+                                viewModel.selectLocation(result)
+                                selectedLocation = result
+                                location = result.title
+                                dismiss()
                             }
-                        }
                     }
-                    .background(colorScheme == .dark ? Color.black : Color.white)
                 }
+            }
+        }
+        .background(colorScheme == .dark ? Color.black : Color.white)
+        .navigationBarHidden(true)
+    }
 }
 
 
-//struct UploadPostLocationSearchView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        UploadPostLocationSearchView(viewModel: <#LocationSearchViewModel#>, location: <#Binding<String>#>, isShowingLocationSearch: <#Binding<Bool>#>)
-//    }
-//}
+

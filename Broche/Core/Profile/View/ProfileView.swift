@@ -10,7 +10,7 @@ import SwiftUI
 struct ProfileView: View {
     let user: User
     @StateObject var viewModel: ProfileViewModel
-    @State private var selectedFilter: ProfileFilterSelector = .hearts
+    @State private var selectedFilter: ProfileFilterSelector = .broche
     
     init(user: User) {
         self.user = user
@@ -34,14 +34,16 @@ struct ProfileView: View {
     var brocheView: some View {
         ScrollView {
             LazyVStack {
-                switch self.selectedFilter {
-                case .hearts:
-                    PostGridView(config: .likedPosts(user))
-                case .bookmarks:
-                    PostGridView(config: .bookmarkedPosts(user))
-                case .mappin:
-                    MapViewForUserPins(user: user)
-                }
+                            switch self.selectedFilter {
+                            case .broche:
+                                BrocheGridView(user: user) // New view we’ll create
+                            case .hearts:
+                                PostGridView(config: .likedPosts(user))
+                            case .bookmarks:
+                                PostGridView(config: .bookmarkedPosts(user))
+                            case .mappin:
+                                MapViewForUserPins(user: user)
+                            }
                 
             }
         }

@@ -11,14 +11,13 @@ import AVKit
 struct VideoPlayerForUploadView: View {
     let videoURL: URL
     var body: some View {
-        GeometryReader { geometry in
-            VideoPlayer(player: AVPlayer(url: videoURL)) {
+        VideoPlayer(player: AVPlayer(url: videoURL))
+                    .frame(maxWidth: .infinity)
+                    .aspectRatio(9/16, contentMode: .fit)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
             }
-            .frame(width: geometry.size.width, height: geometry.size.width * 1.33)
-            .edgesIgnoringSafeArea(.all)
         }
-    }
-}
+
 struct VideoPlayerForController: UIViewControllerRepresentable {
     
     
