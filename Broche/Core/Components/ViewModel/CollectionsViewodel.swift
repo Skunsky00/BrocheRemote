@@ -104,6 +104,26 @@ class CollectionsViewModel: ObservableObject {
         }
     }
     
+    func deleteCollection(collectionId: String) {
+        guard let authUid = Auth.auth().currentUser?.uid else {
+            print("Cannot delete collection: No authenticated user")
+            state = state.copy(error: "No user logged in")
+            return
+        }
+        
+        Task {
+            do {
+                try await PostService.deleteCollection(userId: authUid, collectionId: collectionId)
+                print("Deleted collection \(collectionId)")
+            } catch {
+                await MainActor.run {
+                    print("Error deleting collection: \(error.localizedDescription)")
+                    self.state = self.state.copy(error: error.localizedDescription)
+                }
+            }
+        }
+    }
+    
     func addPostToCollection(collectionId: String, postId: String) {
         guard let authUid = Auth.auth().currentUser?.uid else {
             print("Cannot add post: No authenticated user")

@@ -12,7 +12,7 @@ struct CollectionsView: View {
     @StateObject private var viewModel: CollectionsViewModel
     let user: User
     let disableScrolling: Bool
-    @Environment(\.dismiss) private var dismiss // For navigation
+    @Environment(\.dismiss) private var dismiss
     
     init(user: User, disableScrolling: Bool = false) {
         self.user = user
@@ -173,6 +173,15 @@ struct CollectionsView: View {
                                 .padding(8)
                         }
                         .aspectRatio(1, contentMode: ContentMode.fit)
+                        .contextMenu {
+                            if user.isCurrentUser {
+                                Button(role: .destructive) {
+                                    viewModel.deleteCollection(collectionId: collection.id!)
+                                } label: {
+                                    Label("Delete Collection", systemImage: "trash")
+                                }
+                            }
+                        }
                     }
                     .accessibilityLabel("Collection: \(collection.name)")
                 }

@@ -9,61 +9,91 @@ import SwiftUI
 
 struct ProfileHeaderView: View {
     @ObservedObject var viewModel: ProfileViewModel
-    
+    @Environment(\.dismiss) var dismiss
+    @State private var showShareSheet = false
     
     var body: some View {
         VStack {
             CircularProfileImageView(user: viewModel.user, size: .large)
+                .padding(.top, 4)
             
             if let fullname = viewModel.user.fullname {
                 Text(fullname)
-                .font(.system(size: 15, weight: .semibold))
-                .padding(.vertical, 6)
-        }
+                    .font(.system(size: 17, weight: .regular))
+                    .padding(.vertical, 6)
+            }
             
-            HStack(spacing: 24) {
-                
+            HStack(spacing: 8) {
                 NavigationLink(value: SearchViewModelConfig.followers(viewModel.user.id)) {
                     UserStatView(value: viewModel.user.stats?.followers ?? 0, title: "Followers")
                 }
-               // .disabled(viewModel.user.stats?.followers == 0)
                 
                 NavigationLink(value: SearchViewModelConfig.following(viewModel.user.id)) {
                     UserStatView(value: viewModel.user.stats?.following ?? 0, title: "Following")
                 }
-               // .disabled(viewModel.user.stats?.following == 0)
-                
-            }.padding(.vertical, 4)
-            
-            // action button
-            ProfileActionButtonView(viewModel: viewModel)
-            
-            // bio
-            VStack {
-                if let bio = viewModel.user.bio {
-                    Text(bio)
-                        .font(.footnote)
-                }
             }
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal)
+            .padding(.vertical, 3)
             
-            VStack {
-                if let link = viewModel.user.link {
-                    Text(link)
-                        .font(.footnote)
-                        .overlay(
-                            TextLinkView(text: viewModel.user.link!, linkColor: .cyan)
-                                )
-                }
+            ProfileActionButtonView(viewModel: viewModel, showShareSheet: $showShareSheet)
+                .padding(.horizontal, 32)
+            
+            if let bio = viewModel.user.bio {
+                Text(bio)
+                    .font(.system(size: 15, weight: .regular))
+                    .padding(.horizontal)
+                    .padding(.vertical, 4)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 2)
-        
+            
+            if let link = viewModel.user.link {
+                Text(link)
+                    .font(.system(size: 15, weight: .regular))
+                    .overlay(
+                        TextLinkView(text: link, linkColor: .cyan)
+                    )
+                    .padding(.vertical, 2)
+                    .frame(maxWidth: .infinity)
+            }
         }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 16)
         .navigationDestination(for: SearchViewModelConfig.self) { config in
             UserListView(config: config)
         }
+        .sheet(isPresented: $showShareSheet) {
+            ShareSheetView(username: viewModel.user.username ?? "")
+                .presentationDetents([.height(150)])
+        }
+        .onAppear {
+            viewModel.loadUserData()
+        }
+    }
+}
+
+struct ShareSheetView: View {
+    let username: String
+    @Environment(\.dismiss) var dismiss
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            Text("Share Profile")
+                .font(.system(size: 17, weight: .medium))
+            
+            Button(action: {
+                let profileLink = "https://travelbroche.com/\(username)"
+                UIPasteboard.general.string = profileLink
+                dismiss()
+            }) {
+                Text("Copy Link")
+                    .font(.system(size: 14, weight: .semibold))
+                    .frame(maxWidth: .infinity, minHeight: 40)
+                    .foregroundColor(.white)
+                    .background(Color.cyan)
+                    .cornerRadius(8)
+            }
+            .padding(.horizontal, 16)
+        }
+        .padding(.vertical, 16)
     }
 }
 

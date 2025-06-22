@@ -247,6 +247,21 @@ extension PostService {
         }
     }
     
+    static func deleteCollection(userId: String, collectionId: String) async throws {
+            do {
+                print("Deleting collection \(collectionId) for user: \(userId)")
+                try await Firestore.firestore().collection("users")
+                    .document(userId)
+                    .collection("collections")
+                    .document(collectionId)
+                    .delete()
+                print("Successfully deleted collection \(collectionId)")
+            } catch {
+                print("Error deleting collection: \(error.localizedDescription)")
+                throw error
+            }
+        }
+    
     static func addPostToCollection(userId: String, collectionId: String, postId: String) async throws {
         do {
             let collectionRef = Firestore.firestore().collection("users")

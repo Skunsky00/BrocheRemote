@@ -9,51 +9,70 @@ import SwiftUI
 
 struct ProfileActionButtonView: View {
     @ObservedObject var viewModel: ProfileViewModel
-    var isFollowed: Bool { return viewModel.user.isFollowed ?? false }
-    @State var showEditProfile = false
+    @Binding var showShareSheet: Bool
+    @State private var showEditProfile = false
     @Environment(\.colorScheme) var colorScheme
     
+    var isFollowed: Bool { return viewModel.user.isFollowed ?? false }
+    
+    private let gradient = LinearGradient(
+        gradient: Gradient(colors: [
+            Color(red: 4/255, green: 43/255, blue: 68/255),
+            Color(red: 197/255, green: 70/255, blue: 99/255),
+            Color(red: 255/255, green: 104/255, blue: 102/255),
+            Color(red: 150/255, green: 90/255, blue: 143/255),
+            Color(red: 45/255, green: 61/255, blue: 136/255),
+            Color(red: 17/255, green: 55/255, blue: 125/255)
+        ]),
+        startPoint: .top,
+        endPoint: .bottom
+    )
+    
     var body: some View {
-        VStack {
-            if viewModel.user.isCurrentUser {
-                Button(action: { showEditProfile.toggle() }, label: {
-                    Text("Edit Profile")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .frame(width: 160, height: 32)
-                        .foregroundColor(.black)
-                        .background(Color.white)
-                        .overlay(RoundedRectangle(cornerRadius: 3)
-                                .stroke(Color.gray, lineWidth: 1)
-                        )
-                }).fullScreenCover(isPresented: $showEditProfile) {
-                    EditProfileView(user: viewModel.user)
+        HStack(spacing: 12) {
+            Button(action: {
+                if viewModel.user.isCurrentUser {
+                    showEditProfile.toggle()
+                } else {
+                    isFollowed ? viewModel.unfollow() : viewModel.follow()
                 }
-            } else {
-                VStack {
-                    HStack {
-                        Button(action: { isFollowed ? viewModel.unfollow() : viewModel.follow() }, label: {
-                            Text(isFollowed ? "Following" : "Follow")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .frame(width: 160, height: 32)
-                                .foregroundColor(isFollowed ? .black : .white)
-                                .background(isFollowed ? Color.white : Color(.systemCyan))
-                                .overlay(RoundedRectangle(cornerRadius: 3)
-                                        .stroke(Color.gray, lineWidth:isFollowed ? 1 : 0)
-                                )
-                        }).cornerRadius(3)
-                    }
-                }
+            }) {
+                Text(viewModel.user.isCurrentUser ? "Edit Profile" : isFollowed ? "Following" : "Follow")
+                    .font(.system(size: 14, weight: .semibold))
+                    .frame(maxWidth: .infinity, minHeight: 40)
+                    .foregroundColor(viewModel.user.isCurrentUser || isFollowed ? .black : .white)
+                    .background(viewModel.user.isCurrentUser || isFollowed ? Color.white : Color.cyan)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 3)
+                            .stroke(Color.gray, lineWidth: viewModel.user.isCurrentUser || isFollowed ? 1 : 0)
+                    )
             }
+            .cornerRadius(3)
+            .fullScreenCover(isPresented: $showEditProfile) {
+                EditProfileView(user: viewModel.user)
+            }
+            
+            Button(action: {
+                showShareSheet.toggle()
+            }) {
+                Text("Share")
+                    .font(.system(size: 14, weight: .semibold))
+                    .frame(maxWidth: .infinity, minHeight: 40)
+                    .foregroundColor(.white)
+                    .background(gradient)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 3)
+                            .stroke(Color.gray, lineWidth: 1)
+                    )
+            }
+            .cornerRadius(3)
         }
-        .foregroundColor(.primary)
-            .background(colorScheme == .dark ? Color.black : Color.white)
+        .padding(.vertical, 4)
     }
 }
 
-struct ProfileActionButtonView_Previews: PreviewProvider {
-    static var previews: some View {
-        ProfileActionButtonView(viewModel: ProfileViewModel(user: User.MOCK_USERS[0]))
-    }
-}
+//struct ProfileActionButtonView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ProfileActionButtonView(viewModel: ProfileViewModel(user: User.MOCK_USERS[0]))
+//    }
+//}
