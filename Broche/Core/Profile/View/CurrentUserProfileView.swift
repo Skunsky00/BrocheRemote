@@ -19,7 +19,6 @@ struct CurrentUserProfileView: View {
     @StateObject var brocheViewModel: BrocheGridViewModel
     @Environment(\.colorScheme) var colorScheme
     
-    
     init(user: User) {
         self.user = user
         self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
@@ -30,11 +29,11 @@ struct CurrentUserProfileView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                //header
+                // Header
                 ProfileHeaderView(viewModel: viewModel)
-                //profile filter bar
+                // Profile filter bar
                 ProfileFilterView(selectedFilter: $selectedFilter)
-                // post grid view
+                // Content based on filter
                 brocheView
             }
             .navigationTitle(user.username)
@@ -47,10 +46,10 @@ struct CurrentUserProfileView: View {
                 if let option = selectedSettingsOption {
                     switch option {
                     case .settings:
-                            NavigationView {
-                                SettingsAndPrivacyView(user: user, selectedOption: $selectedSettingsPrivacy)
-                                    .navigationTitle("Settings") // Add a title for SettingsAndPrivacyView
-                            }
+                        NavigationView {
+                            SettingsAndPrivacyView(user: user, selectedOption: $selectedSettingsPrivacy)
+                                .navigationTitle("Settings")
+                        }
                     case .yourPost:
                         ScrollView {
                             PostGridView(config: .profile(user))
@@ -64,18 +63,13 @@ struct CurrentUserProfileView: View {
                 SettingsView(selectedOption: $selectedSettingsOption)
                     .presentationDetents([.height(CGFloat(SettingsItemModel.allCases.count * 56))])
             }
-            .toolbar(content: {
+            .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     NavigationLink {
-                        NotificationsView(viewModel: notiViewModel) // Pass the ViewModel to NotificationsView
+                        NotificationsView(viewModel: notiViewModel)
                     } label: {
-                        if notiViewModel.hasNewNotifications {
-                            Image(systemName: "bell.badge")
-                                .foregroundColor(.red)
-                            // Bell icon with a red dot
-                        } else {
-                            Image(systemName: "bell") // Normal bell icon
-                        }
+                        Image(systemName: notiViewModel.hasNewNotifications ? "bell.badge" : "bell")
+                            .foregroundColor(notiViewModel.hasNewNotifications ? .red : (colorScheme == .dark ? .white : .black))
                     }
                 }
                 
@@ -88,14 +82,12 @@ struct CurrentUserProfileView: View {
                             .foregroundColor(colorScheme == .dark ? .white : .black)
                     }
                 }
-            })
+            }
             .onChange(of: notiViewModel.hasNewNotifications) {
-                // Print statement to check hasNewNotifications in the CurrentUserProfileView
                 print("DEBUG: CurrentUserProfileView - hasNewNotifications: \(notiViewModel.hasNewNotifications)")
             }
             .onChange(of: selectedSettingsOption) {
                 guard let option = selectedSettingsOption else { return }
-                
                 switch option {
                 case .logout:
                     AuthService.shared.signout()
@@ -106,25 +98,24 @@ struct CurrentUserProfileView: View {
         }
     }
     
-    
     var brocheView: some View {
         ScrollView {
             LazyVStack {
-                            switch self.selectedFilter {
-                            case .broche:
-                                BrocheGridView(user: user) // New view we’ll create
-                            case .hearts:
-                                PostGridView(config: .likedPosts(user))
-                            case .bookmarks:
-                                PostGridView(config: .bookmarkedPosts(user))
-                            case .mappin:
-                                MapViewForUserPins(user: user)
-                            }
-                
+                switch selectedFilter {
+                case .broche:
+                    BrocheGridView(user: user)
+                case .hearts:
+                    PostGridView(config: .likedPosts(user))
+                case .bookmarks:
+                    CollectionsView(user: user, disableScrolling: true)
+                case .mappin:
+                    MapViewForUserPins(user: user)
+                }
             }
         }
     }
 }
+
 struct CurrentUserProfileView_Previews: PreviewProvider {
     static var previews: some View {
         CurrentUserProfileView(user: User.MOCK_USERS[0])

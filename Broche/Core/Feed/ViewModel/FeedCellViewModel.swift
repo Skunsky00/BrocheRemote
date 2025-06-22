@@ -5,7 +5,7 @@
 //  Created by Jacob Johnson on 5/31/23.
 //
 
-import SwiftUI
+import Foundation
 import Firebase
 
 @MainActor
@@ -14,7 +14,6 @@ class FeedCellViewModel: ObservableObject {
     
     var likeString: String {
         let likes = post.likes
-
         switch likes {
         case 0..<1000:
             return "\(likes)"
@@ -28,10 +27,9 @@ class FeedCellViewModel: ObservableObject {
             return "\(likes)"
         }
     }
-
+    
     var commentString: String {
         let comments = post.comments
-        
         switch comments {
         case 0..<1000:
             return "\(comments)"
@@ -45,7 +43,6 @@ class FeedCellViewModel: ObservableObject {
             return "\(comments)"
         }
     }
-
     
     var timestampString: String {
         let formatter = DateComponentsFormatter()
@@ -57,58 +54,86 @@ class FeedCellViewModel: ObservableObject {
     
     init(post: Post) {
         self.post = post
-        
-        Task { try await checkIfUserLikedPost()
+        Task {
+            try await checkIfUserLikedPost()
             try await checkIfUserBookmarkedPost()
         }
     }
     
-   
-    
     func deletePost() async throws {
         print("Deleting post...")
-                try await PostService.deletePost(post)
-                print("Post deleted.")
-            
-            // Additional logic after deleting the post (e.g., navigating back to the feed)
-        }
+        try await PostService.deletePost(post)
+        print("Post deleted.")
+    }
     
     func like() async throws {
         self.post.didLike = true
-        Task {
-            try await PostService.likePost(post)
-            self.post.likes += 1
-        }
+        try await PostService.likePost(post)
+        self.post.likes += 1
     }
     
     func unlike() async throws {
         self.post.didLike = false
-        Task {
-            try await PostService.unlikePost(post)
-            self.post.likes -= 1
-        }
+        try await PostService.unlikePost(post)
+        self.post.likes -= 1
     }
     
     func checkIfUserLikedPost() async throws {
         self.post.didLike = try await PostService.checkIfUserLikedPost(post)
     }
     
-    func bookmark() async throws {
-        self.post.didBookmark = true
+    func bookmarkPost(collectionId: String) {
+        guard let postId = post.id, let userId = Auth.auth().currentUser?.uid else {
+            print("Cannot bookmark post: Missing post ID or user ID")
+            return
+        }
         Task {
-            try await PostService.BookmarkPost(post)
+            do {
+                try await PostService.addPostToCollection(userId: userId, collectionId: collectionId, postId: postId)
+                self.post.didBookmark = true
+                print("Post \(postId) bookmarked to collection \(collectionId)")
+            } catch {
+                print("Error bookmarking post: \(error.localizedDescription)")
+            }
         }
     }
     
     func unbookmark() async throws {
-        self.post.didBookmark = false
-        Task {
-            try await PostService.unBookmarkPost(post)
+        guard let postId = post.id, let userId = Auth.auth().currentUser?.uid else {
+            print("Cannot unbookmark post: Missing post ID or user ID")
+            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Missing post ID or user ID"])
         }
+        try await PostService.removePostFromAllCollections(userId: userId, postId: postId)
+        self.post.didBookmark = false
+        print("Post \(postId) unbookmarked from all collections")
     }
     
     func checkIfUserBookmarkedPost() async throws {
-        self.post.didBookmark = try await PostService.checkIfUserBookmarkedPost(post)
+        guard let postId = post.id, let userId = Auth.auth().currentUser?.uid else {
+            print("Cannot check bookmark status: Missing post ID or user ID")
+            self.post.didBookmark = false
+            return
+        }
+        self.post.didBookmark = try await PostService.isPostInAnyCollection(userId: userId, postId: postId)
+    }
+    
+    func createCollectionAndBookmark(name: String) {
+        guard let postId = post.id, let userId = Auth.auth().currentUser?.uid else {
+            print("Cannot create collection: Missing post ID or user ID")
+            return
+        }
+        Task {
+            do {
+                if let newCollection = try await PostService.createCollection(userId: userId, name: name) {
+                    try await PostService.addPostToCollection(userId: userId, collectionId: newCollection.id ?? "", postId: postId)
+                    self.post.didBookmark = true
+                    print("Created collection \(name) and bookmarked post \(postId)")
+                } else {
+                    print("Failed to create collection")
+                }
+            } catch {
+                print("Error creating collection or bookmarking post: \(error.localizedDescription)")
+            }
+        }
     }
 }
-

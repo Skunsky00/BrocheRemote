@@ -1,3 +1,11 @@
+//
+//  FeedCell 2.swift
+//  Broche
+//
+//  Created by Jacob Johnson on 6/21/25.
+//
+
+
 import SwiftUI
 import AVKit
 import Kingfisher

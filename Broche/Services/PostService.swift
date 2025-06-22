@@ -10,6 +10,8 @@ import Foundation
 
 
 struct PostService {
+    private let db = Firestore.firestore()
+    
     static func fetchPosts(startingAfter document: DocumentSnapshot?) async throws -> ([Post], DocumentSnapshot?) {
             var query = COLLECTION_POSTS.order(by: "timestamp", descending: true)
             
@@ -75,7 +77,7 @@ struct PostService {
         
         return posts
     }
-    
+//    
     static func deletePost(_ post: Post) async throws {
             // Delete the post from Firebase
             guard let postId = post.id else { return }
@@ -189,5 +191,155 @@ extension PostService {
     static func removePinnedPost(_ postId: String, forUserID id: String) async throws {
         let pinnedRef = COLLECTION_USERS.document(id).collection("user-pinned")
         try await pinnedRef.document(postId).delete()
+    }
+}
+
+extension PostService {
+    static func fetchCollections(userId: String) async throws -> [Collection] {
+        do {
+            print("Fetching collections for user: \(userId)")
+            let snapshot = try await Firestore.firestore().collection("users")
+                .document(userId)
+                .collection("collections")
+                .getDocuments()
+            
+            let collections = snapshot.documents.compactMap { doc in
+                try? doc.data(as: Collection.self)
+            }
+            
+            print("Fetched \(collections.count) collections")
+            return collections
+        } catch {
+            print("Error fetching collections for user \(userId): \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    static func createCollection(userId: String, name: String) async throws -> Collection? {
+        do {
+            print("Creating collection: \(name) for user: \(userId)")
+            let collectionId = UUID().uuidString
+            let collection = Collection(
+                id: collectionId,
+                name: name,
+                postIds: [],
+                createdAt: Date(),
+                thumbnailUrl: nil
+            )
+            
+            try await Firestore.firestore().collection("users")
+                .document(userId)
+                .collection("collections")
+                .document(collectionId)
+                .setData([
+                    "id": collectionId,
+                    "name": name,
+                    "postIds": [],
+                    "createdAt": ISO8601DateFormatter().string(from: Date()),
+                    "thumbnailUrl": NSNull()
+                ])
+            
+            print("Created collection: \(name)")
+            return collection
+        } catch {
+            print("Error creating collection: \(error.localizedDescription)")
+            return nil
+        }
+    }
+    
+    static func addPostToCollection(userId: String, collectionId: String, postId: String) async throws {
+        do {
+            let collectionRef = Firestore.firestore().collection("users")
+                .document(userId)
+                .collection("collections")
+                .document(collectionId)
+            
+            try await collectionRef.updateData([
+                "postIds": FieldValue.arrayUnion([postId])
+            ])
+            print("Added post \(postId) to collection \(collectionId)")
+        } catch {
+            print("Error adding post to collection: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    static func removePostFromAllCollections(userId: String, postId: String) async throws {
+        do {
+            let collectionsSnapshot = try await Firestore.firestore().collection("users")
+                .document(userId)
+                .collection("collections")
+                .whereField("postIds", arrayContains: postId)
+                .getDocuments()
+            
+            for doc in collectionsSnapshot.documents {
+                try await doc.reference.updateData([
+                    "postIds": FieldValue.arrayRemove([postId])
+                ])
+            }
+            print("Removed post \(postId) from all collections")
+        } catch {
+            print("Error removing post from collections: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    static func fetchPostsInCollection(userId: String, collectionId: String) async throws -> [Post] {
+        do {
+            let collectionSnapshot = try await Firestore.firestore().collection("users")
+                .document(userId)
+                .collection("collections")
+                .document(collectionId)
+                .getDocument()
+            
+            guard let postIds = collectionSnapshot.data()?["postIds"] as? [String], !postIds.isEmpty else {
+                return []
+            }
+            
+            let posts = try await fetchPostsByIDs(postIds: postIds)
+            print("Fetched \(posts.count) posts for collection \(collectionId)")
+            return posts
+        } catch {
+            print("Error fetching posts in collection: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    static func isPostInAnyCollection(userId: String, postId: String) async throws -> Bool {
+        do {
+            let snapshot = try await Firestore.firestore().collection("users")
+                .document(userId)
+                .collection("collections")
+                .whereField("postIds", arrayContains: postId)
+                .getDocuments()
+            
+            return !snapshot.documents.isEmpty
+        } catch {
+            print("Error checking collections: \(error.localizedDescription)")
+            throw error
+        }
+    }
+    
+    private static func fetchPostsByIDs(postIds: [String]) async throws -> [Post] {
+        let chunks = postIds.chunked(into: 10)
+        var posts: [Post] = []
+        
+        for chunk in chunks {
+            let snapshot = try await Firestore.firestore().collection("posts")
+                .whereField(FieldPath.documentID(), in: chunk)
+                .getDocuments()
+            
+            posts.append(contentsOf: snapshot.documents.compactMap { try? $0.data(as: Post.self) })
+        }
+        
+        return posts
+    }
+}
+
+extension Array {
+    func chunked(into size: Int) -> [[Element]] {
+        stride(from: 0, to: count, by: size).map {
+            Array(self[$0..<Swift.min($0 + size, count)])
+        }
     }
 }

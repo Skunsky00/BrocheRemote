@@ -6,9 +6,9 @@
 //
 
 import SwiftUI
-import LinkPresentation
-import Kingfisher
 import AVKit
+import Kingfisher
+import Firebase
 
 struct FeedCell: View {
     @ObservedObject var viewModel: FeedCellViewModel
@@ -18,9 +18,9 @@ struct FeedCell: View {
     @State private var showDeleteConfirmation = false
     @State private var isCaptionExpanded = false
     @State private var showCommentsSheet = false
+    @State private var showBookmarkSheet = false // Added for BookmarkSheet
     @State private var lastTapTime: Date?
     @Environment(\.colorScheme) var colorScheme
-    
     
     var showDeleteOption: Bool { return viewModel.post.isCurrentUser }
     var didLike: Bool { return viewModel.post.didLike ?? false }
@@ -28,14 +28,14 @@ struct FeedCell: View {
     
     var player: AVPlayer?
     
-    init(viewModel: FeedCellViewModel, player: AVPlayer) {
-            self.viewModel = viewModel
-            self.player = player
-        }
+    init(viewModel: FeedCellViewModel, player: AVPlayer? = nil) {
+        self.viewModel = viewModel
+        self.player = player
+    }
     
     var body: some View {
         ZStack {
-            // post image
+            // Post image or video
             if let imageUrl = viewModel.post.imageUrl {
                 KFImage(URL(string: imageUrl))
                     .resizable()
@@ -43,30 +43,28 @@ struct FeedCell: View {
                     .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.1)
                     .clipped()
                     .contentShape(Rectangle())
-            }
-            else if let player = player {
+            } else if let player = player {
                 VideoPlayerController(player: player)
-                            .containerRelativeFrame([.horizontal, .vertical])
-                            }
+                    .containerRelativeFrame([.horizontal, .vertical])
+            }
             
             VStack(alignment: .leading) {
-                
-                //user profile and username and location
+                // User profile, username, and location
                 HStack {
-                    
                     NavigationLink(
                         destination: MapViewForLocation(location: viewModel.post.location),
                         label: {
-                            Image(systemName: "mappin")
-                                .imageScale(.large)
-                                .foregroundColor(.black)
-                                .frame(width: 28, height: 28)
-                                .background(.thinMaterial)
-                                .cornerRadius(10)
-                                
-                    Text(viewModel.post.location)
-                        .font(.footnote)
-                })
+                            HStack {
+                                Image(systemName: "mappin")
+                                    .imageScale(.large)
+                                    .foregroundColor(.black)
+                                    .frame(width: 28, height: 28)
+                                    .background(.thinMaterial)
+                                    .cornerRadius(10)
+                                Text(viewModel.post.location)
+                                    .font(.footnote)
+                            }
+                        })
                     
                     Spacer()
                     
@@ -76,15 +74,13 @@ struct FeedCell: View {
                         }
                     }
                 }
-                .padding(.horizontal,12 )
+                .padding(.horizontal, 12)
                 .padding(.top, 5)
                 
                 Spacer()
                 
-                //MARK: action buttons
+                // Action buttons
                 HStack(spacing: 16) {
-                    
-                    
                     VStack(spacing: 16) {
                         Button {
                             showCommentsSheet.toggle()
@@ -102,18 +98,16 @@ struct FeedCell: View {
                             }
                         }
                         
-                        
                         Button {
                             selectedOptionsOption = nil
                             showOptionsSheet.toggle()
                         } label: {
-                                Image(systemName: "ellipsis")
-                                    .imageScale(.large)
-                                    .frame(width: 30, height: 30)
-                                    .accentColor(.white)
-                                    .foregroundColor(.white)
+                            Image(systemName: "ellipsis")
+                                .imageScale(.large)
+                                .frame(width: 30, height: 30)
+                                .accentColor(.white)
+                                .foregroundColor(.white)
                         }
-                        
                     }
                     Spacer()
                     
@@ -126,7 +120,7 @@ struct FeedCell: View {
                                 Image(systemName: "heart.fill")
                                     .resizable()
                                     .frame(width: 28, height: 28)
-                                    .foregroundColor(didLike ? .red :  .white )
+                                    .foregroundColor(didLike ? .red : .white)
                                 NavigationLink(value: SearchViewModelConfig.likes(viewModel.post.id ?? "")) {
                                     Text(viewModel.likeString)
                                         .font(.footnote)
@@ -135,73 +129,77 @@ struct FeedCell: View {
                                 }
                             }
                         }
-
                         
                         Button {
-                            print("save post")
-                            Task {  didBookmark ? try await viewModel.unbookmark() : try await viewModel.bookmark() }
+                            print("bookmark post")
+                            if didBookmark {
+                                Task { try await viewModel.unbookmark() }
+                            } else {
+                                showBookmarkSheet = true
+                            }
                         } label: {
                             Image(systemName: "bookmark.fill")
                                 .resizable()
                                 .frame(width: 22, height: 28)
-                                .accentColor(.white )
+                                .accentColor(.white)
                                 .foregroundColor(didBookmark ? .cyan : .white)
                         }
                     }
                 }
                 .padding(.bottom, 15)
                 .padding(.horizontal, 10)
-
                 
-                //likes and comments lable
+                // Likes and comments label
                 HStack {
-                    // filter name
-                    Text(viewModel.post.label!)
+                    Text(viewModel.post.label ?? "")
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundStyle(.white)
                         .lineLimit(1)
-                                        
+                    
                     Spacer()
                     
-                    Text("\(viewModel.post.user?.username ?? "") ")
+                    Text("\(viewModel.post.user?.username ?? "")")
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundStyle(.white)
-                    
                 }
                 .padding(.horizontal, 16)
-
                 
-                // caption - broche description
+                // Caption
                 HStack {
-                    Text("\(viewModel.post.caption) ").font(.system(size: 14)).fontWeight(.semibold).foregroundStyle(.white) //+
-                    //Text(viewModel.timestampString)
-                      //  .font(.footnote)
-                     //   .foregroundColor(.gray)
+                    Text("\(viewModel.post.caption ?? "")")
+                        .font(.system(size: 14))
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.white)
                 }
                 .padding()
                 .padding(.top, 1)
-                
-                
-                
-                
-                
             }
-//            .containerRelativeFrame([.horizontal, .vertical])
-            .sheet(isPresented: $showCommentsSheet, content: {
+            .sheet(isPresented: $showCommentsSheet) {
                 CommentsView(post: viewModel.post)
                     .presentationDetents([.fraction(0.8), .large])
                     .presentationDragIndicator(.visible)
-            })
-            .navigationDestination(isPresented: $showDetail, destination: {
+            }
+            .sheet(isPresented: $showBookmarkSheet) {
+                BookmarkSheet(
+                    userId: Auth.auth().currentUser?.uid ?? "",
+                    onSelectCollection: { collection in
+                        viewModel.bookmarkPost(collectionId: collection.id ?? "")
+                    },
+                    onCreateCollection: { name in
+                        viewModel.createCollectionAndBookmark(name: name)
+                    }
+                )
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+            }
+            .navigationDestination(isPresented: $showDetail) {
                 Text(selectedOptionsOption?.title ?? "")
-            })
+            }
             .sheet(isPresented: $showOptionsSheet) {
                 OptionsView(selectedOption: $selectedOptionsOption, showDeleteOption: showDeleteOption, post: viewModel.post)
-                    .presentationDetents([
-                        .height(CGFloat(OptionsItemModel.allCases.count * 56))
-                    ])
+                    .presentationDetents([.height(CGFloat(OptionsItemModel.allCases.count * 56))])
             }
             .onChange(of: selectedOptionsOption) {
                 guard let option = selectedOptionsOption else { return }
@@ -209,70 +207,47 @@ struct FeedCell: View {
                     showDetail = true
                 } else if option == .delete {
                     Task { try await viewModel.deletePost() }
-                    //  showDeleteConfirmation.toggle()
                 } else {
                     self.showDetail.toggle()
                 }
                 print(option.title)
             }
-            //               .alert(isPresented: $showDeleteConfirmation) {
-            //                                          Alert(
-            //                                              title: Text("Delete Post"),
-            //                                              message: Text("Are you sure you want to delete this post?"),
-            //                                              primaryButton: .destructive(Text("Delete")) {
-            //                                                  // Call deletePost() on the viewModel
-            //                                                  Task { try await viewModel.deletePost() }
-            //                                              },
-            //                                              secondaryButton: .cancel(Text("Cancel"))
-            //                                          )
-            //                                      }
             .navigationDestination(for: SearchViewModelConfig.self) { config in
-                UserListView(config: config)}
-        }
-        .onTapGesture {
-            // Single tap for play/pause
-            switch player!.timeControlStatus {
-            case .paused:
-                player!.play()
-            case .waitingToPlayAtSpecifiedRate, .playing:
-                player!.pause()
-                handleDoubleTap()
-            @unknown default:
-                break
+                UserListView(config: config)
             }
-        }
-        .simultaneousGesture(
-            TapGesture(count: 2)
-                .onEnded {
-                    // Double tap for liking
+            .onTapGesture {
+                switch player?.timeControlStatus {
+                case .paused:
+                    player?.play()
+                case .waitingToPlayAtSpecifiedRate, .playing:
+                    player?.pause()
                     handleDoubleTap()
-                }
-        )
-        
-
-    }
-    private func handleDoubleTap() {
-            let now = Date()
-
-            if let lastTapTime = lastTapTime, now.timeIntervalSince(lastTapTime) < 0.3 {
-                // Perform action on double-tap (e.g., like the post)
-                Task {
-                    do {
-                        try await viewModel.like()
-                    } catch {
-                        print("Error liking post: \(error)")
-                    }
+                case .none, .some(_):
+                    break
+                @unknown default:
+                    break
                 }
             }
-
-            lastTapTime = now
+            .simultaneousGesture(
+                TapGesture(count: 2)
+                    .onEnded {
+                        handleDoubleTap()
+                    }
+            )
         }
+    }
+    
+    private func handleDoubleTap() {
+        let now = Date()
+        if let lastTapTime = lastTapTime, now.timeIntervalSince(lastTapTime) < 0.3 {
+            Task {
+                do {
+                    try await viewModel.like()
+                } catch {
+                    print("Error liking post: \(error)")
+                }
+            }
+        }
+        lastTapTime = now
+    }
 }
-//
-//    
-
-//struct FeedCell_Previews: PreviewProvider {
-//    static var previews: some View {
-//        FeedCell(viewModel: FeedCellViewModel(post: Post.MOCK_POSTS[1]))
-//    }
-//}

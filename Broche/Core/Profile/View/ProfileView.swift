@@ -16,35 +16,33 @@ struct ProfileView: View {
         self.user = user
         self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
     }
-
-        var body: some View {
-            ScrollView {
-                //header
-                ProfileHeaderView(viewModel: viewModel)
-                //profile filter bar
-                ProfileFilterView(selectedFilter: $selectedFilter)
-                // post grid view
-                brocheView
-            //    PostGridView(config: .profile(user))
-            }
-            .navigationTitle(user.username)
-            .navigationBarTitleDisplayMode(.inline)
+    
+    var body: some View {
+        ScrollView {
+            // Header
+            ProfileHeaderView(viewModel: viewModel)
+            // Profile filter bar
+            ProfileFilterView(selectedFilter: $selectedFilter)
+            // Content based on filter
+            brocheView
+        }
+        .navigationTitle(user.username)
+        .navigationBarTitleDisplayMode(.inline)
     }
     
     var brocheView: some View {
         ScrollView {
             LazyVStack {
-                            switch self.selectedFilter {
-                            case .broche:
-                                BrocheGridView(user: user) // New view we’ll create
-                            case .hearts:
-                                PostGridView(config: .likedPosts(user))
-                            case .bookmarks:
-                                PostGridView(config: .bookmarkedPosts(user))
-                            case .mappin:
-                                MapViewForUserPins(user: user)
-                            }
-                
+                switch selectedFilter {
+                case .broche:
+                    BrocheGridView(user: user)
+                case .hearts:
+                    PostGridView(config: .likedPosts(user))
+                case .bookmarks:
+                    CollectionsView(user: user, disableScrolling: true)
+                case .mappin:
+                    MapViewForUserPins(user: user)
+                }
             }
         }
     }

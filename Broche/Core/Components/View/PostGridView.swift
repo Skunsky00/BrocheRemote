@@ -41,6 +41,8 @@ struct PostGridView: View {
             return "No posts yet."
         case .explore:
             return "No posts to display."
+        case .collectionPosts:
+            return "No posts in this collection yet."
         }
     }
     
@@ -54,13 +56,14 @@ struct PostGridView: View {
             return "camera"
         case .explore:
             return "camera"
+        case .collectionPosts:
+            return "bookmark"
         }
     }
     
     var body: some View {
         VStack {
             if !posts.isEmpty {
-                // SearchBar inside the scrollable content, but only if there are posts
                 SearchBar(text: $searchText, isEditing: $isEditing)
                     .padding(.horizontal)
                     .padding(.bottom, 16)
@@ -77,7 +80,6 @@ struct PostGridView: View {
                         .foregroundColor(.secondary)
                 }
                 .padding(.top, 150)
-                
             } else {
                 ScrollView {
                     LazyVGrid(columns: gridItems, spacing: 1) {
@@ -138,14 +140,6 @@ struct PostGridView: View {
         .navigationBarHidden(false)
     }
 }
-
-
-
-
-
-
-
-
 
 struct PostGridView_Previews: PreviewProvider {
     static var previews: some View {

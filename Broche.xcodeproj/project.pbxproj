@@ -10,6 +10,10 @@
 		4E188F472A89B9F40049AE0A /* VisitedMarkerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E188F462A89B9F40049AE0A /* VisitedMarkerSheet.swift */; };
 		4E188F4A2A89C4930049AE0A /* EditVisitedMarkerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E188F492A89C4930049AE0A /* EditVisitedMarkerSheet.swift */; };
 		4E188F4C2A89C6740049AE0A /* EditVisitedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E188F4B2A89C6740049AE0A /* EditVisitedViewModel.swift */; };
+		4E232FFF2DFE937F00B48755 /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E232FFE2DFE937F00B48755 /* Collection.swift */; };
+		4E2330012DFE93FA00B48755 /* CollectionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2330002DFE93FA00B48755 /* CollectionsView.swift */; };
+		4E2330032DFE9EE300B48755 /* CollectionsViewodel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2330022DFE9EE300B48755 /* CollectionsViewodel.swift */; };
+		4E2443D12E0760E200985D96 /* BookmarkSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2443D02E0760E200985D96 /* BookmarkSheet.swift */; };
 		4E2F6BEC2A38C02000BA0A89 /* OptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2F6BEB2A38C02000BA0A89 /* OptionsView.swift */; };
 		4E30437B2DCBF45300B9613E /* PostDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E30437A2DCBF45300B9613E /* PostDetailsView.swift */; };
 		4E30437D2DCBF62800B9613E /* ThumbnailUploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E30437C2DCBF62800B9613E /* ThumbnailUploader.swift */; };
@@ -160,6 +164,10 @@
 		4E188F462A89B9F40049AE0A /* VisitedMarkerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitedMarkerSheet.swift; sourceTree = "<group>"; };
 		4E188F492A89C4930049AE0A /* EditVisitedMarkerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditVisitedMarkerSheet.swift; sourceTree = "<group>"; };
 		4E188F4B2A89C6740049AE0A /* EditVisitedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditVisitedViewModel.swift; sourceTree = "<group>"; };
+		4E232FFE2DFE937F00B48755 /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
+		4E2330002DFE93FA00B48755 /* CollectionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionsView.swift; sourceTree = "<group>"; };
+		4E2330022DFE9EE300B48755 /* CollectionsViewodel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionsViewodel.swift; sourceTree = "<group>"; };
+		4E2443D02E0760E200985D96 /* BookmarkSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkSheet.swift; sourceTree = "<group>"; };
 		4E2F6BEB2A38C02000BA0A89 /* OptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionsView.swift; sourceTree = "<group>"; };
 		4E30437A2DCBF45300B9613E /* PostDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostDetailsView.swift; sourceTree = "<group>"; };
 		4E30437C2DCBF62800B9613E /* ThumbnailUploader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailUploader.swift; sourceTree = "<group>"; };
@@ -408,6 +416,7 @@
 				4EC081442A34D72C00B86052 /* Message.swift */,
 				4EA3A74C2A40BCA8005C548D /* Notification.swift */,
 				4E3043822DCD8A8C00B9613E /* Location.swift */,
+				4E232FFE2DFE937F00B48755 /* Collection.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -650,6 +659,7 @@
 			children = (
 				4E97703D2A1D725700919F88 /* PostGridViewModel.swift */,
 				4ECD4E7E2D93A68700292441 /* BrocheGridViewModal.swift */,
+				4E2330022DFE9EE300B48755 /* CollectionsViewodel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -659,12 +669,14 @@
 			children = (
 				4E85EBBD2A16A2A00074A346 /* UserStatView.swift */,
 				4E85EBCB2A16DD380074A346 /* BrocheTextFieldModifier.swift */,
+				4E2330002DFE93FA00B48755 /* CollectionsView.swift */,
 				4E85EBD92A1708860074A346 /* PostGridView.swift */,
 				4E9770312A1D210E00919F88 /* CircularProfileImageView.swift */,
 				4EC0813E2A34CF5900B86052 /* UserListView.swift */,
 				4EC081422A34D01500B86052 /* UserCell.swift */,
 				4EC0815B2A34DE2A00B86052 /* SearchBar.swift */,
 				4ECD4E7C2D93A64000292441 /* BrocheGridView.swift */,
+				4E2443D02E0760E200985D96 /* BookmarkSheet.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -991,6 +1003,7 @@
 				4EC081452A34D72C00B86052 /* Message.swift in Sources */,
 				4E85EBDA2A1708860074A346 /* PostGridView.swift in Sources */,
 				4E9770512A25701400919F88 /* LocationBookMarkView.swift in Sources */,
+				4E232FFF2DFE937F00B48755 /* Collection.swift in Sources */,
 				4E3043812DCD6FD500B9613E /* ItineraryViewModel.swift in Sources */,
 				4E85EBC42A16CF730074A346 /* SearchView.swift in Sources */,
 				4E85EBDC2A170A5A0074A346 /* ProfileHeaderView.swift in Sources */,
@@ -1006,7 +1019,9 @@
 				4EC081302A2D870700B86052 /* ResetPasswordView.swift in Sources */,
 				4EB6BC1C2AAD0A6400D1586F /* User.swift in Sources */,
 				4EC0810E2A26B62200B86052 /* Constants.swift in Sources */,
+				4E2443D12E0760E200985D96 /* BookmarkSheet.swift in Sources */,
 				4E9770272A1C58D300919F88 /* EditProfileView.swift in Sources */,
+				4E2330032DFE9EE300B48755 /* CollectionsViewodel.swift in Sources */,
 				4E97703E2A1D725700919F88 /* PostGridViewModel.swift in Sources */,
 				4E97701F2A1C38B100919F88 /* LoginViewModel.swift in Sources */,
 				4E8D3EA42A7D88E8000907A5 /* EditFutureMarkerViewModel.swift in Sources */,
@@ -1019,6 +1034,7 @@
 				4E9770552A2570D400919F88 /* LocationSearchViewModel.swift in Sources */,
 				4E97701D2A19197200919F88 /* RegistrationViewModel.swift in Sources */,
 				4E85EBE02A17DE040074A346 /* UploadPostViewModel.swift in Sources */,
+				4E2330012DFE93FA00B48755 /* CollectionsView.swift in Sources */,
 				4E8D3EA22A7D8854000907A5 /* EditFutureMarkerView.swift in Sources */,
 				4E30437B2DCBF45300B9613E /* PostDetailsView.swift in Sources */,
 				4EC081212A27A9D000B86052 /* CommentViewModel.swift in Sources */,
