@@ -18,22 +18,24 @@ struct ChatView: View {
     }
     
     var body: some View {
-        VStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 12) {
-                    ForEach(viewModel.messages) { message in
-                        MessageView(viewModel: MessageViewModel(message: message))
+        NavigationStack {
+            VStack {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 12) {
+                        ForEach(viewModel.messages) { message in
+                            MessageView(viewModel: MessageViewModel(message: message))
+                        }
                     }
                 }
-            }.padding(.top)
-            
-            CustomInputView(inputText: $messageText, placeholder: "Message...", action: sendMessage)
-                .padding(10)
-            
+                .padding(.top)
+                
+                CustomInputView(inputText: $messageText, placeholder: "Message...", action: sendMessage)
+                    .padding(10)
+            }
+            .navigationTitle(user.username)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .tabBar)
         }
-        .navigationTitle(user.username)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar(.hidden, for: .tabBar)
     }
     
     func sendMessage() {
@@ -41,4 +43,3 @@ struct ChatView: View {
         messageText = ""
     }
 }
-

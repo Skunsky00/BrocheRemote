@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import Kingfisher
+import FirebaseAuth
 
 struct ConversationCell: View {
     let message: Message
@@ -26,9 +26,42 @@ struct ConversationCell: View {
                             .fontWeight(.semibold)
                     }
                     
-                    Text(message.text)
-                        .font(.footnote)
-                        .lineLimit(2)
+                    HStack {
+                        if let postId = message.postId, !postId.isEmpty {
+                            let currentUid = Auth.auth().currentUser?.uid
+                            if message.fromId == currentUid {
+                                Text("You sent a post")
+                                    .font(.footnote)
+                                    .lineLimit(1)
+                                    .truncationMode(.tail)
+                            } else {
+                                Text("\(message.user?.fullname ?? "Someone") sent you a post")
+                                    .font(.footnote)
+                                    .fontWeight(message.isRead ? .regular : .bold)
+                                    .lineLimit(1)
+                                    .truncationMode(.tail)
+                            }
+                        } else {
+                            Text(message.text)
+                                .font(.footnote)
+                                .fontWeight(message.fromId == Auth.auth().currentUser?.uid ? .regular : (message.isRead ? .regular : .bold))
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+                        }
+                        
+                        Spacer()
+                        
+                        if !message.isRead && message.fromId != Auth.auth().currentUser?.uid {
+                            Circle()
+                                .fill(Color.blue)
+                                .frame(width: 8, height: 8)
+                                .padding(.leading, 4)
+                        }
+                        
+                        Text(message.timestamp.dateValue().timeAgoDisplay())
+                            .font(.caption2)
+                            .foregroundColor(.gray)
+                    }
                 }
                 .foregroundColor(colorScheme == .dark ? .white : .black)
                 .padding(.trailing)
@@ -38,7 +71,17 @@ struct ConversationCell: View {
             
             Divider()
         }
-        
+        .onAppear {
+            print("🔔 ConversationCell onAppear - message.postId: \(String(describing: message.postId)), fromId: \(message.fromId), user: \(String(describing: message.user?.fullname)), isRead: \(message.isRead), text: \(message.text)")
+        }
+    }
+}
+
+extension Date {
+    func timeAgoDisplay() -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter.localizedString(for: self, relativeTo: Date())
     }
 }
 

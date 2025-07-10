@@ -7,13 +7,16 @@
 
 import SwiftUI
 import Firebase
+import FirebaseAuth
 
 class ConversationsViewModel: ObservableObject {
     @Published var recentMessages = [Message]()
-    private var recentMessagesDictionary = [String: Message]()
     
     func fetchRecentMessages() async throws -> [Message] {
-        guard let uid = Auth.auth().currentUser?.uid else { return [] }
+        guard let uid = Auth.auth().currentUser?.uid else {
+            print("❌ No current user UID")
+            return []
+        }
 
         let query = COLLECTION_MESSAGES
             .document(uid)
@@ -21,25 +24,41 @@ class ConversationsViewModel: ObservableObject {
             .order(by: "timestamp", descending: true)
         
         let snapshot = try await query.getDocuments()
-       // let _ documents = snapshot.documents
-        return snapshot.documents.compactMap({ try? $0.data(as: Message.self) })
+        let messages = snapshot.documents.compactMap { doc -> Message? in
+            do {
+                return try doc.data(as: Message.self)
+            } catch {
+                print("❌ Failed to decode message \(doc.documentID): \(error.localizedDescription)")
+                return nil
+            }
+        }
+        print("✅ Fetched \(messages.count) recent messages from Firestore")
+        return messages
     }
     
     @MainActor
     func loadData() {
         Task {
-            var messages = try await fetchRecentMessages()
+            print("🔄 Loading recent messages...")
             
-            for i in 0 ..< messages.count {
-                let message = messages[i]
-                async let user = try await UserService.fetchUser(withUid: message.chatPartnerId)
-                messages[i].user = try await user
+            let messages = try await fetchRecentMessages()
+            print("✅ Found \(messages.count) recent messages")
+            
+            var updatedMessages = [Message]()
+            for message in messages {
+                print("📨 Message from \(message.fromId) to \(message.toId): \(message.text), timestamp: \(message.timestamp.dateValue()), isRead: \(message.isRead), postId: \(String(describing: message.postId))")
                 
-                let uid = messages[i].user?.id ?? ""
-                recentMessagesDictionary[uid] = messages[i]
+                let user = try await UserService.fetchUser(withUid: message.chatPartnerId)
+                var updatedMessage = message
+                updatedMessage.user = user
+                updatedMessages.append(updatedMessage)
             }
             
-            self.recentMessages = Array(recentMessagesDictionary.values)
+            self.recentMessages = updatedMessages
+            print("📬 Final recentMessages count: \(self.recentMessages.count)")
+            for message in self.recentMessages {
+                print("🔔 Final message order - ID: \(message.id ?? "unknown"), timestamp: \(message.timestamp.dateValue()), postId: \(String(describing: message.postId)), isRead: \(message.isRead)")
+            }
         }
     }
 }

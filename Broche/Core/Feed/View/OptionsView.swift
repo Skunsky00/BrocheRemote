@@ -38,19 +38,19 @@ struct OptionsView: View {
     @Environment(\.dismiss) var dismiss
     @State private var copied = false
     @State private var showPinPicker = false
-    @State private var viewModel: BrocheGridViewModel? // Hold it here temporarily
+    @State private var viewModel: BrocheGridViewModel?
     
     private var shareLink: String {
         "https://travelbroche.com/p/\(post.id ?? "")"
     }
-    
+
     var body: some View {
         VStack {
             Capsule()
                 .frame(width: 32, height: 4)
                 .foregroundColor(.gray)
                 .padding()
-            
+
             List {
                 if showDeleteOption {
                     OptionsRowView(model: .delete)
@@ -59,21 +59,13 @@ struct OptionsView: View {
                             dismiss()
                         }
                 }
-                
-                HStack {
-                    OptionsRowView(model: .sharepost)
-                    if copied {
-                        Text("Copied!")
-                            .font(.subheadline)
-                            .foregroundColor(.green)
-                            .transition(.opacity)
+
+                OptionsRowView(model: .sharepost)
+                    .onTapGesture {
+                        selectedOption = .sharepost
+                        dismiss() // Dismiss OptionsView
                     }
-                }
-                .onTapGesture {
-                    copyToClipboard()
-                    selectedOption = .sharepost
-                }
-                
+
                 OptionsRowView(model: .pinToBroche)
                     .onTapGesture {
                         selectedOption = .pinToBroche
@@ -85,33 +77,23 @@ struct OptionsView: View {
             .sheet(isPresented: $showPinPicker) {
                 PinPickerView(post: post, pinnedPosts: viewModel?.pinnedPosts ?? []) { position in
                     pinPost(at: position)
-                    dismiss()
                 }
                 .presentationDetents([.height(200)])
             }
         }
     }
-    
+
     private func setupViewModel() {
         guard let currentUser = Auth.auth().currentUser else { return }
         let user = User(id: currentUser.uid, username: currentUser.displayName ?? "", email: currentUser.email ?? "")
         viewModel = BrocheGridViewModel(user: user)
     }
-    
-    private func copyToClipboard() {
-        UIPasteboard.general.string = shareLink
-        withAnimation { copied = true }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            withAnimation { copied = false }
-            dismiss()
-        }
-    }
-    
+
     private func pinPost(at position: Int) {
-        guard let viewModel = viewModel else { return }
-        viewModel.pinPost(post, at: position)
+        viewModel?.pinPost(post, at: position)
     }
 }
+
 
 struct PinPickerView: View {
     let post: Post

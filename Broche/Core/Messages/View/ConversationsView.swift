@@ -15,17 +15,30 @@ struct ConversationsView: View {
     
     var body: some View {
         ScrollView {
-            LazyVStack {
-                ForEach(viewModel.recentMessages) { message in
-                    NavigationLink {
-                        if let user = message.user {
-                            ChatView(user: user)
+            if viewModel.recentMessages.isEmpty {
+                VStack {
+                    Spacer()
+                    Text("You have no messages")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                        .padding()
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                LazyVStack {
+                    ForEach(viewModel.recentMessages) { message in
+                        NavigationLink {
+                            if let user = message.user {
+                                ChatView(user: user)
+                            }
+                        } label: {
+                            ConversationCell(message: message)
                         }
-                    } label: {
-                        ConversationCell(message: message)
                     }
                 }
-            }.padding()
+                .padding()
+            }
         }
         .toolbar(.hidden, for: .tabBar)
         .navigationTitle("Messages")
@@ -40,10 +53,10 @@ struct ConversationsView: View {
                 Image(systemName: "square.and.pencil")
                     .imageScale(.large)
             }
-            
         })
         .onAppear {
             viewModel.loadData()
+            print("🔔 ConversationsView onAppear - recentMessages count: \(viewModel.recentMessages.count)")
         }
         .navigationDestination(isPresented: $showChat) {
             if let user = user {
