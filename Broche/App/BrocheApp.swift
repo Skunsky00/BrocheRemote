@@ -10,35 +10,19 @@ import FirebaseCore
 import FirebaseMessaging
 
 
+import Firebase
+import UIKit
+
 class AppDelegate: NSObject, UIApplicationDelegate {
-    
     let gcmMessageIDKey = "gcm.Message_ID"
     
-  func application(_ application: UIApplication,
-                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-      FirebaseApp.configure()
-      
-  //    UNUserNotificationCenter.current().delegate = self
-//      
-//      let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-//      UNUserNotificationCenter.current().requestAuthorization(
-//        options: authOptions,
-//        completionHandler: { _, _ in }
-//      )
-//
-//      application.registerForRemoteNotifications()
-      
-    //  Messaging.messaging().delegate = self
-      
-      
-      
-    return true
-  }
-    
-    
-//    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-//            Messaging.messaging().apnsToken = deviceToken
-//        }
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        FirebaseApp.configure()
+        
+        
+        return true
+    }
 }
 
 @main
@@ -96,7 +80,7 @@ struct SplashView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 200, height: 200)
-                    .clipShape(RoundedRectangle(cornerRadius: 40)) // Dynamic rounded corners
+                    .clipShape(RoundedRectangle(cornerRadius: 60)) // Dynamic rounded corners
                     .opacity(alpha)
             } else {
                 Text("Error loading logo")

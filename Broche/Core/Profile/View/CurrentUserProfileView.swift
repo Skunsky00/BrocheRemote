@@ -29,15 +29,11 @@ struct CurrentUserProfileView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                // Header
                 ProfileHeaderView(viewModel: viewModel)
-                // Profile filter bar
                 ProfileFilterView(selectedFilter: $selectedFilter)
-                // Content based on filter
                 brocheView
             }
-            .navigationTitle(user.username)
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitle("", displayMode: .inline) // Empty title
             .environmentObject(brocheViewModel)
             .refreshable {
                 viewModel.updateUserData(user: user)
@@ -64,6 +60,9 @@ struct CurrentUserProfileView: View {
                     .presentationDetents([.height(CGFloat(SettingsItemModel.allCases.count * 56))])
             }
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    UsernameWithBadgeView(user: user)
+                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     NavigationLink {
                         NotificationsView(viewModel: notiViewModel)

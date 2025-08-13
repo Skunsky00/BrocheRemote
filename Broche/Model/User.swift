@@ -7,6 +7,7 @@
 
 import Foundation
 import Firebase
+import SwiftUICore
 
 struct User: Identifiable, Codable {
     let id: String
@@ -21,6 +22,7 @@ struct User: Identifiable, Codable {
     var isFollowed: Bool? = false
     var didSaveLocation: Bool? = false
     var didSaveFutureLocation: Bool? = false
+    var verificationStatus: VerificationType = .none
     
     var isCurrentUser: Bool {
         guard let currentUid = Auth.auth().currentUser?.uid else { return false }

@@ -29,6 +29,7 @@ class AuthService {
             try await loadUserData()
         } catch {
             print("DEBUG: Failed to log in with error \(error.localizedDescription)")
+            throw error
         }
     }
     
@@ -40,14 +41,25 @@ class AuthService {
             await uploadUserData(uid: result.user.uid, username: username, email: email)
         } catch {
             print("DEBUG: Failed to register user with error \(error.localizedDescription)")
+            throw error
         }
     }
     
     @MainActor
     func loadUserData() async throws {
         self.userSession = Auth.auth().currentUser
-        guard let currentUid = userSession?.uid else { return }
-        self.currentUser = try await UserService.fetchUser(withUid: currentUid)
+        guard let currentUid = userSession?.uid else {
+            print("DEBUG: No user session found")
+            self.currentUser = nil
+            return
+        }
+        do {
+            self.currentUser = try await UserService.fetchUser(withUid: currentUid)
+        } catch {
+            print("DEBUG: Failed to load user data: \(error.localizedDescription)")
+            self.currentUser = nil
+            throw error
+        }
     }
     
     func signout() {
@@ -57,9 +69,17 @@ class AuthService {
     }
     
     private func uploadUserData(uid: String, username: String, email: String) async {
-        let user = User(id: uid, username: username, email: email)
+        let user = User(id: uid, username: username, email: email, verificationStatus: .none) // Explicitly set
         self.currentUser = user
-        guard let encodedUser = try? Firestore.Encoder().encode(user) else { return }
-        try? await Firestore.firestore().collection("users").document(user.id).setData(encodedUser)
+        guard let encodedUser = try? Firestore.Encoder().encode(user) else {
+            print("DEBUG: Failed to encode user data")
+            return
+        }
+        do {
+            try await Firestore.firestore().collection("users").document(user.id).setData(encodedUser)
+        } catch {
+            print("DEBUG: Failed to upload user data: \(error.localizedDescription)")
+        }
     }
 }
+

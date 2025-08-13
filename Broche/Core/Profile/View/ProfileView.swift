@@ -19,15 +19,16 @@ struct ProfileView: View {
     
     var body: some View {
         ScrollView {
-            // Header
             ProfileHeaderView(viewModel: viewModel)
-            // Profile filter bar
             ProfileFilterView(selectedFilter: $selectedFilter)
-            // Content based on filter
             brocheView
         }
-        .navigationTitle(user.username)
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitle("", displayMode: .inline) // Empty title
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                UsernameWithBadgeView(user: user)
+            }
+        }
     }
     
     var brocheView: some View {

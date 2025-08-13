@@ -10,22 +10,21 @@ import SwiftUI
 enum SettingsPrivacyModel: Int, Identifiable, Hashable, CaseIterable {
     case account
     case privacy
+    case verification // New case
     
     var title: String {
         switch self {
-        case .account:
-            return "Account"
-        case .privacy:
-            return "Privacy"
+        case .account: return "Account"
+        case .privacy: return "Privacy"
+        case .verification: return "Verification"
         }
     }
     
     var imageName: String {
         switch self {
-        case .account:
-            return "person"
-        case .privacy:
-            return "hand.raised.circle.fill"
+        case .account: return "person"
+        case .privacy: return "hand.raised.circle.fill"
+        case .verification: return "checkmark.seal"
         }
     }
     
@@ -44,7 +43,7 @@ struct SettingsAndPrivacyView: View {
                     SettingsPrivacyRowView(model: model)
                         .onTapGesture {
                             selectedOption = model
-                            showDetail = true // Show the detail view when tapped
+                            showDetail = true
                         }
                 }
             }
@@ -58,6 +57,9 @@ struct SettingsAndPrivacyView: View {
                     case .privacy:
                         PrivacyView()
                             .navigationTitle("Privacy")
+                    case .verification:
+                        VerificationRequestView()
+                            .navigationTitle("Verification")
                     }
                 }
             }
