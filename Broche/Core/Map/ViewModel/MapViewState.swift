@@ -7,8 +7,8 @@
 
 import Foundation
 
-enum MapViewState {
-    case noInput
-    case searchingForLocation
-    case locationSelected
-}
+//enum MapViewState {
+//    case noInput
+//    case searchingForLocation
+//    case locationSelected
+//}

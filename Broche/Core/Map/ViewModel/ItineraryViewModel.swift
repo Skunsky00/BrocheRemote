@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 import CoreLocation
-import SwiftUICore
+import SwiftUI
 
 class ItineraryViewModel: ObservableObject {
     @Published var travelStats = TravelStats()
@@ -41,7 +41,7 @@ class ItineraryViewModel: ObservableObject {
         guard let userId = userId else { return }
         Task {
             do {
-                let locations = try await UserService.fetchSavedLocations(forUserID: userId)
+                let locations = try await UserService.fetchSavedLocations(forUserID: userId, type: .visited)
                 await MainActor.run {
                     self.visited = locations
                 }

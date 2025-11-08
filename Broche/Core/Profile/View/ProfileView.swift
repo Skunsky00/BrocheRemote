@@ -42,7 +42,7 @@ struct ProfileView: View {
                 case .bookmarks:
                     CollectionsView(user: user, disableScrolling: true)
                 case .mappin:
-                    MapViewForUserPins(user: user)
+                    MapViewForUserPins2(user: user)
                 }
             }
         }

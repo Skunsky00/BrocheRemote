@@ -48,7 +48,7 @@ struct UploadPostLocationSearchView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 8) {
                     ForEach(viewModel.results, id: \.self) { result in
-                        LocationSearchResultCell(title: result.title, subtitle: result.subtitle)
+                        LocationSearchResultCell2(title: result.title, subtitle: result.subtitle)
                             .padding(.horizontal)
                             .background(colorScheme == .dark ? Color.black : Color.white)
                             .onTapGesture {

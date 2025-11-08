@@ -7,7 +7,7 @@
 
 import Foundation
 import Firebase
-import SwiftUICore
+import SwiftUI
 
 struct User: Identifiable, Codable {
     let id: String

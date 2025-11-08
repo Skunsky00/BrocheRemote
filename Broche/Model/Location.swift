@@ -7,6 +7,8 @@
 
 import Foundation
 import FirebaseFirestoreSwift
+import _LocationEssentials
+import CoreLocation
 
 struct Location: Codable, Identifiable {
     var id: String
@@ -65,6 +67,7 @@ struct Location: Codable, Identifiable {
     }
 }
 
+// MARK: - MOCK DATA (extension is safe)
 extension Location {
     static var MOCK_LOCATIONS: [Location] = [
         Location(

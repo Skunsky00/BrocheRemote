@@ -10,7 +10,7 @@ import SwiftUI
 struct MainTabView: View {
     let user: User
     @State private var selectedIndex = 0
-    @StateObject var locationViewModel = LocationSearchViewModel()
+    @StateObject var locationViewModel = LocationSearchViewModel2()
     @Environment(\.colorScheme) var colorScheme
     
     var accentColor: Color {
@@ -43,7 +43,7 @@ struct MainTabView: View {
                 Image(systemName: "plus.app")
             }.tag(2)
             
-            MapView(user: user)
+            MapView2(user: user)
                 .environmentObject(locationViewModel)
                 .onAppear {
                     selectedIndex = 3

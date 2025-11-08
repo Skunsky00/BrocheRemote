@@ -164,6 +164,22 @@
 		4EC10E052A4CB36400DA12EF /* TextLinkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EC10E042A4CB36400DA12EF /* TextLinkView.swift */; };
 		4ECD4E7D2D93A64000292441 /* BrocheGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ECD4E7C2D93A64000292441 /* BrocheGridView.swift */; };
 		4ECD4E7F2D93A68700292441 /* BrocheGridViewModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ECD4E7E2D93A68700292441 /* BrocheGridViewModal.swift */; };
+		4EEE64C92E4D3DA4009A9CA1 /* MapView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64C82E4D3DA4009A9CA1 /* MapView2.swift */; };
+		4EEE64CB2E4D3DBE009A9CA1 /* MapViewState2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64CA2E4D3DBE009A9CA1 /* MapViewState2.swift */; };
+		4EEE64CD2E4D3EDD009A9CA1 /* LocationSearchViewModel2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64CC2E4D3EDD009A9CA1 /* LocationSearchViewModel2.swift */; };
+		4EEE64CF2E4D3FCE009A9CA1 /* LocationManager2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64CE2E4D3FCE009A9CA1 /* LocationManager2.swift */; };
+		4EEE64D12E4D42F9009A9CA1 /* MapViewActionButton2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64D02E4D42F9009A9CA1 /* MapViewActionButton2.swift */; };
+		4EEE64D32E4D432C009A9CA1 /* LocationSearchView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64D22E4D432C009A9CA1 /* LocationSearchView2.swift */; };
+		4EEE64D52E4D4383009A9CA1 /* LocationSearchActivationView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64D42E4D4383009A9CA1 /* LocationSearchActivationView2.swift */; };
+		4EEE64D72E4D43AD009A9CA1 /* LocationSearchResultCell2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64D62E4D43AD009A9CA1 /* LocationSearchResultCell2.swift */; };
+		4EEE64D92E4D43D1009A9CA1 /* LocationBookmarkView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64D82E4D43D1009A9CA1 /* LocationBookmarkView2.swift */; };
+		4EEE64DB2E4D4416009A9CA1 /* MarkerSheet2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64DA2E4D4416009A9CA1 /* MarkerSheet2.swift */; };
+		4EEE64DD2E4D4447009A9CA1 /* EditMarkerView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64DC2E4D4447009A9CA1 /* EditMarkerView2.swift */; };
+		4EEE64DF2E4D448A009A9CA1 /* MarkersheetViewModel2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64DE2E4D448A009A9CA1 /* MarkersheetViewModel2.swift */; };
+		4EEE64E12E4D44CF009A9CA1 /* EditMarkerViewModel2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64E02E4D44CF009A9CA1 /* EditMarkerViewModel2.swift */; };
+		4EEE64E32E4D45C7009A9CA1 /* MapViewForUserPins2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64E22E4D45C7009A9CA1 /* MapViewForUserPins2.swift */; };
+		4EEE64E52E4D51BC009A9CA1 /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64E42E4D51BC009A9CA1 /* MapViewModel.swift */; };
+		4EEE64E72E4D52C3009A9CA1 /* MapViewModelForUserPins.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64E62E4D52C3009A9CA1 /* MapViewModelForUserPins.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -299,6 +315,22 @@
 		4EC10E042A4CB36400DA12EF /* TextLinkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextLinkView.swift; sourceTree = "<group>"; };
 		4ECD4E7C2D93A64000292441 /* BrocheGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrocheGridView.swift; sourceTree = "<group>"; };
 		4ECD4E7E2D93A68700292441 /* BrocheGridViewModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrocheGridViewModal.swift; sourceTree = "<group>"; };
+		4EEE64C82E4D3DA4009A9CA1 /* MapView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView2.swift; sourceTree = "<group>"; };
+		4EEE64CA2E4D3DBE009A9CA1 /* MapViewState2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewState2.swift; sourceTree = "<group>"; };
+		4EEE64CC2E4D3EDD009A9CA1 /* LocationSearchViewModel2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchViewModel2.swift; sourceTree = "<group>"; };
+		4EEE64CE2E4D3FCE009A9CA1 /* LocationManager2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager2.swift; sourceTree = "<group>"; };
+		4EEE64D02E4D42F9009A9CA1 /* MapViewActionButton2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewActionButton2.swift; sourceTree = "<group>"; };
+		4EEE64D22E4D432C009A9CA1 /* LocationSearchView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchView2.swift; sourceTree = "<group>"; };
+		4EEE64D42E4D4383009A9CA1 /* LocationSearchActivationView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchActivationView2.swift; sourceTree = "<group>"; };
+		4EEE64D62E4D43AD009A9CA1 /* LocationSearchResultCell2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchResultCell2.swift; sourceTree = "<group>"; };
+		4EEE64D82E4D43D1009A9CA1 /* LocationBookmarkView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationBookmarkView2.swift; sourceTree = "<group>"; };
+		4EEE64DA2E4D4416009A9CA1 /* MarkerSheet2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerSheet2.swift; sourceTree = "<group>"; };
+		4EEE64DC2E4D4447009A9CA1 /* EditMarkerView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditMarkerView2.swift; sourceTree = "<group>"; };
+		4EEE64DE2E4D448A009A9CA1 /* MarkersheetViewModel2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkersheetViewModel2.swift; sourceTree = "<group>"; };
+		4EEE64E02E4D44CF009A9CA1 /* EditMarkerViewModel2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditMarkerViewModel2.swift; sourceTree = "<group>"; };
+		4EEE64E22E4D45C7009A9CA1 /* MapViewForUserPins2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewForUserPins2.swift; sourceTree = "<group>"; };
+		4EEE64E42E4D51BC009A9CA1 /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
+		4EEE64E62E4D52C3009A9CA1 /* MapViewModelForUserPins.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModelForUserPins.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -427,9 +459,9 @@
 				4EC081172A27A7A300B86052 /* Comment.swift */,
 				4EC081442A34D72C00B86052 /* Message.swift */,
 				4EA3A74C2A40BCA8005C548D /* Notification.swift */,
-				4E3043822DCD8A8C00B9613E /* Location.swift */,
 				4E232FFE2DFE937F00B48755 /* Collection.swift */,
 				4E358C862E2071B30058C06C /* Verification.swift */,
+				4E3043822DCD8A8C00B9613E /* Location.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -449,6 +481,7 @@
 				4E85EBBC2A16A2560074A346 /* Components */,
 				4EC081192A27A8D500B86052 /* Comments */,
 				4E85EBB22A1698830074A346 /* Feed */,
+				4EEE64C32E4D382F009A9CA1 /* Map 2 */,
 				4E97703F2A256D6900919F88 /* Map */,
 				4EC081462A34D7A500B86052 /* Messages */,
 				4EA3A7412A40BBA2005C548D /* Notifications */,
@@ -871,6 +904,45 @@
 			path = View;
 			sourceTree = "<group>";
 		};
+		4EEE64C32E4D382F009A9CA1 /* Map 2 */ = {
+			isa = PBXGroup;
+			children = (
+				4EEE64C62E4D3D77009A9CA1 /* View */,
+				4EEE64C72E4D3D80009A9CA1 /* ViewModel */,
+			);
+			path = "Map 2";
+			sourceTree = "<group>";
+		};
+		4EEE64C62E4D3D77009A9CA1 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				4EEE64C82E4D3DA4009A9CA1 /* MapView2.swift */,
+				4EEE64D02E4D42F9009A9CA1 /* MapViewActionButton2.swift */,
+				4EEE64D22E4D432C009A9CA1 /* LocationSearchView2.swift */,
+				4EEE64D42E4D4383009A9CA1 /* LocationSearchActivationView2.swift */,
+				4EEE64D62E4D43AD009A9CA1 /* LocationSearchResultCell2.swift */,
+				4EEE64D82E4D43D1009A9CA1 /* LocationBookmarkView2.swift */,
+				4EEE64DA2E4D4416009A9CA1 /* MarkerSheet2.swift */,
+				4EEE64DC2E4D4447009A9CA1 /* EditMarkerView2.swift */,
+				4EEE64E22E4D45C7009A9CA1 /* MapViewForUserPins2.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		4EEE64C72E4D3D80009A9CA1 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				4EEE64E42E4D51BC009A9CA1 /* MapViewModel.swift */,
+				4EEE64CA2E4D3DBE009A9CA1 /* MapViewState2.swift */,
+				4EEE64CC2E4D3EDD009A9CA1 /* LocationSearchViewModel2.swift */,
+				4EEE64CE2E4D3FCE009A9CA1 /* LocationManager2.swift */,
+				4EEE64DE2E4D448A009A9CA1 /* MarkersheetViewModel2.swift */,
+				4EEE64E02E4D44CF009A9CA1 /* EditMarkerViewModel2.swift */,
+				4EEE64E62E4D52C3009A9CA1 /* MapViewModelForUserPins.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -990,14 +1062,18 @@
 				4E9770212A1C4DBD00919F88 /* UserService.swift in Sources */,
 				4EC081232A27AA3200B86052 /* CustomInputView.swift in Sources */,
 				4E188F472A89B9F40049AE0A /* VisitedMarkerSheet.swift in Sources */,
+				4EEE64D32E4D432C009A9CA1 /* LocationSearchView2.swift in Sources */,
+				4EEE64CF2E4D3FCE009A9CA1 /* LocationManager2.swift in Sources */,
 				4EC081142A27966800B86052 /* FeedCellViewModel.swift in Sources */,
 				4E358C892E2072A30058C06C /* VerificationRequestView.swift in Sources */,
+				4EEE64E72E4D52C3009A9CA1 /* MapViewModelForUserPins.swift in Sources */,
 				4EA3A7472A40BC24005C548D /* NotificationsCell.swift in Sources */,
 				4E8D3E962A73094A000907A5 /* MapViewForLocation.swift in Sources */,
 				4E358C832E1F0EA10058C06C /* SharePostSheetView.swift in Sources */,
 				4E9770532A25703400919F88 /* MapViewState.swift in Sources */,
 				4EC081562A34D90B00B86052 /* MessageViewModel.swift in Sources */,
 				4E358C852E1F12190058C06C /* SharePostViewModel.swift in Sources */,
+				4EEE64D72E4D43AD009A9CA1 /* LocationSearchResultCell2.swift in Sources */,
 				4E358C8B2E20A6AB0058C06C /* UsernameWithBadge.swift in Sources */,
 				4E85EBC82A16D2AB0074A346 /* LoginView.swift in Sources */,
 				4EC0812E2A2D86E200B86052 /* AuthenticationFormProtocol.swift in Sources */,
@@ -1006,10 +1082,13 @@
 				4E188F4A2A89C4930049AE0A /* EditVisitedMarkerSheet.swift in Sources */,
 				4E8D3E9E2A7D7043000907A5 /* FutureMarkerSheet.swift in Sources */,
 				4E97702B2A1C67A400919F88 /* EditProfileViewModel.swift in Sources */,
+				4EEE64D92E4D43D1009A9CA1 /* LocationBookmarkView2.swift in Sources */,
 				4E85EBD82A16F35C0074A346 /* Post.swift in Sources */,
 				4E9770432A256E0F00919F88 /* MapView.swift in Sources */,
 				4E8D3E9A2A782570000907A5 /* VideoPlayerForUploadView.swift in Sources */,
 				4EBBF2822AB276B500AA444C /* Itinerary.swift in Sources */,
+				4EEE64E52E4D51BC009A9CA1 /* MapViewModel.swift in Sources */,
+				4EEE64E12E4D44CF009A9CA1 /* EditMarkerViewModel2.swift in Sources */,
 				4E85EBEF2A17E78C0074A346 /* AuthService.swift in Sources */,
 				4EB6BC162AABB22800D1586F /* LocationCommentViewModel.swift in Sources */,
 				4E85EB9E2A16972C0074A346 /* BrocheApp.swift in Sources */,
@@ -1027,6 +1106,7 @@
 				4E85EBDA2A1708860074A346 /* PostGridView.swift in Sources */,
 				4E9770512A25701400919F88 /* LocationBookMarkView.swift in Sources */,
 				4E232FFF2DFE937F00B48755 /* Collection.swift in Sources */,
+				4EEE64DB2E4D4416009A9CA1 /* MarkerSheet2.swift in Sources */,
 				4E3043812DCD6FD500B9613E /* ItineraryViewModel.swift in Sources */,
 				4E85EBC42A16CF730074A346 /* SearchView.swift in Sources */,
 				4E85EBDC2A170A5A0074A346 /* ProfileHeaderView.swift in Sources */,
@@ -1055,14 +1135,18 @@
 				4EC0811D2A27A94000B86052 /* CommentsView.swift in Sources */,
 				4EC081102A26C4DD00B86052 /* ProfileViewModel.swift in Sources */,
 				4E9770552A2570D400919F88 /* LocationSearchViewModel.swift in Sources */,
+				4EEE64CD2E4D3EDD009A9CA1 /* LocationSearchViewModel2.swift in Sources */,
 				4E97701D2A19197200919F88 /* RegistrationViewModel.swift in Sources */,
 				4E85EBE02A17DE040074A346 /* UploadPostViewModel.swift in Sources */,
 				4E2330012DFE93FA00B48755 /* CollectionsView.swift in Sources */,
+				4EEE64D52E4D4383009A9CA1 /* LocationSearchActivationView2.swift in Sources */,
 				4E8D3EA22A7D8854000907A5 /* EditFutureMarkerView.swift in Sources */,
+				4EEE64C92E4D3DA4009A9CA1 /* MapView2.swift in Sources */,
 				4E30437B2DCBF45300B9613E /* PostDetailsView.swift in Sources */,
 				4EC081212A27A9D000B86052 /* CommentViewModel.swift in Sources */,
 				4EB997BC2A60C37F003537FD /* SearchFilterSelector.swift in Sources */,
 				4E85EBD22A16E2D40074A346 /* CompleteSignUpView.swift in Sources */,
+				4EEE64DF2E4D448A009A9CA1 /* MarkersheetViewModel2.swift in Sources */,
 				4E30437D2DCBF62800B9613E /* ThumbnailUploader.swift in Sources */,
 				4EC081162A279ADC00B86052 /* Color.swift in Sources */,
 				4E8D3E982A730CB6000907A5 /* MapViewForLocationViewModel.swift in Sources */,
@@ -1074,13 +1158,16 @@
 				4EC0815A2A34D95700B86052 /* ChatViewModel.swift in Sources */,
 				4EC10E012A45291000DA12EF /* VideoThumbnail.swift in Sources */,
 				4E9770492A256EB500919F88 /* MapViewActionButton.swift in Sources */,
+				4EEE64DD2E4D4447009A9CA1 /* EditMarkerView2.swift in Sources */,
 				4EB997BE2A60C50C003537FD /* SearchFilterView.swift in Sources */,
 				4E85EBBE2A16A2A00074A346 /* UserStatView.swift in Sources */,
 				4EA3A74B2A40BC7B005C548D /* NotificationCellViewModel.swift in Sources */,
+				4EEE64CB2E4D3DBE009A9CA1 /* MapViewState2.swift in Sources */,
 				4E188F4C2A89C6740049AE0A /* EditVisitedViewModel.swift in Sources */,
 				4E85EBDE2A17D9C70074A346 /* UploadPostView.swift in Sources */,
 				4E95B0DC2B2A8DE600A8266A /* PostGridFeedCell.swift in Sources */,
 				4EC081522A34D8CB00B86052 /* MessageView.swift in Sources */,
+				4EEE64D12E4D42F9009A9CA1 /* MapViewActionButton2.swift in Sources */,
 				4EC081432A34D01500B86052 /* UserCell.swift in Sources */,
 				4EC081502A34D8AF00B86052 /* ChatBubble.swift in Sources */,
 				4E85EBCE2A16DE5F0074A346 /* CreatUserNameView.swift in Sources */,
@@ -1102,6 +1189,7 @@
 				4EC081292A2962F800B86052 /* VideoUploader.swift in Sources */,
 				4EC10E032A45424B00DA12EF /* VideoPlayerView.swift in Sources */,
 				4ECD4E7D2D93A64000292441 /* BrocheGridView.swift in Sources */,
+				4EEE64E32E4D45C7009A9CA1 /* MapViewForUserPins2.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1250,6 +1338,7 @@
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1290,6 +1379,7 @@
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

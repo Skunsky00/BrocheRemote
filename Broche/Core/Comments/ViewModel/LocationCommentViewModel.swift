@@ -17,10 +17,10 @@ enum LocationType {
 class LocationCommentViewModel: ObservableObject {
     private let location: Location
     private let locationId: String
-    private let locationType: LocationType
+    private let locationType: MarkerType
     @Published var comments = [LocationComment]()
     
-    init(location: Location, locationType: LocationType) {
+    init(location: Location, locationType: MarkerType) {
         self.location = location
         self.locationId = location.id
         self.locationType = locationType

@@ -8,11 +8,11 @@
 import Foundation
 import SwiftUI
 
-class FutureMarkerSheetViewmodel: ObservableObject {
-    @Published var user: User
-    @Published var selectedLocation: Location?
-    
-    init(user: User) {
-        self.user = user
-    }
-}
+//class FutureMarkerSheetViewmodel: ObservableObject {
+//    @Published var user: User
+//    @Published var selectedLocation: Location?
+//    
+//    init(user: User) {
+//        self.user = user
+//    }
+//}
