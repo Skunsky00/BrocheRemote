@@ -76,4 +76,14 @@ final class MapViewModel: ObservableObject {
             )
         }
     }
+    func animateToCoordinate(_ coordinate: CLLocationCoordinate2D) {
+        withAnimation(.easeInOut(duration: 0.6)) {
+            self.cameraPosition = .region(
+                MKCoordinateRegion(
+                    center: coordinate,
+                    span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
+                )
+            )
+        }
+    }
 }

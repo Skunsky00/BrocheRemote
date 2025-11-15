@@ -20,6 +20,8 @@ struct MapView2: View {
     
     @State private var isSheetPresented = false
     @State private var showSearchSheet = false
+    @State private var selectedLocation: Location?
+    @State private var selectedLocationType: MarkerType = .visited
     
     var user: User
     
@@ -38,19 +40,58 @@ struct MapView2: View {
                                 .tint(.purple)
                         }
                         
+                        // VISITED PINS (Red) – Apple pin with WHITE fill
                         if viewModel.showVisitedPins {
                             ForEach(viewModel.visitedLocations) { location in
-                                Marker(location.city ?? "Visited",
-                                       coordinate: CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude))
-                                    .tint(.red)
+                                Annotation("", coordinate: .init(latitude: location.latitude, longitude: location.longitude)) {
+                                    Image(systemName: "mappin.circle")
+                                        .foregroundStyle(.white)           // ← WHITE FILL
+                                        .font(.system(size: 24))
+                                        .overlay(
+                                            Image(systemName: "mappin.circle.fill")
+                                                .foregroundStyle(.red)
+                                                .font(.system(size: 24))
+                                        )
+                                        .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 2)
+                                        .onTapGesture {
+                                            withAnimation(.spring()) {
+                                                selectedLocation = location
+                                                selectedLocationType = .visited
+                                                viewModel.mapState = .locationSelected
+                                            }
+                                            viewModel.animateToCoordinate(.init(latitude: location.latitude, longitude: location.longitude))
+                                        }
+                                }
+                                .annotationTitles(.hidden)
+                                .annotationSubtitles(.hidden)
                             }
                         }
-                        
+
+                        // FUTURE PINS (Blue) – Airplane in white circle
                         if viewModel.showFuturePins {
                             ForEach(viewModel.futureLocations) { location in
-                                Marker(location.city ?? "Future",
-                                       coordinate: CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude))
-                                    .tint(.blue)
+                                Annotation("", coordinate: .init(latitude: location.latitude, longitude: location.longitude)) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(.blue)
+                                            .frame(width: 24, height: 24)
+                                            .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 2)
+                                        
+                                        Image(systemName: "airplane")
+                                            .foregroundStyle(.white)
+                                            .font(.system(size: 12))
+                                    }
+                                    .onTapGesture {
+                                        withAnimation(.spring()) {
+                                            selectedLocation = location
+                                            selectedLocationType = .future
+                                            viewModel.mapState = .locationSelected
+                                        }
+                                        viewModel.animateToCoordinate(.init(latitude: location.latitude, longitude: location.longitude))
+                                    }
+                                }
+                                .annotationTitles(.hidden)
+                                .annotationSubtitles(.hidden)
                             }
                         }
                     }
@@ -178,8 +219,28 @@ struct MapView2: View {
                     }
                     
                     // MARK: - BOOKMARK SHEET
-                    if viewModel.mapState == .locationSelected,
-                       let coord = viewModel.locationViewModel.selectedLocationCoordinate {
+                if viewModel.mapState == .locationSelected {
+                    if let selectedLocation = selectedLocation {
+                        // TAPPED AN EXISTING MARKER → Show full details
+                        VStack {
+                            Spacer()
+                            MarkerSheet2(viewModel: MarkerSheetViewModel2(
+                                user: user,
+                                location: selectedLocation,
+                                type: selectedLocationType
+                            ))
+                            .environmentObject(viewModel.locationViewModel)
+                            .padding(.horizontal)
+                            .padding(.bottom, 32)
+                            .transition(.move(edge: .bottom))
+                            .onAppear {
+                                // Optional: hide search bar when showing marker sheet
+                                showSearchSheet = false
+                            }
+                        }
+                        .zIndex(7)
+                    } else if viewModel.locationViewModel.selectedLocationCoordinate != nil {
+                        // LONG-PRESSED MAP → Show save pins sheet
                         VStack {
                             Spacer()
                             LocationBookMarkView2(
@@ -187,7 +248,7 @@ struct MapView2: View {
                                 didSaveLocation: $viewModel.didSaveLocation,
                                 didSaveFutureLocation: $viewModel.didSaveFutureLocation,
                                 user: user,
-                                coordinate: coord
+                                coordinate: viewModel.locationViewModel.selectedLocationCoordinate!
                             )
                             .padding(.horizontal)
                             .padding(.bottom, 32)
@@ -196,14 +257,16 @@ struct MapView2: View {
                         .zIndex(7)
                     }
                 }
+                }
                 .onAppear {
                     viewModel.fetchLocations(userId: user.id) { _ in }
                     viewModel.locationViewModel.mapViewModel = viewModel
                     viewModel.locationViewModel.userId = user.id
                 }
                 .onChange(of: viewModel.mapState) { _, newState in
-                    if newState != .searchingForLocation {
-                        showSearchSheet = false
+                    if newState == .noInput {
+                            selectedLocation = nil
+                            selectedLocationType = .visited
                     }
                     
                     if newState == .noInput {
