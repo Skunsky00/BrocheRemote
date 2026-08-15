@@ -8,52 +8,31 @@
 import SwiftUI
 
 struct ProfileFilterView: View {
-    @Binding var selectedFilter: ProfileFilterSelector
+    @Binding var selectedFilter: ProfileFilterSelector?
     @Namespace var animation
     @Environment(\.colorScheme) var colorScheme
-    
-    var selectedTextColor: Color {
-            colorScheme == .dark ? .white : .black
-        }
-        
-        var selectedCapsuleColor: Color {
-            colorScheme == .dark ? .white : .black
-        }
-    
+
     var body: some View {
-        
-        
-        
-        HStack {
+        HStack(spacing: 4) {
             ForEach(ProfileFilterSelector.allCases, id: \.rawValue) { item in
-                VStack {
-                    Image(systemName: item.imageName)
-                        .font(.subheadline)
-                        .imageScale(.large)
-                        .fontWeight(selectedFilter == item ? .semibold : .regular)
-                        .foregroundColor(selectedFilter == item ? selectedTextColor : .gray)
-                    
+                ZStack {
                     if selectedFilter == item {
                         Capsule()
-                            .foregroundColor(selectedCapsuleColor)
-                            .frame(height: 3)
-                            .matchedGeometryEffect(id: "filter", in: animation)
-                    } else {
-                        Capsule()
-                            .foregroundColor(.clear)
-                            .frame(height: 3)
+                            .fill(colorScheme == .dark ? Color.white.opacity(0.2) : Color.black.opacity(0.08))
+                            .matchedGeometryEffect(id: "filterBG", in: animation)
                     }
+                    Image(systemName: item.imageName)
+                        .font(.system(size: 15, weight: selectedFilter == item ? .semibold : .regular))
+                        .foregroundColor(selectedFilter == item ? (colorScheme == .dark ? .white : .black) : .gray)
+                        .frame(maxWidth: .infinity, minHeight: 32)
                 }
                 .onTapGesture {
-                    withAnimation(.easeInOut) {
-                        self.selectedFilter = item
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        selectedFilter = selectedFilter == item ? nil : item
                     }
                 }
             }
         }
-        .overlay(Divider().offset(x: 0, y: 16))
-        .padding(.top)
-        .foregroundColor(colorScheme == .dark ? .white : .primary)
-                .background(colorScheme == .dark ? Color.black : Color.white)
+        .padding(4)
     }
 }

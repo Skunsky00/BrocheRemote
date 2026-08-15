@@ -11,9 +11,10 @@ import SwiftUI
 struct MapViewActionButton2: View {
     @Binding var mapState: MapViewState2
     @Binding var isSheetPresented: Bool
-    let userId: String
+    let user: User                          // CHANGED from userId: String
+    var onSelectTrip: (Trip) -> Void
     @Environment(\.colorScheme) var colorScheme
-    
+
     var body: some View {
         Button {
             withAnimation(.spring()) {
@@ -30,11 +31,11 @@ struct MapViewActionButton2: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .sheet(isPresented: $isSheetPresented) {
-                    Itinerary(userId: userId)
-                        .presentationDragIndicator(.visible)
-                }
+            Itinerary(userId: user.id, user: user, canCreateTrip: true, onSelectTrip: onSelectTrip)
+                .presentationDragIndicator(.visible)
+        }
     }
-    
+
     private func actionForState(_ state: MapViewState2) {
         switch state {
         case .noInput:
@@ -43,7 +44,7 @@ struct MapViewActionButton2: View {
             mapState = .noInput
         }
     }
-    
+
     private func imageNameForState(_ state: MapViewState2) -> String {
         switch state {
         case .noInput: return "line.3.horizontal"

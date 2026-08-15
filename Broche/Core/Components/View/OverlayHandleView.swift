@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-struct OverlayHandleView: View {
+struct OverlayHandle: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Capsule()
+            .fill(Color.secondary.opacity(0.5))
+            .frame(width: 36, height: 5)
+            .padding(.vertical, 6)
+            .contentShape(Rectangle()) // makes the whole padded area tappable, not just the visible pill
     }
-}
-
-#Preview {
-    OverlayHandleView()
 }

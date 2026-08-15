@@ -17,35 +17,35 @@ struct MapView2: View {
     @StateObject private var locationManager = LocationManager2()
     @GestureState private var pressLocation: CGPoint = .zero
     @GestureState private var isLongPressing = false
-    
+
     @State private var isSheetPresented = false
     @State private var showSearchSheet = false
     @State private var selectedLocation: Location?
     @State private var selectedLocationType: MarkerType = .visited
-    
+    @State private var showTripSelector = false
+    @State private var showEditTrip = false   // NEW
+
     var user: User
-    
+
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
                 // MARK: - MAP
                 MapReader { proxy in
                     Map(position: $viewModel.cameraPosition) {
-                        // Your markers...
                         UserAnnotation()
-                        
+
                         if viewModel.mapState == .locationSelected,
                            let coord = viewModel.locationViewModel.selectedLocationCoordinate {
                             Marker(viewModel.locationViewModel.selectedLocationTitle ?? "Selected", coordinate: coord)
                                 .tint(.purple)
                         }
-                        
-                        // VISITED PINS (Red) – Apple pin with WHITE fill
+
                         if viewModel.showVisitedPins {
                             ForEach(viewModel.visitedLocations) { location in
                                 Annotation("", coordinate: .init(latitude: location.latitude, longitude: location.longitude)) {
                                     Image(systemName: "mappin.circle")
-                                        .foregroundStyle(.white)           // ← WHITE FILL
+                                        .foregroundStyle(.white)
                                         .font(.system(size: 24))
                                         .overlay(
                                             Image(systemName: "mappin.circle.fill")
@@ -67,7 +67,6 @@ struct MapView2: View {
                             }
                         }
 
-                        // FUTURE PINS (Blue) – Airplane in white circle
                         if viewModel.showFuturePins {
                             ForEach(viewModel.futureLocations) { location in
                                 Annotation("", coordinate: .init(latitude: location.latitude, longitude: location.longitude)) {
@@ -76,7 +75,7 @@ struct MapView2: View {
                                             .fill(.blue)
                                             .frame(width: 24, height: 24)
                                             .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 2)
-                                        
+
                                         Image(systemName: "airplane")
                                             .foregroundStyle(.white)
                                             .font(.system(size: 12))
@@ -101,32 +100,30 @@ struct MapView2: View {
                         MapScaleView()
                     }
                     .ignoresSafeArea(.all, edges: .top)
-                    .simultaneousGesture(DragGesture()) // NORMAL PAN/ZOOM - SMOOTH AS APPLE MAPS
+                    .simultaneousGesture(DragGesture())
                     .gesture(
                         LongPressGesture(minimumDuration: 0.6)
                             .updating($isLongPressing) { value, state, transaction in
                                 state = true
                             }
-                            .onEnded { _ in
-                                // DO NOTHING HERE - WE USE DragGesture FOR LOCATION
-                            }
+                            .onEnded { _ in }
                     )
                     .gesture(
                         DragGesture(minimumDistance: 0)
                             .updating($pressLocation) { value, state, transaction in
-                                state = value.location // EXACT TOUCH LOCATION
+                                state = value.location
                             }
                             .onEnded { value in
                                 if isLongPressing {
                                     guard let coordinate = proxy.convert(pressLocation, from: .local) else { return }
-                                    
+
                                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                                    
+
                                     viewModel.locationViewModel.selectedLocationCoordinate = coordinate
                                     viewModel.locationViewModel.selectedLocationTitle = "Loading..."
                                     viewModel.animateToSelectedLocation()
                                     viewModel.mapState = .locationSelected
-                                    
+
                                     Task {
                                         do {
                                             let address = try await viewModel.locationViewModel.reverseGeocode(coordinate)
@@ -138,11 +135,11 @@ struct MapView2: View {
                                                 viewModel.locationViewModel.selectedLocationTitle = "Remote Location"
                                             }
                                         }
-                                        
+
                                         async let visited = try? await UserService.checkIfSavedLocation(uid: user.id, coordinate: coordinate, type: .visited)
                                         async let future = try? await UserService.checkIfSavedLocation(uid: user.id, coordinate: coordinate, type: .future)
                                         let (v, f) = await (visited ?? false, future ?? false)
-                                        
+
                                         await MainActor.run {
                                             viewModel.didSaveLocation = v
                                             viewModel.didSaveFutureLocation = f
@@ -152,14 +149,38 @@ struct MapView2: View {
                             }
                     )
                 }
-                    
-                    // MARK: - TOP BAR: Search Bar + Action Button (Stacked Vertically)
-                    VStack(spacing: 8) {
-                        // Search Activation Bar
-                        if viewModel.mapState == .noInput {
+
+                // MARK: - TOP BAR: Search Bar / Trip Banner + Action Button
+                VStack(spacing: 8) {
+                    // Only show search bar OR trip banner when idle — never both, never neither
+                    if viewModel.mapState == .noInput {
+                        if let activeTrip = viewModel.activeTrip {
+                            HStack {
+                                Text(activeTrip.name)
+                                    .font(.subheadline.bold())
+                                Spacer()
+                                Button {
+                                    showEditTrip = true
+                                } label: {
+                                    Image(systemName: "pencil.circle.fill")
+                                        .font(.subheadline)
+                                }
+                                Button {
+                                    viewModel.exitTripView()
+                                } label: {
+                                    Label("Exit", systemImage: "xmark.circle.fill")
+                                        .font(.subheadline)
+                                }
+                            }
+                            .padding(10)
+                            .background(.ultraThinMaterial)
+                            .cornerRadius(12)
+                            .padding(.horizontal)
+                            .padding(.top, -20)
+                        } else {
                             LocationSearchActivationView2()
                                 .padding(.horizontal)
-                                .padding(.top, -20)  // ← Flush under notch
+                                .padding(.top, -20)
                                 .onTapGesture {
                                     withAnimation(.spring()) {
                                         showSearchSheet = true
@@ -168,60 +189,68 @@ struct MapView2: View {
                                 }
                                 .zIndex(9)
                         }
-                        
-                        // Action Button — UNDER the search bar
+                    }
+
+                    // Action button — ALWAYS renders, regardless of trip state,
+                    // so it can always act as the back arrow to close a marker sheet
+                    HStack {
+                        Spacer()
+                        MapViewActionButton2(
+                            mapState: $viewModel.mapState,
+                            isSheetPresented: $isSheetPresented,
+                            user: user,                          // CHANGED
+                            onSelectTrip: { trip in
+                                isSheetPresented = false
+                                viewModel.filterToTrip(trip)
+                            }
+                        )
+                        .offset(y: viewModel.mapState == .locationSelected ? -120 : 0)
+                        .animation(.spring())
+                        .padding(.top, viewModel.mapState == .locationSelected ? 60 : 0)
+                        .zIndex(999)
+                    }
+                    .padding(.horizontal)
+                }
+                .frame(maxWidth: .infinity, alignment: .top)
+
+                // MARK: - LOCATION BUTTON (Bottom-Right)
+                if viewModel.mapState == .noInput {
+                    VStack {
+                        Spacer()
                         HStack {
                             Spacer()
-                            MapViewActionButton2(
-                                mapState: $viewModel.mapState,
-                                isSheetPresented: $isSheetPresented,
-                                userId: user.id
-                            )
-                            .padding(.top)
-                        }
-                        .zIndex(10)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .top)
-                    
-                    // MARK: - LOCATION BUTTON (Bottom-Right)
-                    if viewModel.mapState == .noInput {
-                        VStack {
-                            Spacer()
-                            HStack {
-                                Spacer()
-                                Button {
-                                    locationManager.requestLocation()
-                                    if let location = locationManager.userLocation {
-                                        withAnimation(.easeInOut) {
-                                            viewModel.cameraPosition = .region(
-                                                MKCoordinateRegion(
-                                                    center: location.coordinate,
-                                                    span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-                                                )
+                            Button {
+                                locationManager.requestLocation()
+                                if let location = locationManager.userLocation {
+                                    withAnimation(.easeInOut) {
+                                        viewModel.cameraPosition = .region(
+                                            MKCoordinateRegion(
+                                                center: location.coordinate,
+                                                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
                                             )
-                                        }
+                                        )
                                     }
-                                } label: {
-                                    Image(systemName: "location.fill")
-                                        .font(.title2)
-                                        .foregroundStyle(.white)
-                                        .frame(width: 44, height: 44)
-                                        .background(Color.blue)
-                                        .clipShape(Circle())
-                                        .shadow(radius: 4)
                                 }
-                                .padding(.trailing, 16)
-                                .padding(.bottom, 30)
+                            } label: {
+                                Image(systemName: "location.fill")
+                                    .font(.title2)
+                                    .foregroundStyle(.white)
+                                    .frame(width: 44, height: 44)
+                                    .background(Color.blue)
+                                    .clipShape(Circle())
+                                    .shadow(radius: 4)
                             }
+                            .padding(.trailing, 16)
+                            .padding(.bottom, 30)
                         }
-                        .zIndex(8)
-                        .transition(.opacity)
                     }
-                    
-                    // MARK: - BOOKMARK SHEET
+                    .zIndex(8)
+                    .transition(.opacity)
+                }
+
+                // MARK: - BOOKMARK SHEET
                 if viewModel.mapState == .locationSelected {
                     if let selectedLocation = selectedLocation {
-                        // TAPPED AN EXISTING MARKER → Show full details
                         VStack {
                             Spacer()
                             MarkerSheet2(viewModel: MarkerSheetViewModel2(
@@ -234,13 +263,11 @@ struct MapView2: View {
                             .padding(.bottom, 32)
                             .transition(.move(edge: .bottom))
                             .onAppear {
-                                // Optional: hide search bar when showing marker sheet
                                 showSearchSheet = false
                             }
                         }
-                        .zIndex(7)
+                        .zIndex(50)
                     } else if viewModel.locationViewModel.selectedLocationCoordinate != nil {
-                        // LONG-PRESSED MAP → Show save pins sheet
                         VStack {
                             Spacer()
                             LocationBookMarkView2(
@@ -257,70 +284,88 @@ struct MapView2: View {
                         .zIndex(7)
                     }
                 }
+                // REMOVED — duplicate trip banner that was here is gone;
+                // trip banner now lives only in the top-bar block above
+            }
+            .onAppear {
+                viewModel.fetchLocations(userId: user.id) { _ in }
+                viewModel.locationViewModel.mapViewModel = viewModel
+                viewModel.locationViewModel.userId = user.id
+            }
+            .onChange(of: viewModel.mapState) { _, newState in
+                if newState != .searchingForLocation {
+                    showSearchSheet = false
                 }
-                .onAppear {
-                    viewModel.fetchLocations(userId: user.id) { _ in }
-                    viewModel.locationViewModel.mapViewModel = viewModel
-                    viewModel.locationViewModel.userId = user.id
-                }
-                .onChange(of: viewModel.mapState) { _, newState in
-                    if newState == .noInput {
-                            selectedLocation = nil
-                            selectedLocationType = .visited
-                    }
-                    
-                    if newState == .noInput {
-                        withAnimation(.easeInOut(duration: 1.0)) {
-                            viewModel.cameraPosition = .region(
-                                MKCoordinateRegion(
-                                    center: CLLocationCoordinate2D(latitude: 39.8283, longitude: -98.5795),
-                                    span: MKCoordinateSpan(latitudeDelta: 70, longitudeDelta: 70)
-                                )
+
+                if newState == .noInput {
+                    viewModel.locationViewModel.selectedLocationCoordinate = nil
+                    viewModel.locationViewModel.selectedLocationTitle = nil
+                    withAnimation(.easeInOut(duration: 1.0)) {
+                        viewModel.cameraPosition = .region(
+                            MKCoordinateRegion(
+                                center: CLLocationCoordinate2D(latitude: 39.8283, longitude: -98.5795),
+                                span: MKCoordinateSpan(latitudeDelta: 70, longitudeDelta: 70)
                             )
+                        )
+                    }
+                }
+
+                viewModel.handleMapStateChange(newState, userId: user.id) { _ in }
+            }
+            .sheet(isPresented: $isSheetPresented) {
+                Text("Your Sheet Here")
+            }
+            .sheet(isPresented: $showTripSelector) {
+                TripPinSelectorView(user: user)
+            }
+            .sheet(isPresented: $showEditTrip) {
+                if let activeTrip = viewModel.activeTrip {
+                    TripPinSelectorView(user: user, existingTrip: activeTrip)
+                }
+            }
+            .onChange(of: showEditTrip) {
+                // Refresh the active trip's data after editing closes
+                if !showEditTrip, let updatedId = viewModel.activeTrip?.id {
+                    Task {
+                        if let refreshed = try? await TripService.fetchTrips(forUserID: user.id).first(where: { $0.id == updatedId }) {
+                            viewModel.filterToTrip(refreshed)
                         }
                     }
-                    
-                    viewModel.handleMapStateChange(newState, userId: user.id) { _ in }
                 }
-                .sheet(isPresented: $isSheetPresented) {
-                    Text("Your Sheet Here")
-                }
-                
-                // MARK: - FULL-SCREEN SEARCH SHEET (Same Layout)
-                .fullScreenCover(isPresented: $showSearchSheet) {
-                    ZStack(alignment: .top) {
-                        Color(.systemBackground).ignoresSafeArea()
-                        
-                        VStack(spacing: 12) {
-                            // MARK: - Action Button + Search Bar (Side-by-Side)
-                            // Action Button (Left)
-                            HStack {
-                                MapViewActionButton2(
-                                    mapState: $viewModel.mapState,
-                                    isSheetPresented: .constant(false),
-                                    userId: user.id
-                                )
-                                .frame(width: 44, height: 44)
-                                Spacer()
-                            }
+            }
+            .fullScreenCover(isPresented: $showSearchSheet) {
+                ZStack(alignment: .top) {
+                    Color(.systemBackground).ignoresSafeArea()
+
+                    VStack(spacing: 12) {
+                        HStack {
+                            MapViewActionButton2(
+                                mapState: $viewModel.mapState,
+                                isSheetPresented: $isSheetPresented,
+                                user: user,                          // CHANGED
+                                onSelectTrip: { trip in
+                                    isSheetPresented = false
+                                    viewModel.filterToTrip(trip)
+                                }
+                            )
+                            .frame(width: 44, height: 44)
+                            Spacer()
+                        }
+                        .padding(.horizontal)
+
+                        LocationSearchView2(mapState: $viewModel.mapState)
+                            .environmentObject(viewModel.locationViewModel)
+                            .frame(maxWidth: .infinity)
                             .padding(.horizontal)
-                            
-                            // Your FULL LocationSearchView2 (Shortened to fit)
-                            LocationSearchView2(mapState: $viewModel.mapState)
-                                .environmentObject(viewModel.locationViewModel)
-                                .frame(maxWidth: .infinity)
-                            
-                                .padding(.horizontal)
-                                .padding(.top)  // ← Flush under notch
-                        }
-                        .frame(maxWidth: .infinity, alignment: .top)
+                            .padding(.top)
                     }
-                    .ignoresSafeArea(edges: .bottom)
-                    
+                    .frame(maxWidth: .infinity, alignment: .top)
                 }
+                .ignoresSafeArea(edges: .bottom)
             }
         }
     }
+}
 
 
 

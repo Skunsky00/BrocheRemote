@@ -16,6 +16,9 @@ struct MarkerSheet2: View {
     @EnvironmentObject var locationViewModel: LocationSearchViewModel2
     @Environment(\.dismiss) private var dismiss
     
+    // Memories ViewModel with fake data for now
+    @StateObject private var memoriesVM = MemoriesViewModel(locationId: "placeholder")
+    
     @State private var showEditMarker = false
     @State private var showUnsaveAlert = false
     @State private var showError = false
@@ -23,7 +26,7 @@ struct MarkerSheet2: View {
     
     var body: some View {
         ZStack {
-            // Beautiful card background
+            // Background card with blur
             RoundedRectangle(cornerRadius: 28)
                 .fill(Color(.systemBackground))
                 .shadow(color: .black.opacity(0.25), radius: 20, x: 0, y: 10)
@@ -32,9 +35,11 @@ struct MarkerSheet2: View {
                 .fill(.ultraThinMaterial)
             
             ScrollView {
-                VStack(spacing: 20) {
-                    // MARK: - Header with UNSAVE BUTTON
+                VStack(spacing: 0) {
+                    
+                    // MARK: - HEADER: Pin Icon (Unsave), Title, Comments, Edit
                     HStack {
+                        // Unsave Button (tap pin icon)
                         Button {
                             showUnsaveAlert = true
                         } label: {
@@ -53,12 +58,17 @@ struct MarkerSheet2: View {
                         
                         Spacer()
                         
-                        NavigationLink(destination: LocationsCommentsView(location: viewModel.location, locationType: viewModel.type)) {
+                        // Comments
+                        NavigationLink(destination: LocationsCommentsView(
+                            location: viewModel.location,
+                            locationType: viewModel.type
+                        )) {
                             Image(systemName: "bubble.left")
                                 .font(.title3)
                                 .foregroundStyle(.primary)
                         }
                         
+                        // Edit Button (owner only)
                         if viewModel.user.isCurrentUser {
                             Button {
                                 showEditMarker.toggle()
@@ -68,7 +78,11 @@ struct MarkerSheet2: View {
                                     .foregroundStyle(.primary)
                             }
                             .sheet(isPresented: $showEditMarker) {
-                                EditMarkerView2(user: viewModel.user, location: viewModel.location, type: viewModel.type)
+                                EditMarkerView2(
+                                    user: viewModel.user,
+                                    location: viewModel.location,
+                                    type: viewModel.type
+                                )
                             }
                         } else {
                             Button { } label: {
@@ -78,19 +92,24 @@ struct MarkerSheet2: View {
                             }
                         }
                     }
-                    .padding(.top, 12)
                     .padding(.horizontal, 24)
+                    .padding(.top, 8)
                     
-                    Divider().padding(.horizontal, 24)
+                    Divider()
+                        .padding(.horizontal, 24)
+                        .padding(.top, 8)
                     
-                    // User row
+                    // MARK: - User Row
                     HStack {
                         NavigationLink(destination: ProfileView(user: viewModel.user)) {
                             CircularProfileImageView(user: viewModel.user, size: .xSmall)
                         }
+                        
                         Text(viewModel.user.username)
                             .font(.subheadline.bold())
+                        
                         Spacer()
+                        
                         Button { } label: {
                             Label("Nearby", systemImage: "mappin.and.ellipse")
                                 .font(.footnote.bold())
@@ -98,7 +117,13 @@ struct MarkerSheet2: View {
                         }
                     }
                     .padding(.horizontal, 24)
+                    .padding(.top, 12)
                     
+                    // MARK: - MEMORIES REEL (The Star of the Show)
+                    MemoriesReelView(viewModel: memoriesVM)
+                        .padding(.bottom, 16)
+                    
+                    // MARK: - Date
                     if let date = viewModel.location.date {
                         HStack {
                             Image(systemName: "calendar")
@@ -109,23 +134,29 @@ struct MarkerSheet2: View {
                             Spacer()
                         }
                         .padding(.horizontal, 24)
+                        .padding(.top, 8)
                     }
                     
+                    // MARK: - Description
                     if let description = viewModel.location.description {
                         Text(description)
                             .font(.body)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 24)
+                            .padding(.top, 12)
                     }
                     
+                    // MARK: - Link (visited only)
                     if let link = viewModel.location.link, viewModel.type == .visited {
                         HStack {
                             TextLinkView(text: link, linkColor: .cyan)
                             Spacer()
                         }
                         .padding(.horizontal, 24)
+                        .padding(.top, 12)
                     }
                     
+                    // MARK: - Suggest Feature (owner only)
                     if viewModel.user.isCurrentUser {
                         Button {
                             if let url = URL(string: "mailto:feedback@broche.app") {
@@ -141,42 +172,45 @@ struct MarkerSheet2: View {
                                 .cornerRadius(12)
                         }
                         .padding(.horizontal, 24)
-                        .padding(.top, 8)
+                        .padding(.top, 16)
                     }
                     
-                    Spacer(minLength: 120)
+                    Spacer(minLength: 140)
                 }
                 .padding(.bottom, 20)
             }
         }
         .ignoresSafeArea(edges: .bottom)
-        
-        // Sheet presentation settings — keeps top-right button visible
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
         .presentationBackground(.clear)
         .presentationCornerRadius(28)
         
-        // MARK: - UNSAVE CONFIRMATION
+        // MARK: - UNSAVE CONFIRMATION ALERT
         .alert("Remove this pin?", isPresented: $showUnsaveAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Remove", role: .destructive) {
                 Task {
                     do {
-                        // Convert PinType → MarkerType correctly
                         let markerType: MarkerType = viewModel.type == .visited ? .visited : .future
                         
+                        // In MarkerSheet2's "Remove" button action, after successfully unsaving the location:
                         try await UserService.unSaveLocation(
                             uid: viewModel.user.id,
                             location: viewModel.location,
                             type: markerType
                         )
+
+                        // NEW — clean up any trips that reference this now-deleted pin
+                        if markerType == .visited {
+                            try await TripService.removeLocationFromAllTrips(
+                                uid: viewModel.user.id,
+                                locationId: viewModel.location.id
+                            )
+                        }
                         
                         await MainActor.run {
-                            // Reset map state
                             locationViewModel.mapViewModel?.mapState = .noInput
-                            
-                            // Remove from local cache
                             locationViewModel.mapViewModel?.visitedLocations.removeAll { $0.id == viewModel.location.id }
                             locationViewModel.mapViewModel?.futureLocations.removeAll { $0.id == viewModel.location.id }
                         }
@@ -184,7 +218,7 @@ struct MarkerSheet2: View {
                         dismiss()
                     } catch {
                         await MainActor.run {
-                            errorMessage = "Failed to remove pin. Try again."
+                            errorMessage = "Failed to remove pin."
                             showError = true
                         }
                     }
@@ -200,4 +234,19 @@ struct MarkerSheet2: View {
             Text(errorMessage)
         }
     }
+}
+
+#Preview {
+    MarkerSheet2(viewModel: MarkerSheetViewModel2(
+        user: .MOCK_USERS[0],
+        location: Location(
+            id: "123",
+            ownerUid: "abc",
+            latitude: 48.8566,
+            longitude: 2.3522,
+            city: "Paris"
+        ),
+        type: .visited
+    ))
+    .environmentObject(LocationSearchViewModel2())
 }
