@@ -7,32 +7,30 @@
 
 import SwiftUI
 
-struct ProfileFilterView: View {
-    @Binding var selectedFilter: ProfileFilterSelector?
-    @Namespace var animation
+struct ProfileFilterBar: View {
+    @Binding var selectedFilter: ProfileFilterSelector
+    let isCurrentUser: Bool   // NEW
     @Environment(\.colorScheme) var colorScheme
 
+//    private var visibleFilters: [ProfileFilterSelector] {
+//        isCurrentUser ? ProfileFilterSelector.allCases : ProfileFilterSelector.allCases.filter { $0 != .bookmarks }
+//    }
+
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 0) {
             ForEach(ProfileFilterSelector.allCases, id: \.rawValue) { item in
-                ZStack {
-                    if selectedFilter == item {
-                        Capsule()
-                            .fill(colorScheme == .dark ? Color.white.opacity(0.2) : Color.black.opacity(0.08))
-                            .matchedGeometryEffect(id: "filterBG", in: animation)
+                Button {
+                    withAnimation(.spring(response: 0.3)) {
+                        selectedFilter = item
                     }
-                    Image(systemName: item.imageName)
-                        .font(.system(size: 15, weight: selectedFilter == item ? .semibold : .regular))
-                        .foregroundColor(selectedFilter == item ? (colorScheme == .dark ? .white : .black) : .gray)
-                        .frame(maxWidth: .infinity, minHeight: 32)
-                }
-                .onTapGesture {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                        selectedFilter = selectedFilter == item ? nil : item
-                    }
+                } label: {
+                    Image(systemName: item.icon)
+                        .font(.system(size: 18, weight: selectedFilter == item ? .semibold : .regular))
+                        .foregroundStyle(selectedFilter == item ? .primary : .secondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
                 }
             }
         }
-        .padding(4)
     }
 }

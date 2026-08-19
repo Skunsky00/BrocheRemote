@@ -155,26 +155,37 @@ struct MapView2: View {
                     // Only show search bar OR trip banner when idle — never both, never neither
                     if viewModel.mapState == .noInput {
                         if let activeTrip = viewModel.activeTrip {
-                            HStack {
+                            HStack(spacing: 12) {
                                 Text(activeTrip.name)
-                                    .font(.subheadline.bold())
+                                    .font(.headline)
+                                    .lineLimit(1)
+
                                 Spacer()
-                                Button {
-                                    showEditTrip = true
-                                } label: {
-                                    Image(systemName: "pencil.circle.fill")
-                                        .font(.subheadline)
-                                }
+
                                 Button {
                                     viewModel.exitTripView()
                                 } label: {
-                                    Label("Exit", systemImage: "xmark.circle.fill")
-                                        .font(.subheadline)
+                                    Image(systemName: "xmark.circle.fill")
+                                        .font(.title2)
+                                        .foregroundStyle(.secondary)
+                                }
+
+                                Button {
+                                    showEditTrip = true
+                                } label: {
+                                    Label("Edit", systemImage: "pencil")
+                                        .font(.subheadline.weight(.semibold))
+                                        .foregroundStyle(.white)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 8)
+                                        .background(Color.blue)
+                                        .clipShape(Capsule())
                                 }
                             }
-                            .padding(10)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 14)
                             .background(.ultraThinMaterial)
-                            .cornerRadius(12)
+                            .cornerRadius(16)
                             .padding(.horizontal)
                             .padding(.top, -20)
                         } else {
@@ -198,7 +209,9 @@ struct MapView2: View {
                         MapViewActionButton2(
                             mapState: $viewModel.mapState,
                             isSheetPresented: $isSheetPresented,
-                            user: user,                          // CHANGED
+                            user: user,
+                            isInTrip: viewModel.activeTrip != nil,
+                            onExitTrip: { viewModel.exitTripView() },
                             onSelectTrip: { trip in
                                 isSheetPresented = false
                                 viewModel.filterToTrip(trip)
@@ -257,14 +270,28 @@ struct MapView2: View {
                                 user: user,
                                 location: selectedLocation,
                                 type: selectedLocationType
-                            ))
-                            .environmentObject(viewModel.locationViewModel)
+                            ), onLocationUpdated: { updated in
+                                if let index = viewModel.visitedLocations.firstIndex(where: { $0.id == updated.id }) {
+                                    viewModel.visitedLocations[index] = updated
+                                }
+                                if let index = viewModel.futureLocations.firstIndex(where: { $0.id == updated.id }) {
+                                    viewModel.futureLocations[index] = updated
+                                }
+                                viewModel.removeFutureLocation(id: updated.id)
+                                if !viewModel.visitedLocations.contains(where: { $0.id == updated.id }) {
+                                    viewModel.addVisitedLocation(updated)
+                                }
+                                self.selectedLocation = updated
+                                self.selectedLocationType = .visited
+                            }, onLocationRemoved: { removed in
+                                viewModel.removeVisitedLocation(id: removed.id)
+                                viewModel.removeFutureLocation(id: removed.id)
+                                self.selectedLocation = nil
+                                viewModel.mapState = .noInput
+                            })
                             .padding(.horizontal)
                             .padding(.bottom, 32)
                             .transition(.move(edge: .bottom))
-                            .onAppear {
-                                showSearchSheet = false
-                            }
                         }
                         .zIndex(50)
                     } else if viewModel.locationViewModel.selectedLocationCoordinate != nil {
@@ -298,6 +325,7 @@ struct MapView2: View {
                 }
 
                 if newState == .noInput {
+                    selectedLocation = nil
                     viewModel.locationViewModel.selectedLocationCoordinate = nil
                     viewModel.locationViewModel.selectedLocationTitle = nil
                     withAnimation(.easeInOut(duration: 1.0)) {
@@ -342,7 +370,9 @@ struct MapView2: View {
                             MapViewActionButton2(
                                 mapState: $viewModel.mapState,
                                 isSheetPresented: $isSheetPresented,
-                                user: user,                          // CHANGED
+                                user: user,
+                                isInTrip: viewModel.activeTrip != nil,
+                                onExitTrip: { viewModel.exitTripView() },
                                 onSelectTrip: { trip in
                                     isSheetPresented = false
                                     viewModel.filterToTrip(trip)
@@ -353,7 +383,7 @@ struct MapView2: View {
                         }
                         .padding(.horizontal)
 
-                        LocationSearchView2(mapState: $viewModel.mapState)
+                        LocationSearchView2(mapState: $viewModel.mapState, selectedExistingLocation: $selectedLocation)
                             .environmentObject(viewModel.locationViewModel)
                             .frame(maxWidth: .infinity)
                             .padding(.horizontal)

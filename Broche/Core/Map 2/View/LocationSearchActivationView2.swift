@@ -11,20 +11,22 @@ struct LocationSearchActivationView2: View {
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 14) {
             Image(systemName: "magnifyingglass")
-                .font(.title3)
+                .font(.title2)
                 .foregroundStyle(.blue)
             Text("Search or tap map")
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(.primary)
             Spacer()
         }
-        .padding(14)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 18)
         .background(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 16)
                 .fill(colorScheme == .dark ? Color.black.opacity(0.7) : Color.white.opacity(0.9))
                 .shadow(radius: 4)
         )
+        .onboardingTarget(.searchBar)   // NEW
     }
 }

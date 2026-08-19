@@ -15,50 +15,59 @@ struct CurrentUserProfileView: View {
     @State private var selectedSettingsOption: SettingsItemModel?
     @State private var selectedSettingsPrivacy: SettingsPrivacyModel?
     @State private var showDetail = false
-    @State private var selectedFilter: ProfileFilterSelector? = nil  // nil = map is showing
+    @State private var selectedFilter: ProfileFilterSelector = .map
     @State private var showOverlay = true
-    @State private var overlayHeight: CGFloat = 0
+    @State private var selectedLocation: Location?   // NEW — required by MapViewForUserPins2
     @StateObject var brocheViewModel: BrocheGridViewModel
     @Environment(\.colorScheme) var colorScheme
-
+    
     init(user: User) {
         self.user = user
         self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
         self._notiViewModel = StateObject(wrappedValue: NotificationsViewModel())
         self._brocheViewModel = StateObject(wrappedValue: BrocheGridViewModel(user: user))
     }
-
+    
+    private var showTopBar: Bool {
+        selectedFilter != .map || showOverlay
+    }
+    
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .top) {
-                // MARK: - Base layer: map or grid content
-                contentView
-
-                // MARK: - Floating overlay: header + filter
-                if showOverlay {
-                    VStack(spacing: 0) {
-                        ProfileHeaderView(viewModel: viewModel)
-                        Divider().padding(.horizontal, 12).opacity(0.3)
-                        ProfileFilterView(selectedFilter: $selectedFilter)
-                            .padding(.horizontal, 8)
-                            .padding(.bottom, 6)
-                    }
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(18)
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-                    .background(
-                        GeometryReader { proxy in
-                            Color.clear
-                                .preference(key: OverlayHeightKey.self, value: proxy.size.height)
+            Group {
+                if selectedFilter == .map {
+                    // MODE 1 — full-screen map, header floats on top
+                    ZStack(alignment: .top) {
+                        MapViewForUserPins2(
+                            user: user,
+                            showOverlay: $showOverlay,
+                            selectedLocation: $selectedLocation   // NEW
+                                                )
+                        
+                        if showOverlay {
+                            VStack(spacing: 0) {
+                                Spacer().frame(height: 12)
+                                ProfileHeaderView(viewModel: viewModel)
+                                Divider().padding(.horizontal, 12).opacity(0.3)
+                                ProfileFilterBar(selectedFilter: $selectedFilter, isCurrentUser: true)
+                                    .padding(.horizontal, 8)
+                                    .padding(.bottom, 6)
+                            }
+                            .background(.ultraThinMaterial)
+                            .cornerRadius(18)
+                            .padding(.horizontal)
+                            .padding(.top, 8)
+                            .transition(.move(edge: .top).combined(with: .opacity))
                         }
-                    )
-                    .onPreferenceChange(OverlayHeightKey.self) { height in
-                        overlayHeight = height
                     }
-                    .transition(.move(edge: .top).combined(with: .opacity))
+                } else {
+                    // MODE 2 — pinned filter bar at top, content flows below
+                    VStack(spacing: 0) {
+                        ProfileFilterBar(selectedFilter: $selectedFilter, isCurrentUser: true)
+                        Divider().opacity(0.3)
+                        content
+                    }
                 }
-                // No more floating chevron button here — toggle now lives in the map's bottom bar
             }
             .navigationBarTitle("", displayMode: .inline)
             .environmentObject(brocheViewModel)
@@ -70,10 +79,12 @@ struct CurrentUserProfileView: View {
                             SettingsAndPrivacyView(user: user, selectedOption: $selectedSettingsPrivacy)
                                 .navigationTitle("Settings")
                         }
-                    case .yourPost:
+                    case .bookmark:
                         ScrollView {
-                            PostGridView(config: .profile(user))
-                        }
+                                        CollectionsView(user: user, disableScrolling: true)
+                                    }
+                    case .emptyView:
+                        EmptyView()
                     default:
                         Text(option.title)
                     }
@@ -84,18 +95,32 @@ struct CurrentUserProfileView: View {
                     .presentationDetents([.height(CGFloat(SettingsItemModel.allCases.count * 56))])
             }
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {   // NEW
+                    if selectedLocation != nil {
+                        Button {
+                            withAnimation(.spring()) {
+                                selectedLocation = nil
+                            }
+                        } label: {
+                            Image(systemName: "chevron.left")
+                                .font(.body.weight(.semibold))
+                                .foregroundColor(colorScheme == .dark ? .white : .black)
+                        }
+                    }
+                }
                 ToolbarItem(placement: .principal) {
                     UsernameWithBadgeView(user: user)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     NavigationLink {
-                        NotificationsView(viewModel: notiViewModel)
+                        ConversationsView()
                     } label: {
-                        Image(systemName: notiViewModel.hasNewNotifications ? "bell.badge" : "bell")
-                            .foregroundColor(notiViewModel.hasNewNotifications ? .red : (colorScheme == .dark ? .white : .black))
+                        Image(systemName: "paperplane")
+                            .imageScale(.large)
+                            .scaledToFit()
                     }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                    ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         selectedSettingsOption = nil
                         showSettingsSheet.toggle()
@@ -113,58 +138,34 @@ struct CurrentUserProfileView: View {
                 switch option {
                 case .logout:
                     AuthService.shared.signout()
-                case .yourPost, .settings:
+                case .settings, .bookmark, .emptyView:   // CHANGED — bookmark now routes through showDetail too
                     showDetail = true
                 }
             }
-            .onChange(of: selectedFilter) {
-                if selectedFilter != nil {
-                    withAnimation { showOverlay = true }
-                }
-            }
-        }
+        } 
     }
-
+    
     @ViewBuilder
-    private var contentView: some View {
-        if let filter = selectedFilter {
-            switch filter {
-            case .broche:
-                ScrollView {
-                    LazyVStack {
-                        BrocheGridView(user: user)
-                    }
-                    .padding(.top, overlayHeight)
-                }
-
-            case .hearts:
-                ScrollView {
-                    LazyVStack {
-                        PostGridView(config: .likedPosts(user))
-                    }
-                    .padding(.top, overlayHeight)
-                }
-
-            case .bookmarks:
-                ScrollView {
-                    LazyVStack {
-                        CollectionsView(user: user, disableScrolling: true)
-                    }
-                    .padding(.top, overlayHeight)
-                }
+    private var content: some View {
+        switch selectedFilter {
+        case .map:
+            EmptyView()   // never actually reached — .map is handled entirely in Mode 1 above
+        case .trips:
+            ScrollView {
+                SavedTripsListView(user: user)
             }
-        } else {
-            MapViewForUserPins2(
-                user: user,
-                onToggleOverlay: {
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        showOverlay.toggle()
-                    }
-                }
-            )
+        case .posts:
+            ScrollView {
+                PostGridView(config: .profile(user))
+            }
+        case .hearts:
+            ScrollView {
+                PostGridView(config: .likedPosts(user))
+            }
         }
     }
 }
+
 
 private struct OverlayHeightKey: PreferenceKey {
     static var defaultValue: CGFloat = 0

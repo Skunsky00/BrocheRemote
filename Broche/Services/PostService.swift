@@ -102,7 +102,7 @@ extension PostService {
         async let _ = try await COLLECTION_POSTS.document(postId).updateData(["likes": post.likes + 1])
         async let _ = try await COLLECTION_USERS.document(uid).collection("user-likes").document(postId).setData([:])
         
-        async let _ =  await NotificationsViewModel.uploadNotification(toUid: post.ownerUid, type: .like, post: post)
+        async let _ =  await NotificationService.uploadNotification(toUid: post.ownerUid, type: .like, post: post)
     }
     
     static func unlikePost(_ post: Post) async throws {
@@ -114,7 +114,7 @@ extension PostService {
         async let _ = try await COLLECTION_USERS.document(uid).collection("user-likes").document(postId).delete()
         async let _ = try await COLLECTION_POSTS.document(postId).updateData(["likes": post.likes - 1])
         
-        async let _ =  await NotificationsViewModel.deleteNotification(toUid: uid, type: .like, postId: postId)
+        async let _ =  await NotificationService.deleteNotification(toUid: uid, type: .like, postId: postId)
     }
     
     static func checkIfUserLikedPost(_ post: Post) async throws -> Bool {
@@ -193,6 +193,28 @@ extension PostService {
         try await pinnedRef.document(postId).delete()
     }
 }
+
+// MARK: - Visits
+
+extension PostService {
+    static func fetchPosts(forVisitId visitId: String) async throws -> [Post] {
+        let snapshot = try await COLLECTION_POSTS
+            .whereField("visitId", isEqualTo: visitId)
+            .getDocuments()
+
+        var posts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
+
+        for i in 0..<posts.count {
+            let post = posts[i]
+            let postUser = try await UserService.fetchUser(withUid: post.ownerUid)
+            posts[i].user = postUser
+        }
+
+        return posts
+    }
+}
+
+// MARK: - Collections
 
 extension PostService {
     static func fetchCollections(userId: String) async throws -> [Collection] {
@@ -347,6 +369,22 @@ extension PostService {
             posts.append(contentsOf: snapshot.documents.compactMap { try? $0.data(as: Post.self) })
         }
         
+        return posts
+    }
+}
+
+extension PostService {
+    static func fetchPosts(forLocationId locationId: String) async throws -> [Post] {
+        let snapshot = try await COLLECTION_POSTS
+            .whereField("locationId", isEqualTo: locationId)
+            .order(by: "timestamp", descending: true)
+            .getDocuments()
+
+        var posts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
+        for i in 0..<posts.count {
+            let postUser = try? await UserService.fetchUser(withUid: posts[i].ownerUid)
+            posts[i].user = postUser
+        }
         return posts
     }
 }

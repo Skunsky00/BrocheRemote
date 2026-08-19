@@ -11,7 +11,9 @@ import SwiftUI
 struct MapViewActionButton2: View {
     @Binding var mapState: MapViewState2
     @Binding var isSheetPresented: Bool
-    let user: User                          // CHANGED from userId: String
+    let user: User
+    var isInTrip: Bool = false          // NEW
+    var onExitTrip: () -> Void = {}     // NEW
     var onSelectTrip: (Trip) -> Void
     @Environment(\.colorScheme) var colorScheme
 
@@ -29,6 +31,7 @@ struct MapViewActionButton2: View {
                 .clipShape(Circle())
                 .shadow(color: colorScheme == .dark ? .white : .black, radius: 6)
         }
+        .onboardingTarget(.createTrips)   // NEW
         .frame(maxWidth: .infinity, alignment: .leading)
         .sheet(isPresented: $isSheetPresented) {
             Itinerary(userId: user.id, user: user, canCreateTrip: true, onSelectTrip: onSelectTrip)
@@ -39,7 +42,11 @@ struct MapViewActionButton2: View {
     private func actionForState(_ state: MapViewState2) {
         switch state {
         case .noInput:
-            isSheetPresented = true
+            if isInTrip {
+                onExitTrip()          // CHANGED — exit instead of opening picker
+            } else {
+                isSheetPresented = true
+            }
         case .searchingForLocation, .locationSelected:
             mapState = .noInput
         }
@@ -47,8 +54,10 @@ struct MapViewActionButton2: View {
 
     private func imageNameForState(_ state: MapViewState2) -> String {
         switch state {
-        case .noInput: return "line.3.horizontal"
-        case .searchingForLocation, .locationSelected: return "arrow.left"
+        case .noInput:
+            return isInTrip ? "arrow.left" : "line.3.horizontal"   // CHANGED
+        case .searchingForLocation, .locationSelected:
+            return "arrow.left"
         }
     }
 }

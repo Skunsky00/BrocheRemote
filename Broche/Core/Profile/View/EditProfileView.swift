@@ -12,113 +12,135 @@ struct EditProfileView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject var viewModel: EditProfileViewModel
     @Environment(\.colorScheme) var colorScheme
-    
-    init(user: User) {
+    @State private var isSaving = false
+    @State private var errorMessage: String?
+    @State private var showError = false
+    var onSave: ((User) -> Void)? = nil
+
+    init(user: User, onSave: ((User) -> Void)? = nil) {
         self._viewModel = StateObject(wrappedValue: EditProfileViewModel(user: user))
+        self.onSave = onSave
     }
-    
+
     var body: some View {
-        VStack {
-            // toolbar
-            VStack {
-                HStack {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                    
-                    Spacer()
-                    
-                    Text("Edit Profile")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        
-                    
-                    Spacer ()
-                    
-                    Button {
-                        Task { try await viewModel.updateUserData()
-                            dismiss()
-                        }
-                    } label: {
-                        Text("Done")
-                            .font(.subheadline)
-                            .fontWeight(.bold)
-                    }
-                }
-                .padding(.horizontal)
-                
-                Divider()
-            }
-            
-            // edit profile pic
-            
-            PhotosPicker(selection: $viewModel.selectedImage) {
-                VStack {
-                    if let image = viewModel.profileImage {
-                        image
-                            .resizable()
-                            .foregroundColor(.white)
-                            .background(.gray)
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 28) {
+                    // MARK: - Avatar
+                    PhotosPicker(selection: $viewModel.selectedImage) {
+                        ZStack(alignment: .bottomTrailing) {
+                            Group {
+                                if let image = viewModel.profileImage {
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+                                } else {
+                                    CircularProfileImageView(user: viewModel.user, size: .large)
+                                }
+                            }
+                            .frame(width: 96, height: 96)
                             .clipShape(Circle())
-                            .frame(width: 80, height: 80)
-                    } else {
-                        CircularProfileImageView(user: viewModel.user, size: .large)
+
+                            Image(systemName: "camera.fill")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundColor(.white)
+                                .padding(7)
+                                .background(Color.accentColor)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color(.systemBackground), lineWidth: 2))
+                        }
                     }
-                    
-                    Text("Edit profile picture")
-                        .font(.footnote)
-                        .fontWeight(.semibold)
-                    
-                    Divider()
+                    .padding(.top, 12)
+
+                    // MARK: - Fields
+                    VStack(spacing: 20) {
+                        EditProfileFieldView(title: "Name", placeholder: "Add your name", text: $viewModel.fullname)
+
+                        EditProfileFieldView(title: "Bio", placeholder: "Tell people about yourself", text: $viewModel.bio, isMultiline: true)
+
+                        VStack(alignment: .leading, spacing: 0) {
+                            EditProfileFieldView(title: "Link", placeholder: "Add a link", text: $viewModel.link)
+
+                            if !viewModel.link.isEmpty {
+                                Button {
+                                    viewModel.link = ""
+                                } label: {
+                                    Text("Remove link")
+                                        .font(.footnote.weight(.medium))
+                                        .foregroundColor(.red)
+                                }
+                                .padding(.top, 6)
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+
+                    Spacer(minLength: 20)
                 }
             }
-            .padding(.vertical, 8)
-            
-            // edit profile info
-            
-            VStack {
-                EditProfileRowView(title: "Name", placeholder: "Enter your name..", text: $viewModel.fullname)
-                
-                EditProfileRowView(title: "Bio", placeholder: "Enter your bio..", text: $viewModel.bio)
-                
-                EditProfileRowView(title: "Link", placeholder: "Add a link here...", text: $viewModel.link)
-               
-             if !viewModel.link.isEmpty {
-                                   Button(action: {
-                                       viewModel.link = "" // Clear the link
-                                   }) {
-                                       Text("Clear Link")
-                                           .font(.subheadline)
-                                           .foregroundColor(.red)
-                                   }
-                               }
-                           }
+            .navigationTitle("Edit Profile")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") { dismiss() }
+                        .disabled(isSaving)
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if isSaving {
+                        ProgressView()
+                    } else {
+                        Button("Done") {
+                            Task {
+                                isSaving = true
+                                do {
+                                    let updatedUser = try await viewModel.updateUserData()
+                                    onSave?(updatedUser)
+                                    dismiss()
+                                } catch {
+                                    errorMessage = "Couldn't save your changes. Try again."
+                                    showError = true
+                                }
+                                isSaving = false
+                            }
+                        }
+                        .fontWeight(.semibold)
+                    }
+                }
+            }
+            .alert("Error", isPresented: $showError) {
+                Button("OK") { }
+            } message: {
+                Text(errorMessage ?? "")
+            }
+        }
+    }
+}
 
-                           Spacer()
-                       }
-                   }
-               }
-
-struct EditProfileRowView: View {
+private struct EditProfileFieldView: View {
     let title: String
     let placeholder: String
     @Binding var text: String
-    
+    var isMultiline: Bool = false
+
     var body: some View {
-        
-        HStack {
+        VStack(alignment: .leading, spacing: 6) {
             Text(title)
-                .padding(.leading, 8)
-                .frame(width: 100, alignment: .leading)
-            
-            VStack {
-                TextField(placeholder, text: $text)
-                
-                Divider()
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            Group {
+                if isMultiline {
+                    TextField(placeholder, text: $text, axis: .vertical)
+                        .lineLimit(3...6)
+                } else {
+                    TextField(placeholder, text: $text)
+                }
             }
+            .font(.subheadline)
+            .padding(12)
+            .background(Color(.secondarySystemBackground))
+            .cornerRadius(10)
         }
-        .font(.subheadline)
-        .frame(height: 36)
     }
 }
 

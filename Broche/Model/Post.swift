@@ -16,8 +16,7 @@ struct Post: Identifiable, Hashable, Codable {
     var likes: Int
     let imageUrl: String?
     let videoUrl: String?
-    let thumbnailUrl: String? // Added
-    let label: String?
+    let thumbnailUrl: String?
     var comments: Int
     let timestamp: Timestamp
     var user: User?
@@ -25,6 +24,9 @@ struct Post: Identifiable, Hashable, Codable {
     
     var didLike: Bool? = false
     var didBookmark: Bool? = false
+    
+    var locationId: String? = nil
+    var visitId: String? = nil
     
     var isCurrentUser: Bool {
         guard let currentUid = Auth.auth().currentUser?.uid else { return false }
@@ -43,7 +45,6 @@ extension Post {
         imageUrl: "example",
         videoUrl: "example",
         thumbnailUrl: "example",
-        label: "Air BnB",
         comments: 12,
         timestamp: Timestamp(),
         user: User.MOCK_USERS[0]
@@ -57,7 +58,6 @@ extension Post {
         imageUrl: nil,
         videoUrl: "example2",
         thumbnailUrl: "example",
-        label: "Air BnB",
         comments: 12,
         timestamp: Timestamp(),
         user: User.MOCK_USERS[1]
@@ -71,7 +71,6 @@ extension Post {
         imageUrl: "example",
         videoUrl: "example",
         thumbnailUrl: "example",
-        label: "Air BnB",
         comments: 12,
         timestamp: Timestamp(),
         user: User.MOCK_USERS[2]
@@ -85,7 +84,6 @@ extension Post {
         imageUrl: "example",
         videoUrl: "example",
         thumbnailUrl: "example",
-        label: "Air BnB",
         comments: 12,
         timestamp: Timestamp(),
         user: User.MOCK_USERS[3]
@@ -99,7 +97,6 @@ extension Post {
         imageUrl: "example",
         videoUrl: "example",
         thumbnailUrl: "example",
-        label: "Hotle",
         comments: 12,
         timestamp: Timestamp(),
         user: User.MOCK_USERS[4]

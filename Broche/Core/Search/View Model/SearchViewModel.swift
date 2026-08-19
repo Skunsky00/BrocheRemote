@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Firebase
+import CoreLocation
 
 enum SearchViewModelConfig: Hashable {
     case followers(String)
@@ -15,6 +16,7 @@ enum SearchViewModelConfig: Hashable {
     case search
     case newMessage
     case sharepost(String) // Pass UID for context
+    case friendsWhoVisited(lat: Double, lon: Double)   // NEW
 
     var navigationTitle: String {
         switch self {
@@ -30,6 +32,8 @@ enum SearchViewModelConfig: Hashable {
             return "New Message"
         case .sharepost:
             return "Send Post"
+        case .friendsWhoVisited:
+            return "Been Here"
         }
     }
 }
@@ -75,6 +79,10 @@ class SearchViewModel: ObservableObject {
                 await fetchUsers()
             case .sharepost(let uid):
                 try await fetchFollowingUsers(forUid: uid)
+            case .friendsWhoVisited(let lat, let lon):   // NEW
+                       let coordinate = CLLocationCoordinate2D(latitude: lat, longitude: lon)
+                       let matched = await UserService.fetchFriendsWhoVisited(coordinate: coordinate)
+                       await MainActor.run { self.users = matched }
             }
         }
     }

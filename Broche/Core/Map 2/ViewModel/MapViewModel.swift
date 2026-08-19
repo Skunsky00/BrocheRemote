@@ -135,3 +135,28 @@ final class MapViewModel: ObservableObject {
         }
     }
 }
+
+extension MapViewModel {
+    func addVisitedLocation(_ location: Location) {
+        guard !visitedLocations.contains(where: { $0.id == location.id }) else { return }
+        visitedLocations.append(location)
+        allVisitedLocations.append(location)
+    }
+    
+    func addFutureLocation(_ location: Location) {
+        guard !futureLocations.contains(where: { $0.id == location.id }) else { return }
+        futureLocations.append(location)
+        allFutureLocations.append(location)
+    }
+    
+    func removeVisitedLocation(id: String) {
+        visitedLocations.removeAll { $0.id == id }
+        allVisitedLocations.removeAll { $0.id == id }
+    }
+    
+    func removeFutureLocation(id: String) {
+        futureLocations.removeAll { $0.id == id }
+        allFutureLocations.removeAll { $0.id == id }
+    }
+    
+}

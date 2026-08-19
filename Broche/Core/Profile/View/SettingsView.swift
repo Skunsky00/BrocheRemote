@@ -9,17 +9,20 @@ import SwiftUI
 
 enum SettingsItemModel: Int, Identifiable, Hashable, CaseIterable {
     case settings
-    case yourPost
+    case bookmark
     case logout
+    case emptyView
     
     var title: String {
         switch self {
         case .settings:
             return "Settings"
-        case .yourPost:
-            return "Your Post"
+        case .bookmark:
+            return "Bookmark"
         case .logout:
             return "Logout"
+        case .emptyView:
+            return ""
         }
     }
     
@@ -27,10 +30,12 @@ enum SettingsItemModel: Int, Identifiable, Hashable, CaseIterable {
         switch self {
         case .settings:
             return "gear"
-        case .yourPost:
-            return "square.grid.2x2"
+        case .bookmark:
+            return "bookmark"
         case .logout:
             return "arrow.left.square"
+        case .emptyView:
+            return ""
         }
     }
     

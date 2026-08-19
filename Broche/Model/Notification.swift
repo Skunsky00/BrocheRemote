@@ -30,6 +30,7 @@ enum NotificationType: Int, Decodable {
     case follow
     case message // New case for message
     case locationComment
+    case newPin   // NEW
     
     var notificationMessage: String {
         switch self {
@@ -38,6 +39,7 @@ enum NotificationType: Int, Decodable {
         case .follow: return "started following you."
         case .message: return "sent you a new message." // Message-specific notification
         case .locationComment: return "commented on one of your locations."
+        case .newPin: return "added a new pin to their map."   // NEW
         }
     }
 }

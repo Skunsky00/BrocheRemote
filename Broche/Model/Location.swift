@@ -19,7 +19,8 @@ struct Location: Codable, Identifiable {
     let date: String?
     let description: String?
     let link: String?
-    
+    let createdAt: Date?   // CHANGED — optional, no fake default
+
     enum CodingKeys: String, CodingKey {
         case id
         case ownerUid
@@ -29,8 +30,9 @@ struct Location: Codable, Identifiable {
         case date
         case description
         case link
+        case createdAt
     }
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decodeIfPresent(String.self, forKey: .id) ?? ""
@@ -41,8 +43,9 @@ struct Location: Codable, Identifiable {
         self.date = try container.decodeIfPresent(String.self, forKey: .date)
         self.description = try container.decodeIfPresent(String.self, forKey: .description)
         self.link = try container.decodeIfPresent(String.self, forKey: .link)
+        self.createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt)   // CHANGED — stays nil if missing
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
@@ -53,9 +56,10 @@ struct Location: Codable, Identifiable {
         try container.encode(date, forKey: .date)
         try container.encode(description, forKey: .description)
         try container.encode(link, forKey: .link)
+        try container.encodeIfPresent(createdAt, forKey: .createdAt)   // CHANGED — omit if nil rather than writing null
     }
-    
-    init(id: String, ownerUid: String = "", latitude: Double = 0.0, longitude: Double = 0.0, city: String? = nil, date: String? = nil, description: String? = nil, link: String? = nil) {
+
+    init(id: String, ownerUid: String = "", latitude: Double = 0.0, longitude: Double = 0.0, city: String? = nil, date: String? = nil, description: String? = nil, link: String? = nil, createdAt: Date? = Date()) {
         self.id = id
         self.ownerUid = ownerUid
         self.latitude = latitude
@@ -64,6 +68,7 @@ struct Location: Codable, Identifiable {
         self.date = date
         self.description = description
         self.link = link
+        self.createdAt = createdAt
     }
 }
 

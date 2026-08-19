@@ -183,12 +183,6 @@ struct FeedCell: View {
                 
                 // Likes and comments label
                 HStack {
-                    Text(viewModel.post.label ?? "")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
-                        .allowsHitTesting(false)
                     
                     Spacer()
                         .allowsHitTesting(false)

@@ -47,6 +47,11 @@ struct AccountView: View {
             .padding(.vertical)
             
             Spacer()
+            
+            Button("Reset Onboarding (Debug)") {
+                UserDefaults.standard.removeObject(forKey: "hasCompletedOnboarding")
+                UserDefaults.standard.removeObject(forKey: "hasSeenMarkerSheetOnboarding")
+            }
         }
     }
 }

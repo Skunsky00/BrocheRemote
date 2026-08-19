@@ -20,16 +20,13 @@ struct ProfileActionButtonView: View {
             Color(red: 4/255, green: 43/255, blue: 68/255),
             Color(red: 197/255, green: 70/255, blue: 99/255),
             Color(red: 255/255, green: 104/255, blue: 102/255),
-            Color(red: 150/255, green: 90/255, blue: 143/255),
-            Color(red: 45/255, green: 61/255, blue: 136/255),
-            Color(red: 17/255, green: 55/255, blue: 125/255)
         ]),
-        startPoint: .top,
-        endPoint: .bottom
+        startPoint: .leading,
+        endPoint: .trailing
     )
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack( spacing: 10) {
             Button(action: {
                 if viewModel.user.isCurrentUser {
                     showEditProfile.toggle()
@@ -40,18 +37,17 @@ struct ProfileActionButtonView: View {
                 Text(viewModel.user.isCurrentUser ? "Edit Profile" : isFollowed ? "Following" : "Follow")
                     .font(.system(size: 14, weight: .semibold))
                     .frame(maxWidth: .infinity, minHeight: 40)
-                    .foregroundColor(viewModel.user.isCurrentUser || isFollowed ? .black : .white)
-                    .background(viewModel.user.isCurrentUser || isFollowed ? Color.white : Color.cyan)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 3)
-                            .stroke(Color.gray, lineWidth: viewModel.user.isCurrentUser || isFollowed ? 1 : 0)
-                    )
+                    .foregroundColor(primaryButtonForeground)
+                    .background(primaryButtonBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
             }
-            .cornerRadius(3)
-            .fullScreenCover(isPresented: $showEditProfile) {
-                EditProfileView(user: viewModel.user)
+            .buttonStyle(.plain)
+            .fullScreenCover(isPresented: $showEditProfile) {   // NEW — restored
+                EditProfileView(user: viewModel.user) { updatedUser in
+                    viewModel.user = updatedUser
+                }
             }
-            
+
             Button(action: {
                 showShareSheet.toggle()
             }) {
@@ -60,14 +56,30 @@ struct ProfileActionButtonView: View {
                     .frame(maxWidth: .infinity, minHeight: 40)
                     .foregroundColor(.white)
                     .background(gradient)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 3)
-                            .stroke(Color.gray, lineWidth: 1)
-                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
             }
-            .cornerRadius(3)
+            .buttonStyle(.plain)
         }
         .padding(.vertical, 4)
+    }
+
+    private var primaryButtonForeground: Color {
+        if viewModel.user.isCurrentUser || isFollowed {
+            return colorScheme == .dark ? .white : .black
+        }
+        return .white
+    }
+
+    private var primaryButtonBackground: some View {
+        Group {
+            if viewModel.user.isCurrentUser || isFollowed {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color(.secondarySystemBackground))
+            } else {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.cyan)
+            }
+        }
     }
 }
 

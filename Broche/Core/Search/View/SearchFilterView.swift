@@ -11,50 +11,44 @@ struct SearchFilterView: View {
     @Binding var selectedFilter: SearchFilterSelector
     @Namespace var animation
     @Environment(\.colorScheme) var colorScheme
-    
-    var selectedTextColor: Color {
-            colorScheme == .dark ? .white : .black
-        }
-        
-        var selectedCapsuleColor: Color {
-            colorScheme == .dark ? .white : .black
-        }
+
     var body: some View {
-        HStack {
+        HStack(spacing: 4) {
             ForEach(SearchFilterSelector.allCases, id: \.rawValue) { item in
-                VStack {
-                    Text(item.title)
-                        .font(.subheadline)
-                        .fontWeight(selectedFilter == item ? .semibold : .regular)
-                        .foregroundColor(selectedFilter == item ? selectedTextColor : .gray)
-                    
+                ZStack {
                     if selectedFilter == item {
                         Capsule()
-                            .foregroundColor(selectedCapsuleColor)
-                            .frame(height: 3)
-                            .matchedGeometryEffect(id: "filter", in: animation)
-                    } else {
-                        Capsule()
-                            .foregroundColor(.clear)
-                            .frame(height: 3)
+                            .fill(colorScheme == .dark ? Color.white : Color.black)
+                            .matchedGeometryEffect(id: "filterBackground", in: animation)
                     }
+                    Text(item.title)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(
+                            selectedFilter == item
+                                ? (colorScheme == .dark ? .black : .white)
+                                : .secondary
+                        )
+                        .padding(.vertical, 8)
                 }
+                .frame(maxWidth: .infinity)
+                .contentShape(Rectangle())
                 .onTapGesture {
-                    withAnimation(.easeInOut) {
-                        self.selectedFilter = item
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                        selectedFilter = item
                     }
                 }
             }
         }
-        .overlay(Divider().offset(x: 0, y: 16))
-        .padding(.top)
-        .foregroundColor(colorScheme == .dark ? .white : .primary)
-                .background(colorScheme == .dark ? Color.black : Color.white)
+        .padding(4)
+        .background(Color(.secondarySystemBackground))
+        .clipShape(Capsule())
+        .padding(.horizontal)
+        .padding(.top, 12)
     }
 }
 
 struct SearchFilterView_Previews: PreviewProvider {
     static var previews: some View {
-        SearchFilterView(selectedFilter: .constant(.posts))
+        SearchFilterView(selectedFilter: .constant(.accounts))
     }
 }

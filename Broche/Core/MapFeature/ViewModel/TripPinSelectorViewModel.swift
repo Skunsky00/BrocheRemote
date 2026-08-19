@@ -9,6 +9,11 @@ import Foundation
 import _MapKit_SwiftUI
 import CoreLocation
 
+enum TripListConfiguration {
+    case myTrips(User)
+    case savedTrips(User)
+}
+
 @MainActor
 class TripPinSelectorViewModel: ObservableObject {
     @Published var cameraPosition: MapCameraPosition = .automatic

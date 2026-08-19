@@ -33,7 +33,7 @@ class UploadPostViewModel: ObservableObject {
     @Published var selectedItem: PhotosPickerItem? {
         didSet {
             print("DEBUG: selectedItem changed: \(selectedItem != nil)")
-            Task { await loadVideo(fromItem: selectedItem) }
+            Task { await loadMedia(fromItem: selectedItem) }
         }
     }
     @Published var selectedThumbnailItem: PhotosPickerItem? {
@@ -47,37 +47,70 @@ class UploadPostViewModel: ObservableObject {
             print("DEBUG: selectedVideoUrl changed: \(selectedVideoUrl?.absoluteString ?? "nil")")
         }
     }
+    
+    @Published var selectedImage: UIImage? {
+        didSet {
+            print("DEBUG: selectedImage changed: \(selectedImage != nil)")
+        }
+    }
+    
+    
     @Published var selectedThumbnailUrl: URL?
     @Published var isUploading: Bool = false
     @Published var errorMessage: String?
     @Published var isLoadingVideo: Bool = false
     @Published var location: String? // Added for location search
     @Published var selectedLocation: MKLocalSearchCompletion? // Added for location search
+    @Published var attachedLocationId: String? = nil
+    @Published var attachedVisitId: String? = nil
+    @Published var isVideoSelected: Bool = false
     
     private var videoData: Data?
     private var thumbnailImage: UIImage?
     private let db = Firestore.firestore()
     
-    func loadVideo(fromItem item: PhotosPickerItem?) async {
+    func loadMedia(fromItem item: PhotosPickerItem?) async {
         guard let item = item else {
             selectedVideoUrl = nil
+            selectedImage = nil
             videoData = nil
             isLoadingVideo = false
-            print("DEBUG: No video item selected")
+            isVideoSelected = false
+            print("DEBUG: No media item selected")
             return
         }
-        do {
-            isLoadingVideo = true
-            print("DEBUG: Starting video load")
-            let movie = try await item.loadTransferable(type: Movie.self)
-            selectedVideoUrl = movie?.url
-            print("DEBUG: Video URL loaded: \(selectedVideoUrl?.absoluteString ?? "nil")")
-            isLoadingVideo = false
-        } catch {
-            isLoadingVideo = false
-            errorMessage = "Failed to load video: \(error.localizedDescription)"
-            print("DEBUG: Error loading video: \(error)")
+
+        isLoadingVideo = true
+
+        if item.supportedContentTypes.contains(where: { $0.conforms(to: .movie) }) {
+            isVideoSelected = true
+            selectedImage = nil
+            do {
+                let movie = try await item.loadTransferable(type: Movie.self)
+                selectedVideoUrl = movie?.url
+                print("DEBUG: Video URL loaded: \(selectedVideoUrl?.absoluteString ?? "nil")")
+            } catch {
+                errorMessage = "Failed to load video: \(error.localizedDescription)"
+                print("DEBUG: Error loading video: \(error)")
+            }
+        } else {
+            isVideoSelected = false
+            selectedVideoUrl = nil
+            do {
+                if let data = try await item.loadTransferable(type: Data.self),
+                   let image = UIImage(data: data) {
+                    selectedImage = image
+                    print("DEBUG: Image loaded successfully")
+                } else {
+                    errorMessage = "Failed to load image data"
+                }
+            } catch {
+                errorMessage = "Failed to load image: \(error.localizedDescription)"
+                print("DEBUG: Error loading image: \(error)")
+            }
         }
+
+        isLoadingVideo = false
     }
     
     func loadThumbnail(fromItem item: PhotosPickerItem?) async {
@@ -126,63 +159,80 @@ class UploadPostViewModel: ObservableObject {
         }
     }
     
-    func uploadPost(caption: String, location: String, label: String) async throws {
+    func uploadPost(caption: String, location: String) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
             errorMessage = "User not authenticated"
             throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
         }
-        
+
         isUploading = true
         errorMessage = nil
         let postRef = db.collection("posts").document()
-        
-        guard let videoUrl = selectedVideoUrl else {
-            isUploading = false
-            errorMessage = "No video selected"
-            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No video selected"])
+
+        var uploadedVideoUrl: String? = nil
+        var uploadedImageUrl: String? = nil
+        var uploadedThumbnailUrl: String? = nil
+
+        if isVideoSelected {
+            guard let videoUrl = selectedVideoUrl else {
+                isUploading = false
+                errorMessage = "No video selected"
+                throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No video selected"])
+            }
+            do {
+                videoData = try Data(contentsOf: videoUrl)
+            } catch {
+                isUploading = false
+                errorMessage = "Failed to load video data for upload"
+                throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to load video data"])
+            }
+            guard let result = try await VideoUploader.uploadVideo(withData: videoData!) else {
+                isUploading = false
+                errorMessage = "Video upload failed"
+                throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Video upload failed"])
+            }
+            uploadedVideoUrl = result
+
+            if let thumbnailImage = thumbnailImage {
+                uploadedThumbnailUrl = try await ThumbnailUploader.uploadThumbnail(withImage: thumbnailImage)
+            } else if let generatedThumbnail = try await generateThumbnail(from: videoUrl) {
+                uploadedThumbnailUrl = try await ThumbnailUploader.uploadThumbnail(withImage: generatedThumbnail)
+            }
+        } else {
+            guard let image = selectedImage else {
+                isUploading = false
+                errorMessage = "No photo selected"
+                throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No photo selected"])
+            }
+            guard let result = try await ImageUploader.uploadImage(image: image) else {
+                isUploading = false
+                errorMessage = "Photo upload failed"
+                throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Photo upload failed"])
+            }
+            uploadedImageUrl = result
         }
-        
-        do {
-            videoData = try Data(contentsOf: videoUrl)
-        } catch {
-            isUploading = false
-            errorMessage = "Failed to load video data for upload"
-            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to load video data"])
-        }
-        
-        guard let uploadedVideoUrl = try await VideoUploader.uploadVideo(withData: videoData!) else {
-            isUploading = false
-            errorMessage = "Video upload failed"
-            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Video upload failed"])
-        }
-        
-        var uploadedThumbnailUrl: String?
-        if let thumbnailImage = thumbnailImage {
-            uploadedThumbnailUrl = try await ThumbnailUploader.uploadThumbnail(withImage: thumbnailImage)
-        } else if let generatedThumbnail = try await generateThumbnail(from: videoUrl) {
-            uploadedThumbnailUrl = try await ThumbnailUploader.uploadThumbnail(withImage: generatedThumbnail)
-        }
-        
+
         let post = Post(
             id: postRef.documentID,
             ownerUid: uid,
             caption: caption,
             location: location,
             likes: 0,
-            imageUrl: nil,
+            imageUrl: uploadedImageUrl,
             videoUrl: uploadedVideoUrl,
             thumbnailUrl: uploadedThumbnailUrl,
-            label: label,
             comments: 0,
-            timestamp: Timestamp()
+            timestamp: Timestamp(),
+            locationId: attachedLocationId,
+            visitId: attachedVisitId
         )
-        
+
         guard let encodedPost = try? Firestore.Encoder().encode(post) else {
             isUploading = false
             errorMessage = "Failed to encode post"
             throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode post"])
         }
-        
+
         try await postRef.setData(encodedPost)
         print("DEBUG: Finished post upload")
         isUploading = false

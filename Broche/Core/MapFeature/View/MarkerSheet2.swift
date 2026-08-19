@@ -14,15 +14,20 @@ import FirebaseFirestore
 struct MarkerSheet2: View {
     @ObservedObject var viewModel: MarkerSheetViewModel2
     @EnvironmentObject var locationViewModel: LocationSearchViewModel2
+    @EnvironmentObject var markerOnboarding: MarkerOnboardingManager
     @Environment(\.dismiss) private var dismiss
-    
-    // Memories ViewModel with fake data for now
-    @StateObject private var memoriesVM = MemoriesViewModel(locationId: "placeholder")
+    var onLocationUpdated: (Location) -> Void = { _ in }
+    var onLocationRemoved: (Location) -> Void = { _ in }
     
     @State private var showEditMarker = false
     @State private var showUnsaveAlert = false
     @State private var showError = false
     @State private var errorMessage = ""
+    @State private var showUpload = false            // NEW
+    @State private var tabIndex = 0                  // NEW
+    @State private var photoGridRefreshToken = UUID() // NEW
+    @State private var showFutureActionSheet = false
+    
     
     var body: some View {
         ZStack {
@@ -39,16 +44,31 @@ struct MarkerSheet2: View {
                     
                     // MARK: - HEADER: Pin Icon (Unsave), Title, Comments, Edit
                     HStack {
-                        // Unsave Button (tap pin icon)
-                        Button {
-                            showUnsaveAlert = true
-                        } label: {
+                        if viewModel.user.isCurrentUser {
+                            Button {
+                                if viewModel.type == .future {
+                                    showFutureActionSheet = true
+                                } else {
+                                    showUnsaveAlert = true
+                                }
+                            } label: {
+                                Image(systemName: "mappin.circle.fill")
+                                    .font(.system(size: 20))
+                                    .foregroundStyle(.white)
+                                    .frame(width: 40, height: 40)
+                                    .background(viewModel.type == .visited ? Color.red : Color.blue)
+                                    .clipShape(Circle())
+                            }
+                            .markerOnboardingTarget(.unsave)
+                            .buttonStyle(.plain)
+                        } else {
                             Image(systemName: "mappin.circle.fill")
-                                .font(.system(size: 34))
-                                .foregroundStyle(viewModel.type == .visited ? .red : .blue)
-                                .shadow(radius: 3)
+                                .font(.system(size: 20))
+                                .foregroundStyle(.white)
+                                .frame(width: 40, height: 40)
+                                .background(viewModel.type == .visited ? Color.red : Color.blue)
+                                .clipShape(Circle())
                         }
-                        .buttonStyle(.plain)
                         
                         Spacer()
                         
@@ -58,46 +78,52 @@ struct MarkerSheet2: View {
                         
                         Spacer()
                         
-                        // Comments
-                        NavigationLink(destination: LocationsCommentsView(
-                            location: viewModel.location,
-                            locationType: viewModel.type
-                        )) {
-                            Image(systemName: "bubble.left")
-                                .font(.title3)
-                                .foregroundStyle(.primary)
-                        }
-                        
-                        // Edit Button (owner only)
-                        if viewModel.user.isCurrentUser {
-                            Button {
-                                showEditMarker.toggle()
-                            } label: {
-                                Image(systemName: "square.and.pencil")
-                                    .font(.title3)
+                        HStack(spacing: 10) {
+                            NavigationLink(destination: LocationsCommentsView(
+                                location: viewModel.location,
+                                locationType: viewModel.type
+                            )) {
+                                Image(systemName: "bubble.left.fill")
+                                    .font(.system(size: 16))
                                     .foregroundStyle(.primary)
+                                    .frame(width: 36, height: 36)
+                                    .background(Color(.secondarySystemBackground))
+                                    .clipShape(Circle())
                             }
-                            .sheet(isPresented: $showEditMarker) {
-                                EditMarkerView2(
-                                    user: viewModel.user,
-                                    location: viewModel.location,
-                                    type: viewModel.type
-                                )
-                            }
-                        } else {
-                            Button { } label: {
-                                Image(systemName: "heart.fill")
-                                    .font(.title3)
-                                    .foregroundStyle(.pink)
+                            
+                            if viewModel.user.isCurrentUser {
+                                Button {
+                                    showEditMarker.toggle()
+                                } label: {
+                                    Image(systemName: "square.and.pencil")
+                                        .font(.system(size: 16))
+                                        .foregroundStyle(.primary)
+                                        .frame(width: 36, height: 36)
+                                        .background(Color(.secondarySystemBackground))
+                                        .clipShape(Circle())
+                                }
+                                .markerOnboardingTarget(.edit)
+                                .sheet(isPresented: $showEditMarker) {
+                                    EditMarkerView2(
+                                        user: viewModel.user,
+                                        location: viewModel.location,
+                                        type: viewModel.type,
+                                        onSave: { updated in
+                                            viewModel.location = updated
+                                            onLocationUpdated(updated)
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
                     .padding(.horizontal, 24)
-                    .padding(.top, 8)
+                    .padding(.top, 14)
                     
                     Divider()
                         .padding(.horizontal, 24)
-                        .padding(.top, 8)
+                        .padding(.top, 14)   // was 8
+                        .padding(.bottom, 4) // NEW — a little breathing room before the divider
                     
                     // MARK: - User Row
                     HStack {
@@ -110,37 +136,47 @@ struct MarkerSheet2: View {
                         
                         Spacer()
                         
-                        Button { } label: {
-                            Label("Nearby", systemImage: "mappin.and.ellipse")
-                                .font(.footnote.bold())
-                                .foregroundStyle(.blue)
+                        if viewModel.type == .visited {
+                            NavigationLink(destination: UserListView(
+                                config: .friendsWhoVisited(lat: viewModel.location.latitude, lon: viewModel.location.longitude),
+                                matchCoordinate: CLLocationCoordinate2D(latitude: viewModel.location.latitude, longitude: viewModel.location.longitude)
+                            )) {
+                                Label("Nearby", systemImage: "mappin.and.ellipse")
+                                    .font(.footnote.bold())
+                                    .foregroundStyle(.blue)
+                            }
+                            .markerOnboardingTarget(.nearby)
+                        }
+                        
+                        if viewModel.user.isCurrentUser {
+                            Button {
+                                showUpload = true
+                            } label: {
+                                Image(systemName: "camera.fill")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.white)
+                                    .padding(8)
+                                    .background(Color.blue)
+                                    .clipShape(Circle())
+                                    .overlay(
+                                        Image(systemName: "plus.circle.fill")
+                                            .font(.system(size: 14))
+                                            .foregroundStyle(.white, .blue)
+                                            .offset(x: 10, y: 10)
+                                    )
+                            }
+                            .markerOnboardingTarget(.addPhoto)
                         }
                     }
                     .padding(.horizontal, 24)
                     .padding(.top, 12)
                     
-                    // MARK: - MEMORIES REEL (The Star of the Show)
-                    MemoriesReelView(viewModel: memoriesVM)
-                        .padding(.bottom, 16)
-                    
-                    // MARK: - Date
-                    if let date = viewModel.location.date {
-                        HStack {
-                            Image(systemName: "calendar")
-                                .foregroundStyle(.secondary)
-                            Text(date)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                        }
-                        .padding(.horizontal, 24)
-                        .padding(.top, 8)
-                    }
                     
                     // MARK: - Description
                     if let description = viewModel.location.description {
                         Text(description)
                             .font(.body)
+                            .fixedSize(horizontal: false, vertical: true)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 24)
                             .padding(.top, 12)
@@ -148,43 +184,50 @@ struct MarkerSheet2: View {
                     
                     // MARK: - Link (visited only)
                     if let link = viewModel.location.link, viewModel.type == .visited {
-                        HStack {
-                            TextLinkView(text: link, linkColor: .cyan)
-                            Spacer()
-                        }
-                        .padding(.horizontal, 24)
-                        .padding(.top, 12)
+                        TextLinkView(text: link, linkColor: .cyan)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 24)
+                            .padding(.top, 12)
                     }
-                    
-                    // MARK: - Suggest Feature (owner only)
-                    if viewModel.user.isCurrentUser {
-                        Button {
-                            if let url = URL(string: "mailto:feedback@broche.app") {
-                                UIApplication.shared.open(url)
-                            }
-                        } label: {
-                            Text("Suggest Feature")
-                                .font(.subheadline.bold())
-                                .foregroundStyle(.blue)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color(.systemGray6))
-                                .cornerRadius(12)
-                        }
+
+                    // MARK: - Photos
+                    LocationPhotoGridPreview(location: viewModel.location, isCurrentUser: viewModel.user.isCurrentUser && viewModel.type == .visited)
+                        .id(photoGridRefreshToken)
                         .padding(.horizontal, 24)
                         .padding(.top, 16)
+
+                    // MARK: - Albums (renamed from Visits, otherwise unchanged)
+                    if viewModel.type == .visited {
+                        VisitListView(location: viewModel.location, isCurrentUser: viewModel.user.isCurrentUser)
+                            .padding(.horizontal, 24)
+                            .padding(.top, 16)
                     }
                     
                     Spacer(minLength: 140)
                 }
                 .padding(.bottom, 20)
+                .frame(width: UIScreen.main.bounds.width - 32)
             }
         }
+        .frame(width: UIScreen.main.bounds.width - 32)   // CHANGED — explicit
+        .clipped()   // NEW — hard backstop, nothing can visually escape this boundary
         .ignoresSafeArea(edges: .bottom)
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
         .presentationBackground(.clear)
         .presentationCornerRadius(28)
+        .fullScreenCover(isPresented: $showUpload) {           // NEW
+            UploadPostView(
+                tabIndex: $tabIndex,
+                locationId: viewModel.location.id,
+                visitId: nil,
+                locationName: viewModel.location.city ?? "",
+                onFinished: {
+                    showUpload = false
+                    photoGridRefreshToken = UUID()
+                }
+            )
+        }
         
         // MARK: - UNSAVE CONFIRMATION ALERT
         .alert("Remove this pin?", isPresented: $showUnsaveAlert) {
@@ -210,11 +253,9 @@ struct MarkerSheet2: View {
                         }
                         
                         await MainActor.run {
+                            onLocationRemoved(viewModel.location)
                             locationViewModel.mapViewModel?.mapState = .noInput
-                            locationViewModel.mapViewModel?.visitedLocations.removeAll { $0.id == viewModel.location.id }
-                            locationViewModel.mapViewModel?.futureLocations.removeAll { $0.id == viewModel.location.id }
                         }
-                        
                         dismiss()
                     } catch {
                         await MainActor.run {
@@ -232,6 +273,23 @@ struct MarkerSheet2: View {
             Button("OK") { }
         } message: {
             Text(errorMessage)
+        }
+        .confirmationDialog("What would you like to do?", isPresented: $showFutureActionSheet, titleVisibility: .visible) {
+            Button("Mark as Visited") {
+                Task {
+                    if let migrated = try? await UserService.migrateFutureToVisited(uid: viewModel.user.id, location: viewModel.location) {
+                        onLocationUpdated(migrated)
+                        dismiss()
+                    }
+                }
+            }
+            Button("Remove Pin", role: .destructive) {
+                showUnsaveAlert = true   // reuses your existing unsave alert/logic
+            }
+            Button("Cancel", role: .cancel) { }
+        }
+        .onAppear {
+            markerOnboarding.start()
         }
     }
 }

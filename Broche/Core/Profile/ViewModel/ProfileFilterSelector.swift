@@ -7,16 +7,18 @@
 
 import Foundation
 
-enum ProfileFilterSelector: Int, CaseIterable {
-    case broche // New default tab
+enum ProfileFilterSelector: String, CaseIterable {
+    case map
+    case posts
     case hearts
-    case bookmarks
-    
-    var imageName: String {
+    case trips        // NEW
+
+    var icon: String {
         switch self {
-        case .broche: return "pin.fill" // Icon for pinned posts
-        case .hearts: return "heart.fill"
-        case .bookmarks: return "bookmark.fill"
+        case .map: return "map"
+        case .posts: return "square.grid.2x2"
+        case .hearts: return "heart"
+        case .trips: return "airplane"          // NEW
         }
     }
 }

@@ -16,49 +16,53 @@ struct LocationBookMarkView2: View {
     let coordinate: CLLocationCoordinate2D
     
     @Environment(\.colorScheme) var colorScheme
-    
     @State private var savedStates: [PinType: Bool] = [:]
     
     var body: some View {
-        VStack(spacing: 10) {
-            // MARK: - Drag Handle
+        VStack(spacing: 14) {
             Capsule()
                 .fill(Color(.systemGray4))
                 .frame(width: 36, height: 4)
-                .padding(.top, 8)
+                .padding(.top, 10)
             
-            // MARK: - Location Title
             Text(viewModel.selectedLocationTitle ?? "Unnamed Location")
-                .font(.caption.bold())
+                .font(.headline)
                 .foregroundStyle(viewModel.selectedLocationTitle == "Loading..." ? .secondary : .primary)
-                .lineLimit(1)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
                 .padding(.horizontal)
             
-            // MARK: - Pin Buttons
-            HStack(spacing: 24) {
+            HStack(spacing: 16) {
                 ForEach(PinType.allCases) { type in
+                    let isSaved = savedStates[type] ?? false
                     PinToggleButton(
                         type: type,
-                        isSaved: savedStates[type] ?? false,
+                        isSaved: isSaved,
                         coordinate: coordinate,
                         title: viewModel.selectedLocationTitle ?? "",
                         userId: user.id
-                    ) { newValue in
+                    ) { newValue, savedLocation in
                         savedStates[type] = newValue
-                        if type == .visited { didSaveLocation = newValue }
-                        if type == .future { didSaveFutureLocation = newValue }
+                        if type == .visited {
+                            didSaveLocation = newValue
+                            if newValue, let savedLocation { viewModel.mapViewModel?.addVisitedLocation(savedLocation) }
+                        }
+                        if type == .future {
+                            didSaveFutureLocation = newValue
+                            if newValue, let savedLocation { viewModel.mapViewModel?.addFutureLocation(savedLocation) }
+                        }
                     }
+                    .frame(maxWidth: .infinity)
                 }
             }
             .padding(.horizontal, 20)
-            .padding(.bottom, 16)
+            .padding(.bottom, 20)
         }
-        .frame(height: 120)  // ← Bigger sheet
         .frame(maxWidth: .infinity)
         .background(
-            RoundedRectangle(cornerRadius: 18)
+            RoundedRectangle(cornerRadius: 22)
                 .fill(colorScheme == .dark ? Color(.systemGray6) : .white)
-                .shadow(color: .black.opacity(0.12), radius: 10, y: 5)
+                .shadow(color: .black.opacity(0.15), radius: 14, y: 6)
         )
         .onAppear {
             savedStates[.visited] = didSaveLocation
@@ -75,7 +79,7 @@ struct PinToggleButton: View {
     let coordinate: CLLocationCoordinate2D
     let title: String
     let userId: String
-    let onToggle: (Bool) -> Void
+    let onToggle: (Bool, Location?) -> Void
     
     @State private var isAnimating = false
     
@@ -83,41 +87,44 @@ struct PinToggleButton: View {
         Button {
             isAnimating = true
             let newSaved = !isSaved
-            
             Task {
-                let location = Location(
-                    id: "",
-                    ownerUid: userId,
-                    latitude: coordinate.latitude,
-                    longitude: coordinate.longitude,
-                    city: title.isEmpty ? nil : title
-                )
-                
+                let location = Location(id: "", ownerUid: userId, latitude: coordinate.latitude, longitude: coordinate.longitude, city: title.isEmpty ? nil : title)
                 do {
                     if newSaved {
-                        try await UserService.saveLocation(uid: userId, location: location, type: type.markerType)
+                        // NEW — block saving as Future if already Visited here
+                        if type == .future {
+                            let alreadyVisited = (try? await UserService.checkIfSavedLocation(uid: userId, coordinate: coordinate, type: .visited)) ?? false
+                            if alreadyVisited {
+                                isAnimating = false
+                                return   // silently block — you've already been here, no need to also mark it as future
+                            }
+                        }
+                        let saved = try await UserService.saveLocation(uid: userId, location: location, type: type.markerType)
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        onToggle(newSaved, saved)
                     } else {
                         try await UserService.unSaveLocation(uid: userId, location: location, type: type.markerType)
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        onToggle(newSaved, nil)
                     }
-                    let impact = UIImpactFeedbackGenerator(style: .light)
-                    impact.impactOccurred()
-                    onToggle(newSaved)
-                } catch {
-                    print("Save error: \(error)")
-                }
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                    isAnimating = false
-                }
+                } catch { print("Save error: \(error)") }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { isAnimating = false }
             }
         } label: {
-            Image(systemName: isSaved ? type.iconFilled : type.icon)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 34, height: 34)
-                .foregroundStyle(isSaved ? type.color : .secondary)
-                .scaleEffect(isAnimating ? 1.25 : 1.0)
-                .animation(.spring(response: 0.2), value: isAnimating)
+            VStack(spacing: 6) {
+                Image(systemName: isSaved ? type.iconFilled : type.icon)
+                    .font(.system(size: 22))
+                    .foregroundStyle(isSaved ? .white : type.color)
+                Text(type.rawValue)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(isSaved ? .white : type.color)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(isSaved ? type.color : type.color.opacity(0.12))
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .scaleEffect(isAnimating ? 1.08 : 1.0)
+            .animation(.spring(response: 0.2), value: isAnimating)
         }
         .buttonStyle(.plain)
     }

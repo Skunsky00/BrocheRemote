@@ -17,6 +17,9 @@ class MapViewModelForUserPins: ObservableObject {
     @Published var visitedLocations: [Location] = []
     @Published var futureLocations: [Location] = []
     @Published var activeTrip: Trip? = nil          // NEW — nil = full map
+    @Published var isTripSaved = false          // NEW
+    @Published var savedTripId: String?         // NEW
+    @Published var isSavingTrip = false         // NEW
 
     private var allVisitedLocations: [Location] = []
     private var allFutureLocations: [Location] = []
@@ -86,4 +89,33 @@ class MapViewModelForUserPins: ObservableObject {
             ))
         }
     }
+    // NEW
+       func checkSavedStatus(_ trip: Trip) async {
+           if let id = await TripService.checkIfTripIsSaved(tripId: trip.id) {
+               isTripSaved = true
+               savedTripId = id
+           } else {
+               isTripSaved = false
+               savedTripId = nil
+           }
+       }
+
+       // NEW
+       func toggleSaveTrip(_ trip: Trip) async {
+           isSavingTrip = true
+           do {
+               if isTripSaved, let savedTripId {
+                   try await TripService.unsaveTrip(savedTripId: savedTripId)
+                   isTripSaved = false
+                   self.savedTripId = nil
+               } else {
+                   try await TripService.saveTrip(trip: trip)
+                   await checkSavedStatus(trip)
+               }
+           } catch {
+               print("DEBUG: Failed to toggle trip save: \(error)")
+           }
+           isSavingTrip = false
+       }
+    
 }

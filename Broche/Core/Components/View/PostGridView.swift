@@ -43,6 +43,10 @@ struct PostGridView: View {
             return "No posts to display."
         case .collectionPosts:
             return "No posts in this collection yet."
+        case .visit:
+            return "No posts in this visit yet."
+        case .location:
+            return "No posts for this location yet."
         }
     }
     
@@ -58,12 +62,25 @@ struct PostGridView: View {
             return "camera"
         case .collectionPosts:
             return "bookmark"
+        case .visit:
+            return "camera"
+        case .location:
+            return "camera"
+        }
+    }
+    
+    var showsSearchBar: Bool {
+        switch config {
+        case .visit:
+            return false
+        default:
+            return true
         }
     }
     
     var body: some View {
         VStack {
-            if !posts.isEmpty {
+            if !viewModel.posts.isEmpty && showsSearchBar {   // CHANGED — was `!posts.isEmpty`
                 SearchBar(text: $searchText, isEditing: $isEditing)
                     .padding(.horizontal)
                     .padding(.bottom, 16)
@@ -71,11 +88,11 @@ struct PostGridView: View {
             
             if posts.isEmpty {
                 VStack {
-                    Image(systemName: noPostImage)
+                    Image(systemName: searchText.isEmpty ? noPostImage : "magnifyingglass")   // CHANGED
                         .imageScale(.large)
                         .padding()
                     
-                    Text(noPostsMessage)
+                    Text(searchText.isEmpty ? noPostsMessage : "No results for \"\(searchText)\"")   // CHANGED
                         .font(.headline)
                         .foregroundColor(.secondary)
                 }
@@ -84,8 +101,8 @@ struct PostGridView: View {
                 ScrollView {
                     LazyVGrid(columns: gridItems, spacing: 1) {
                         ForEach(posts) { post in
-                            NavigationLink(destination: PostGridFeedCell(viewModel: FeedCellViewModel(post: post))) {
-                                ZStack {
+                            NavigationLink(destination: destinationView(for: post)) {
+                                ZStack(alignment: .bottom) {
                                     if let thumbnailUrl = post.thumbnailUrl {
                                         KFImage(URL(string: thumbnailUrl))
                                             .resizable()
@@ -105,30 +122,28 @@ struct PostGridView: View {
                                             .clipped()
                                     }
                                     
-                                    VStack {
+                                    LinearGradient(
+                                        colors: [.clear, .black.opacity(0.6)],
+                                        startPoint: .center,
+                                        endPoint: .bottom
+                                    )
+                                    .frame(width: imageDimension, height: imageDimension)
+                                    
+                                    HStack {
                                         Text(post.location)
                                             .font(.subheadline)
                                             .fontWeight(.semibold)
-                                            .frame(maxWidth: .infinity, alignment: .leading)
                                             .foregroundColor(.white)
+                                            .lineLimit(1)
                                         
-                                        HStack {
-                                            Text(post.label ?? "")
-                                                .font(.footnote)
-                                                .frame(maxWidth: .infinity, alignment: .leading)
-                                                .foregroundColor(.white)
-                                            
-                                            Spacer()
-                                            
-                                            Text("\(post.likes)")
-                                                .font(.footnote)
-                                                .frame(maxWidth: .infinity, alignment: .trailing)
-                                                .foregroundColor(.white)
-                                        }
-                                        .padding(.trailing, 8)
+                                        Spacer()
+                                        
+                                        Text("\(post.likes)")
+                                            .font(.footnote)
+                                            .foregroundColor(.white)
                                     }
-                                    .padding(.leading, 8)
-                                    .padding(.top, 140)
+                                    .padding(.horizontal, 8)
+                                    .padding(.bottom, 8)
                                 }
                             }
                         }
@@ -139,11 +154,21 @@ struct PostGridView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarHidden(false)
     }
+    @ViewBuilder
+    private func destinationView(for post: Post) -> some View {
+        if let videoUrl = post.videoUrl, !videoUrl.isEmpty {
+            PostGridFeedCell(viewModel: FeedCellViewModel(post: post))
+        } else {
+            PostGridFeedCellPhoto(viewModel: FeedCellViewModel(post: post))
+        }
+    }
 }
+
+
 
 struct PostGridView_Previews: PreviewProvider {
     static var previews: some View {
         PostGridView(config: .profile(User.MOCK_USERS[0]))
     }
 }
-    
+

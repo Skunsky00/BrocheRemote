@@ -16,21 +16,17 @@ struct UserCell: View {
         HStack(spacing: 12) {
             CircularProfileImageView(user: user, size: .xSmall)
             
-            VStack(alignment: .leading) {
-                Text(user.username)
-                    .fontWeight(.semibold)
-                    .foregroundColor(colorScheme == .dark ? .white : .black)
+            VStack(alignment: .leading, spacing: 2) {
+                UsernameWithBadgeView(user: user)   // CHANGED — was plain Text, now shows badge
                 
                 if let fullname = user.fullname {
                     Text(fullname)
-                        .foregroundColor(colorScheme == .dark ? .white : .black)
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
                 }
             }
-            .font(.footnote)
-            .foregroundColor(Color.theme.systemBackground)
             
             Spacer()
         }
-        .foregroundColor(.black)
     }
 }

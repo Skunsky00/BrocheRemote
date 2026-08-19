@@ -8,13 +8,13 @@
 import Foundation
 
 enum SearchFilterSelector: Int, CaseIterable {
-    case posts
+    case discover
     case accounts
     
     var title: String {
         switch self {
-        case .posts:
-            return "Posts"
+        case .discover:
+            return "Discover"
         case .accounts:
             return "Accounts"
         }

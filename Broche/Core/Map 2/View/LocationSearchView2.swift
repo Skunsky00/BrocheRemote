@@ -10,15 +10,17 @@ import MapKit
 
 struct LocationSearchView2: View {
     @Binding var mapState: MapViewState2
+    @Binding var selectedExistingLocation: Location?
     @EnvironmentObject var viewModel: LocationSearchViewModel2
     
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
+            HStack(spacing: 12) {
                 Image(systemName: "magnifyingglass")
+                    .font(.title3)
                     .foregroundStyle(.secondary)
                 TextField("Search for a location", text: $viewModel.queryFragment)
-                    .textFieldStyle(.roundedBorder)
+                    .font(.body)
                     .autocapitalization(.none)
                 
                 Button {
@@ -29,26 +31,35 @@ struct LocationSearchView2: View {
                         .opacity(viewModel.queryFragment.isEmpty ? 0 : 1)
                 }
             }
-            .padding()
+            .padding(.horizontal, 16)
+            .padding(.vertical, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(Color(.secondarySystemBackground))
+            )
+            .padding(.horizontal)
+            .padding(.top, 12)
             
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 12) {
                     ForEach(viewModel.results, id: \.self) { result in
                         Button {
+                            selectedExistingLocation = nil
                             viewModel.selectLocation(result)
                             mapState = .locationSelected
                         } label: {
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: 4) {
                                 Text(result.title)
                                     .font(.body)
                                     .foregroundStyle(.primary)
                                 if !result.subtitle.isEmpty {
                                     Text(result.subtitle)
-                                        .font(.caption)
+                                        .font(.subheadline)
                                         .foregroundStyle(.secondary)
                                 }
                             }
                             .padding(.horizontal)
+                            .padding(.vertical, 6)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }

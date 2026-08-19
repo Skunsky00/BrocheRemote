@@ -25,7 +25,7 @@ class NotificationCellViewModel: ObservableObject {
     
     func follow() {
         UserService.follow(uid: notification.uid) { _ in
-            NotificationsViewModel.uploadNotification(toUid: self.notification.uid, type: .follow)
+            NotificationService.uploadNotification(toUid: self.notification.uid, type: .follow)
             self.notification.isFollowed = true
         }
     }

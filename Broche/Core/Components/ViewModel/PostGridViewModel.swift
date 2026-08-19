@@ -14,6 +14,8 @@ enum PostGridConfiguration {
     case likedPosts(User)
     case bookmarkedPosts(User)
     case collectionPosts(userId: String, collectionId: String)
+    case visit(Visit)
+    case location(Location)   // NEW
 }
 
 class PostGridViewModel: ObservableObject {
@@ -40,6 +42,10 @@ class PostGridViewModel: ObservableObject {
             Task { try await fetchBookmarkedPosts(forUser: user) }
         case .collectionPosts(let userId, let collectionId):
             Task { try await fetchCollectionPosts(userId: userId, collectionId: collectionId) }
+        case .visit(let visit):
+            Task { try await fetchVisitPosts(forVisit: visit) }
+        case .location(let location):
+            Task { try await fetchLocationPosts(forLocation: location) }
         }
     }
     
@@ -95,11 +101,24 @@ class PostGridViewModel: ObservableObject {
         isLoading = false
     }
     
+    @MainActor
+    func fetchVisitPosts(forVisit visit: Visit) async throws {
+        let posts = try await PostService.fetchPosts(forVisitId: visit.id)
+        self.posts = posts
+        isLoading = false
+    }
+    
+    @MainActor
+    func fetchLocationPosts(forLocation location: Location) async throws {
+        let posts = try await PostService.fetchPosts(forLocationId: location.id)
+        self.posts = posts
+        isLoading = false
+    }
+    
     func filteredPosts(_ query: String) -> [Post] {
         let lowercasedQuery = query.lowercased()
         return posts.filter {
-            $0.location.lowercased().contains(lowercasedQuery) ||
-            ($0.label?.lowercased().contains(lowercasedQuery) ?? false)
+            $0.location.lowercased().contains(lowercasedQuery)
         }
     }
     

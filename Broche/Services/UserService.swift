@@ -51,168 +51,32 @@ struct UserService {
     }
 }
 
-//extension UserService {
-//    
-//    static func fetchSavedLocations(forUserID uid: String) async throws -> [Location] {
-//            let collectionRef = COLLECTION_LOCATION.document(uid).collection("user-locations")
-//            let querySnapshot = try await collectionRef.getDocuments()
-//            let locations = querySnapshot.documents.compactMap { document -> Location? in
-//                do {
-//                    return try document.data(as: Location.self)
-//                } catch {
-//                    print("Error: Failed to decode location document with ID: \(document.documentID), error: \(error)")
-//                    return nil
-//                }
-//            }
-//            return locations
-//        }
-//
-//    static func saveLocation(uid: String, coordinate: Location) async throws {
-//        let collectionRef = COLLECTION_LOCATION.document(uid).collection("user-locations")
-//        let querySnapshot = try await collectionRef.getDocuments()
-//
-//        for document in querySnapshot.documents {
-//            if let location = try? document.data(as: Location.self),
-//               location.latitude == coordinate.latitude && location.longitude == coordinate.longitude {
-//                print("Location already saved!")
-//                return
-//            }
-//        }
-//
-//        let documentRef = collectionRef.document()
-//        var locationData = try Firestore.Encoder().encode(coordinate)
-//        locationData["id"] = documentRef.documentID // Add the document ID to the data
-//        try await documentRef.setData(locationData)
-//        print("Location saved successfully!")
-//    }
-//
-//    static func unSaveLocation(uid: String, coordinate: Location) async throws {
-//        let collectionRef = COLLECTION_LOCATION.document(uid).collection("user-locations")
-//        let querySnapshot = try await collectionRef.getDocuments()
-//
-//        for document in querySnapshot.documents {
-//            if let location = try? document.data(as: Location.self),
-//               location.latitude == coordinate.latitude && location.longitude == coordinate.longitude {
-//                try await document.reference.delete()
-//                
-//                // Delete comments associated with the location
-//                let commentsRef = document.reference.collection("location-comments")
-//                let commentsQuerySnapshot = try await commentsRef.getDocuments()
-//                
-//                for commentDocument in commentsQuerySnapshot.documents {
-//                    try await commentDocument.reference.delete()
-//                }
-//                
-//                print("Location and associated comments unsaved successfully!")
-//                return
-//            }
-//        }
-//
-//        print("Error: Failed to find and unsave the location.")
-//    }
-//
-//
-//    static func checkIfUserSavedLocation(uid: String, coordinate: Location) async throws -> Bool {
-//        let collectionRef = COLLECTION_LOCATION.document(uid).collection("user-locations")
-//        let querySnapshot = try await collectionRef.getDocuments()
-//
-//        for document in querySnapshot.documents {
-//            if let location = try? document.data(as: Location.self) {
-//                let latDiff = abs(location.latitude - coordinate.latitude)
-//                let lonDiff = abs(location.longitude - coordinate.longitude)
-//                if latDiff < 0.0001 && lonDiff < 0.0001 { // Adjust the threshold as needed
-//                    print("Location found: \(location)")
-//                    return true
-//                }
-//            }
-//        }
-//
-//        print("Location not found!")
-//        return false
-//    }
-//}
-//
-//extension UserService {
-//    
-//    static func fetchFutureSavedLocations(forUserID uid: String) async throws -> [Location] {
-//        let collectionRef = COLLECTION_FUTURE_LOCATIONS.document(uid).collection("user-locations")
-//        let querySnapshot = try await collectionRef.getDocuments()
-//        let locations = querySnapshot.documents.compactMap { document -> Location? in
-//            if var location = try? document.data(as: Location.self) {
-//                location.id = document.documentID // Assign the document ID
-//                return location
-//            } else {
-//                print("Error: Failed to decode future visit location document with ID: \(document.documentID)")
-//                return nil
-//            }
-//        }
-//        return locations
-//    }
-//    
-//    static func saveFutureLocation(uid: String, coordinate: Location) async throws {
-//        let collectionRef = COLLECTION_FUTURE_LOCATIONS.document(uid).collection("user-locations")
-//        let querySnapshot = try await collectionRef.getDocuments()
-//        
-//        for document in querySnapshot.documents {
-//            if let location = try? document.data(as: Location.self),
-//               location.latitude == coordinate.latitude && location.longitude == coordinate.longitude {
-//                print("Future location already saved!")
-//                return
-//            }
-//        }
-//        
-//        let documentRef = collectionRef.document()
-//        var locationData = try Firestore.Encoder().encode(coordinate)
-//        locationData["id"] = documentRef.documentID // Add the document ID to the data
-//        try await documentRef.setData(locationData)
-//        print("Future location saved successfully!")
-//    }
-//    
-//    static func unSaveFutureLocation(uid: String, coordinate: Location) async throws {
-//        let collectionRef = COLLECTION_FUTURE_LOCATIONS.document(uid).collection("user-locations")
-//        let querySnapshot = try await collectionRef.getDocuments()
-//        
-//        for document in querySnapshot.documents {
-//            if let location = try? document.data(as: Location.self),
-//               location.latitude == coordinate.latitude && location.longitude == coordinate.longitude {
-//                try await document.reference.delete()
-//                
-//                // Delete comments associated with the location
-//                let commentsRef = document.reference.collection("location-comments")
-//                let commentsQuerySnapshot = try await commentsRef.getDocuments()
-//                
-//                for commentDocument in commentsQuerySnapshot.documents {
-//                    try await commentDocument.reference.delete()
-//                }
-//                
-//                print("Future location and associated comments unsaved successfully!")
-//                return
-//            }
-//        }
-//        
-//        print("Error: Failed to find and unsave the future location.")
-//    }
-//    
-//    
-//    static func checkIfUserSavedFutureLocation(uid: String, coordinate: Location) async throws -> Bool {
-//        let collectionRef = COLLECTION_FUTURE_LOCATIONS.document(uid).collection("user-locations")
-//        let querySnapshot = try await collectionRef.getDocuments()
-//        
-//        for document in querySnapshot.documents {
-//            if let location = try? document.data(as: Location.self) {
-//                let latDiff = abs(location.latitude - coordinate.latitude)
-//                let lonDiff = abs(location.longitude - coordinate.longitude)
-//                if latDiff < 0.0001 && lonDiff < 0.0001 { // Adjust the threshold as needed
-//                    print("Future location found: \(location)")
-//                    return true
-//                }
-//            }
-//        }
-//        
-//        print("Future location not found!")
-//        return false
-//    }
-//}
+extension UserService {
+    static func fetchSuggestedUsers(startingAfter document: DocumentSnapshot?) async throws -> ([User], DocumentSnapshot?) {
+        guard let currentUid = Auth.auth().currentUser?.uid else { return ([], nil) }
+
+        var query = COLLECTION_USERS.order(by: "username").limit(to: 20)
+        if let document = document {
+            query = COLLECTION_USERS.order(by: "username").start(afterDocument: document).limit(to: 20)
+        }
+
+        let snapshot = try await query.getDocuments()
+        var users = snapshot.documents.compactMap { try? $0.data(as: User.self) }
+        users.removeAll { $0.id == currentUid }
+
+        for i in 0..<users.count {
+            users[i].isFollowed = await checkIfUserIsFollowed(uid: users[i].id)
+        }
+
+        // filter out already-followed users from the suggestion list
+        users.removeAll { $0.isFollowed == true }
+
+        let lastDocument = snapshot.documents.last
+        return (users, lastDocument)
+    }
+}
+
+
 // UserService extension updated to use Location and fix collection path
 extension UserService {
     static func fetchSavedLocations(forUserID uid: String, type: MarkerType) async throws -> [Location] {
@@ -233,7 +97,7 @@ extension UserService {
         return locations
     }
     
-    static func saveLocation(uid: String, location: Location, type: MarkerType) async throws {
+    static func saveLocation(uid: String, location: Location, type: MarkerType) async throws -> Location {
         let collection = type == .visited ? COLLECTION_LOCATION : COLLECTION_FUTURE_LOCATIONS
         let subCollection = collection.document(uid).collection("user-locations")
         let querySnapshot = try await subCollection.getDocuments()
@@ -242,7 +106,7 @@ extension UserService {
             if let existingLocation = try? document.data(as: Location.self),
                existingLocation.latitude == location.latitude && existingLocation.longitude == location.longitude {
                 print("Location already saved for \(type): \(location)")
-                return
+                return existingLocation
             }
         }
         
@@ -250,7 +114,18 @@ extension UserService {
         var data = try Firestore.Encoder().encode(location)
         data["id"] = docRef.documentID
         try await docRef.setData(data)
-        print("Saved \(type) location: \(location)")
+        
+        var saved = location
+        saved.id = docRef.documentID
+        
+        if type == .visited {
+            Task {
+                await NotificationService.uploadNewPinNotificationToFollowers(currentUid: uid, location: saved)
+            }
+        }
+        
+        print("Saved \(type) location: \(saved)")
+        return saved
     }
     
     static func unSaveLocation(uid: String, location: Location, type: MarkerType) async throws {
@@ -261,9 +136,17 @@ extension UserService {
         for document in querySnapshot.documents {
             if let existingLocation = try? document.data(as: Location.self),
                existingLocation.latitude == location.latitude && existingLocation.longitude == location.longitude {
+                
+                // NEW — delete all visits (and their posts) under this pin before deleting the pin
+                if type == .visited {
+                    let visitsSnapshot = try await document.reference.collection("visits").getDocuments()
+                    for visitDoc in visitsSnapshot.documents {
+                        try await VisitService.deleteVisit(userId: uid, locationId: document.documentID, visitId: visitDoc.documentID)
+                    }
+                }
+                
                 try await document.reference.delete()
                 
-                // Delete associated comments
                 let commentsRef = document.reference.collection("location-comments")
                 let commentsDocs = try await commentsRef.getDocuments().documents
                 for commentDoc in commentsDocs {
@@ -295,4 +178,59 @@ extension UserService {
         print("No saved \(type) location at: \(coordinate)")
         return false
     }
+}
+
+
+extension UserService {
+    static func fetchFriendsWhoVisited(coordinate: CLLocationCoordinate2D) async -> [User] {
+            guard let currentUid = Auth.auth().currentUser?.uid else { return [] }
+            
+            guard let followingSnapshot = try? await COLLECTION_FOLLOWING
+                .document(currentUid)
+                .collection("user-following")
+                .getDocuments() else { return [] }
+            
+            let followingUids = followingSnapshot.documents.map { $0.documentID }
+            guard !followingUids.isEmpty else { return [] }
+            
+            var matchedUsers: [User] = []
+            
+            for uid in followingUids {
+                let subCollection = COLLECTION_LOCATION.document(uid).collection("user-locations")
+                guard let snapshot = try? await subCollection.getDocuments() else { continue }
+                
+                let hasNearbyVisit = snapshot.documents.contains { doc in
+                    guard let location = try? doc.data(as: Location.self) else { return false }
+                    return abs(location.latitude - coordinate.latitude) < 0.01 &&
+                           abs(location.longitude - coordinate.longitude) < 0.01
+                }
+                
+                if hasNearbyVisit, let user = try? await UserService.fetchUser(withUid: uid) {
+                    matchedUsers.append(user)
+                }
+            }
+            
+            return matchedUsers
+        }
+    
+    static func fetchLocationId(uid: String, coordinate: CLLocationCoordinate2D, type: MarkerType) async -> String? {
+            let collection = type == .visited ? COLLECTION_LOCATION : COLLECTION_FUTURE_LOCATIONS
+            let subCollection = collection.document(uid).collection("user-locations")
+            guard let querySnapshot = try? await subCollection.getDocuments() else { return nil }
+            
+            for document in querySnapshot.documents {
+                if let location = try? document.data(as: Location.self),
+                   abs(location.latitude - coordinate.latitude) < 0.0001,
+                   abs(location.longitude - coordinate.longitude) < 0.0001 {
+                    return document.documentID
+                }
+            }
+            return nil
+        }
+    
+    static func migrateFutureToVisited(uid: String, location: Location) async throws -> Location {
+            let saved = try await saveLocation(uid: uid, location: location, type: .visited)
+            try await unSaveLocation(uid: uid, location: location, type: .future)
+            return saved
+        }
 }

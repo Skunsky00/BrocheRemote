@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SearchView: View {
-    @State private var selectedFilter: SearchFilterSelector = .posts
+    @State private var selectedFilter: SearchFilterSelector = .accounts
     
     var body: some View {
         NavigationStack {
@@ -31,8 +31,8 @@ struct SearchView: View {
         ScrollView {
             LazyVStack {
                 switch self.selectedFilter {
-                case .posts:
-                    PostGridView(config: .explore)
+                case .discover:
+                    SuggestedFollowsView()
                 case .accounts:
                     UserListView(config: .search)
                 }

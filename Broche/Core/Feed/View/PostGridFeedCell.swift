@@ -21,63 +21,48 @@ struct PostGridFeedCell: View {
     @State private var isCaptionExpanded = false
     @State private var showCommentsSheet = false
     @State private var showBookmarkSheet = false
+    @State private var isPlaying = true          // NEW
+    @State private var showPlayPauseIcon = false // NEW
+    @State private var player: AVPlayer?
     @Environment(\.colorScheme) var colorScheme
     
     var showDeleteOption: Bool { return viewModel.post.isCurrentUser }
     var didLike: Bool { return viewModel.post.didLike ?? false }
     var didBookmark: Bool { return viewModel.post.didBookmark ?? false }
     
-    var player: AVPlayer?
+    private let injectedPlayer: AVPlayer?
     
-    init(viewModel: FeedCellViewModel) {
+    init(viewModel: FeedCellViewModel, player: AVPlayer? = nil) {
         self.viewModel = viewModel
-        if let videoUrlString = viewModel.post.videoUrl, let videoUrl = URL(string: videoUrlString) {
-            self.player = AVPlayer(url: videoUrl)
-        }
+        self.injectedPlayer = player
     }
     
     var body: some View {
         ZStack {
             // Post image or video
-            if let imageUrl = viewModel.post.imageUrl {
-                KFImage(URL(string: imageUrl))
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width * 1.1)
-                    .clipped()
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        print("Single tap on image")
-                    }
-                    .simultaneousGesture(
-                        TapGesture(count: 2)
-                            .onEnded {
-                                print("Double tap on image")
-                                handleDoubleTap()
+            if let player = player {
+                            VideoPlayerController(player: player)
+                                .containerRelativeFrame([.horizontal, .vertical])
+                                .onTapGesture(count: 2) {   // CHANGED — was .simultaneousGesture
+                                    print("Double tap on video")
+                                    handleDoubleTap()
+                                }
+                                .onTapGesture(count: 1) {   // NEW — only fires if it's NOT part of a double-tap
+                                    togglePlayback()
+                                }
+                            
+                            // NEW — brief play/pause icon flash
+                if showPlayPauseIcon {
+                                    Image(systemName: "play.fill")
+                                        .font(.system(size: 50))
+                                        .foregroundColor(.white)
+                                        .padding(28)
+                                        .background(.black.opacity(0.35))
+                                        .clipShape(Circle())
+                                        .transition(.opacity)
+                                        .allowsHitTesting(false)
+                                }
                             }
-                    )
-            } else if let player = player {
-                VideoPlayerController(player: player)
-                    .containerRelativeFrame([.horizontal, .vertical])
-                    .onTapGesture {
-                        print("Single tap on video")
-                        switch player.timeControlStatus {
-                        case .paused:
-                            player.play()
-                        case .waitingToPlayAtSpecifiedRate, .playing:
-                            player.pause()
-                        default:
-                            break
-                        }
-                    }
-                    .simultaneousGesture(
-                        TapGesture(count: 2)
-                            .onEnded {
-                                print("Double tap on video")
-                                handleDoubleTap()
-                            }
-                    )
-            }
             
             // Overlay UI
             VStack(alignment: .leading) {
@@ -101,12 +86,20 @@ struct PostGridFeedCell: View {
                     
                     Spacer()
                         .allowsHitTesting(false)
-                    
-                    if let user = viewModel.post.user {
-                        NavigationLink(value: user) {
-                            CircularProfileImageView(user: user, size: .xSmall)
+                    HStack {
+                        Text("\(viewModel.post.user?.username ?? "")")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.white)
+                            .allowsHitTesting(false)
+                        
+                        if let user = viewModel.post.user {
+                            NavigationLink(value: user) {
+                                CircularProfileImageView(user: user, size: .xSmall)
+                            }
                         }
                     }
+                    .padding(.horizontal, 16)
                 }
                 .padding(.horizontal, 12)
                 .padding(.top, 5)
@@ -186,24 +179,7 @@ struct PostGridFeedCell: View {
                 .padding(.horizontal, 10)
                 
                 // Likes and comments label
-                HStack {
-                    Text(viewModel.post.label ?? "")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
-                        .allowsHitTesting(false)
-                    
-                    Spacer()
-                        .allowsHitTesting(false)
-                    
-                    Text("\(viewModel.post.user?.username ?? "")")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.white)
-                        .allowsHitTesting(false)
-                }
-                .padding(.horizontal, 16)
+                
                 
                 // Caption
                 HStack {
@@ -221,6 +197,20 @@ struct PostGridFeedCell: View {
                 .padding(.top, 1)
             }
         }
+        .onAppear {
+                    setupPlayerIfNeeded()   // NEW — creates the player ONCE, only if it doesn't already exist
+                    player?.seek(to: .zero)
+                    player?.play()
+                    isPlaying = true
+                    showPlayPauseIcon = false
+                }
+                .onDisappear {
+                    player?.pause()
+                    player?.seek(to: .zero)
+                    if let currentItem = player?.currentItem {
+                        NotificationCenter.default.removeObserver(self, name: .AVPlayerItemDidPlayToEndTime, object: currentItem)
+                    }
+                }
         .sheet(isPresented: $showCommentsSheet) {
             CommentsView(post: viewModel.post)
                 .presentationDetents([.fraction(0.8), .large])
@@ -270,6 +260,50 @@ struct PostGridFeedCell: View {
                 .presentationDragIndicator(.visible)
         }
     }
+    
+    private func setupPlayerIfNeeded() {   // NEW
+            guard player == nil else { return }   // already have one — never overwrite it
+            
+            if let injectedPlayer = injectedPlayer {
+                player = injectedPlayer
+            } else if let videoUrlString = viewModel.post.videoUrl, let videoUrl = URL(string: videoUrlString) {
+                player = AVPlayer(url: videoUrl)
+            }
+            
+            if let player = player {
+                NotificationCenter.default.addObserver(
+                    forName: .AVPlayerItemDidPlayToEndTime,
+                    object: player.currentItem,
+                    queue: .main
+                ) { _ in
+                    player.seek(to: .zero)
+                    player.play()
+                    isPlaying = true
+                }
+            }
+        }
+    
+    private func togglePlayback() {
+            guard let player = player else { return }
+            if isPlaying {
+                player.pause()
+            } else {
+                player.play()
+            }
+            isPlaying.toggle()
+            
+            if isPlaying {
+                // CHANGED — resuming: hide icon right away, no flash needed since motion is the feedback
+                withAnimation(.easeOut(duration: 0.2)) {
+                    showPlayPauseIcon = false
+                }
+            } else {
+                // CHANGED — pausing: show play icon and leave it up
+                withAnimation(.easeIn(duration: 0.15)) {
+                    showPlayPauseIcon = true
+                }
+            }
+        }
     
     private func handleDoubleTap() {
         print("handleDoubleTap called")

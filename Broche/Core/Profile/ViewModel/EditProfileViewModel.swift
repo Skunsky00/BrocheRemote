@@ -48,36 +48,40 @@ class EditProfileViewModel: ObservableObject {
         self.profileImage = Image(uiImage: uiImage)
     }
     
-    func updateUserData() async throws {
-        //update profile image if changed
-        
-        var data = [String: Any]()
-        
-        if let uiImage = uiImage {
-            let imageUrl = try? await ImageUploader.uploadImage(image: uiImage)
-            data["profileImageUrl"] = imageUrl
-        }
-        
-        //update name if changed
-        if !fullname.isEmpty && user.fullname != fullname {
-            data["fullname"] = fullname
-        }
-        
-        //update bio if chnaged
-        if !bio.isEmpty && user.bio != bio {
-            data["bio"] = bio
-        }
-        
-        //update link if changed
-        if !link.isEmpty && user.link != link {
-                data["link"] = link
-            } else if link.isEmpty && user.link != nil {
-                // Set the link to nil in the database if it's empty
-                data["link"] = FieldValue.delete()
+    func updateUserData() async throws -> User {
+            var data = [String: Any]()
+
+            if let uiImage = uiImage {
+                let imageUrl = try? await ImageUploader.uploadImage(image: uiImage)
+                if let imageUrl {
+                    data["profileImageUrl"] = imageUrl
+                    user.profileImageUrl = imageUrl   // NEW — keep local copy in sync
+                }
             }
-        
-        if !data.isEmpty {
-            try await Firestore.firestore().collection("users").document(user.id).updateData(data)
+
+            if !fullname.isEmpty && user.fullname != fullname {
+                data["fullname"] = fullname
+                user.fullname = fullname   // NEW
+            }
+
+            if !bio.isEmpty && user.bio != bio {
+                data["bio"] = bio
+                user.bio = bio   // NEW
+            }
+
+            if !link.isEmpty && user.link != link {
+                data["link"] = link
+                user.link = link   // NEW
+            } else if link.isEmpty && user.link != nil {
+                data["link"] = FieldValue.delete()
+                user.link = nil   // NEW
+            }
+
+            if !data.isEmpty {
+                try await Firestore.firestore().collection("users").document(user.id).updateData(data)
+            }
+
+            return user   // NEW
         }
     }
-}
+

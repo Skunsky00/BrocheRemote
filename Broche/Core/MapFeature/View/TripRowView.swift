@@ -9,7 +9,8 @@ import SwiftUI
 
 struct TripRowView: View {
     let trip: Trip
-    var onDelete: (() -> Void)? = nil   // NEW — nil means delete isn't available here
+    var onDelete: (() -> Void)? = nil
+    var savedFromUsername: String? = nil   // NEW
 
     @State private var showDeleteConfirmation = false
 
@@ -29,6 +30,11 @@ struct TripRowView: View {
                 Text("\(trip.locationIds.count) stops")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                if let savedFromUsername {   // NEW
+                    Text("Saved from @\(savedFromUsername)")
+                        .font(.caption2)
+                        .foregroundStyle(.blue)
+                }
             }
 
             Spacer()
@@ -74,6 +80,72 @@ struct TripListView: View {
                 }
                 .buttonStyle(.plain)
             }
+        }
+    }
+}
+
+struct SavedTripsListView: View {
+    let user: User
+    @State private var savedTrips: [(trip: Trip, savedInfo: SavedTrip, owner: User)] = []   // CHANGED
+    @State private var isLoading = true
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 24)
+            } else if savedTrips.isEmpty {
+                Text("No saved trips yet.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 24)
+            } else {
+                ForEach(savedTrips, id: \.savedInfo.id) { entry in
+                    NavigationLink(destination: ProfileView(user: entry.owner, deepLinkTripId: entry.trip.id)) {
+                        TripRowView(
+                            trip: entry.trip,
+                            onDelete: {
+                                Task { await unsave(entry.savedInfo.id) }
+                            },
+                            savedFromUsername: entry.owner.username
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding(.horizontal)
+        .task {
+            await loadSavedTrips()
+        }
+    }
+
+    private func loadSavedTrips() async {
+        isLoading = true
+        do {
+            let resolved = try await TripService.fetchSavedTrips(forUserID: user.id)
+            var withOwners: [(Trip, SavedTrip, User)] = []
+            for (trip, savedInfo) in resolved {
+                if let owner = try? await UserService.fetchUser(withUid: savedInfo.originalOwnerUid) {
+                    withOwners.append((trip, savedInfo, owner))
+                }
+                // if owner fetch fails, skip — same graceful-degradation pattern as deleted trips
+            }
+            savedTrips = withOwners
+        } catch {
+            print("DEBUG: Failed to fetch saved trips: \(error)")
+        }
+        isLoading = false
+    }
+
+    private func unsave(_ savedTripId: String) async {
+        do {
+            try await TripService.unsaveTrip(savedTripId: savedTripId)
+            savedTrips.removeAll { $0.savedInfo.id == savedTripId }
+        } catch {
+            print("DEBUG: Failed to unsave trip: \(error)")
         }
     }
 }

@@ -15,3 +15,12 @@ struct Trip: Codable, Identifiable {
     var createdAt: Date
     var coverImageUrl: String?
 }
+
+
+struct SavedTrip: Codable, Identifiable {
+    var id: String
+    let savedByUid: String
+    let originalTripId: String
+    let originalOwnerUid: String
+    let createdAt: Date
+}

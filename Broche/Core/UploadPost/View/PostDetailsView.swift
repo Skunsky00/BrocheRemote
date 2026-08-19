@@ -12,7 +12,6 @@ import MapKit
 struct PostDetailsView: View {
     @State private var caption = ""
     @State private var location = ""
-    @State private var label = ""
     @State private var thumbnailPickerPresented = false
     @ObservedObject var viewModel: UploadPostViewModel
     @StateObject var locationSearchViewModel = UploadPostSearchViewModel()
@@ -24,7 +23,13 @@ struct PostDetailsView: View {
     @Binding var tabIndex: Int
     @Binding var path: NavigationPath
     @Environment(\.colorScheme) var colorScheme
+    var onFinished: () -> Void
     @Environment(\.dismiss) var dismiss
+    
+    // true when we already know the location (came from a visit) — locks the field
+    var locationIsLocked: Bool {
+        viewModel.attachedLocationId != nil
+    }
     
     var body: some View {
         VStack(spacing: 16) {
@@ -53,11 +58,11 @@ struct PostDetailsView: View {
                 
                 Button {
                     Task {
-                        if location.isEmpty || label.isEmpty {
+                        if location.isEmpty {
                             showAlert = true
                         } else {
                             do {
-                                try await viewModel.uploadPost(caption: caption, location: location, label: label)
+                                try await viewModel.uploadPost(caption: caption, location: location)
                                 clearPostDataAndReturnToFeed()
                             } catch {
                                 viewModel.errorMessage = error.localizedDescription
@@ -82,21 +87,37 @@ struct PostDetailsView: View {
                 Divider()
             }
             
-            // Thumbnail picker
-            VStack(alignment: .leading) {
-                Text("Thumbnail (optional)")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                PhotosPicker(
-                    selection: $viewModel.selectedThumbnailItem,
-                    matching: .images,
-                    photoLibrary: .shared()
-                ) {
-                    if let thumbnailUrl = viewModel.selectedThumbnailUrl {
-                        AsyncImage(url: thumbnailUrl) { image in
-                            image
-                                .resizable()
-                                .scaledToFill()
+            // Thumbnail picker — only relevant for video posts
+            if viewModel.isVideoSelected {
+                VStack(alignment: .leading) {
+                    Text("Thumbnail (optional)")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    PhotosPicker(
+                        selection: $viewModel.selectedThumbnailItem,
+                        matching: .images,
+                        photoLibrary: .shared()
+                    ) {
+                        if let thumbnailUrl = viewModel.selectedThumbnailUrl {
+                            AsyncImage(url: thumbnailUrl) { image in
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 90, height: 160)
+                                    .aspectRatio(16/9, contentMode: .fill)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .clipped()
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                    )
+                                    .shadow(radius: 2)
+                            } placeholder: {
+                                ProgressView()
+                                    .frame(width: 160, height: 90)
+                            }
+                        } else if let videoUrl = viewModel.selectedVideoUrl {
+                            VideoThumbnail(url: videoUrl)
                                 .frame(width: 90, height: 160)
                                 .aspectRatio(16/9, contentMode: .fill)
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -106,36 +127,22 @@ struct PostDetailsView: View {
                                         .stroke(Color.gray.opacity(0.3), lineWidth: 1)
                                 )
                                 .shadow(radius: 2)
-                        } placeholder: {
-                            ProgressView()
+                        } else {
+                            Text("Tap to select a thumbnail\n(Leave blank to auto-generate)")
+                                .multilineTextAlignment(.center)
+                                .font(.caption)
                                 .frame(width: 160, height: 90)
+                                .background(Color.gray.opacity(0.2))
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                )
                         }
-                    } else if let videoUrl = viewModel.selectedVideoUrl {
-                        VideoThumbnail(url: videoUrl)
-                            .frame(width: 90, height: 160)
-                            .aspectRatio(16/9, contentMode: .fill)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .clipped()
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                            )
-                            .shadow(radius: 2)
-                    } else {
-                        Text("Tap to select a thumbnail\n(Leave blank to auto-generate)")
-                            .multilineTextAlignment(.center)
-                            .font(.caption)
-                            .frame(width: 160, height: 90)
-                            .background(Color.gray.opacity(0.2))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                            )
                     }
                 }
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
             
             // Input fields
             VStack(spacing: 8) {
@@ -160,31 +167,32 @@ struct PostDetailsView: View {
                 
                 Divider()
                 
-                TextField("Enter the location", text: $location)
-                    .padding(.horizontal)
-                    .onTapGesture {
-                        print("DEBUG: Location field tapped, navigating to locationSearch")
-                        path.append("locationSearch")
+                if locationIsLocked {
+                    HStack {
+                        Image(systemName: "mappin.circle.fill")
+                            .foregroundColor(.secondary)
+                        Text(location)
+                            .foregroundColor(.secondary)
+                        Spacer()
                     }
-                    .onChange(of: viewModel.location) { newValue in
-                        location = newValue ?? ""
-                    }
-                
-                Divider()
-                
-                Text("Label your post (e.g., Hotel, Restaurant, Airbnb)")
-                    .font(.system(size: 12))
-                    .foregroundColor(.gray)
                     .padding(.horizontal)
-                
-                TextField("Label", text: $label)
-                    .padding(.horizontal)
+                } else {
+                    TextField("Enter the location", text: $location)
+                        .padding(.horizontal)
+                        .onTapGesture {
+                            print("DEBUG: Location field tapped, navigating to locationSearch")
+                            path.append("locationSearch")
+                        }
+                        .onChange(of: viewModel.location) { newValue in
+                            location = newValue ?? ""
+                        }
+                }
                 
                 Spacer()
             }
             .padding(.horizontal)
         }
-        .navigationBarBackButtonHidden(true) // Hide default back button
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
@@ -200,7 +208,7 @@ struct PostDetailsView: View {
         .alert(isPresented: $showAlert) {
             Alert(
                 title: Text("Validation Error"),
-                message: Text("Please fill in both the location and label fields."),
+                message: Text("Please fill in the location field."),
                 dismissButton: .default(Text("OK"))
             )
         }
@@ -226,20 +234,26 @@ struct PostDetailsView: View {
         .onChange(of: viewModel.errorMessage) { newValue in
             showErrorAlert = newValue != nil
         }
+        .onAppear {
+            if locationIsLocked {
+                location = viewModel.location ?? ""
+            }
+        }
     }
     
     func clearPostDataAndReturnToFeed() {
         print("DEBUG: Clearing post data and resetting navigation")
         caption = ""
         location = ""
-        label = ""
         viewModel.selectedItem = nil
         viewModel.selectedThumbnailItem = nil
         viewModel.selectedVideoUrl = nil
+        viewModel.selectedImage = nil
         viewModel.selectedThumbnailUrl = nil
         viewModel.location = nil
         viewModel.selectedLocation = nil
         path = NavigationPath()
         tabIndex = 0
+        onFinished()
     }
 }

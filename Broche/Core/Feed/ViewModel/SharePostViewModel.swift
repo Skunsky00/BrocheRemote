@@ -140,7 +140,7 @@ class SharePostViewModel: ObservableObject {
         }
 
         Task {
-            await NotificationsViewModel.uploadNotification(toUid: user.id, type: .message)
+            await NotificationService.uploadNotification(toUid: user.id, type: .message)
         }
     }
 }

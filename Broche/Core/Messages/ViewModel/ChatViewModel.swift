@@ -147,7 +147,7 @@ class ChatViewModel: ObservableObject {
         }
         
         Task {
-            await NotificationsViewModel.uploadNotification(toUid: uid, type: .message)
+            await NotificationService.uploadNotification(toUid: uid, type: .message)
         }
     }
 }

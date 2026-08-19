@@ -17,7 +17,7 @@ struct TextLinkView: UIViewRepresentable {
     }
 
     func makeUIView(context: Context) -> UITextView {
-        let textView = UITextView()
+        let textView = NonScrollingTextView()
         textView.isEditable = false
         textView.isSelectable = true
         textView.isScrollEnabled = false
@@ -26,6 +26,9 @@ struct TextLinkView: UIViewRepresentable {
         textView.backgroundColor = .clear
         textView.textContainerInset = .zero
         textView.textContainer.lineFragmentPadding = 0
+        textView.textContainer.lineBreakMode = .byWordWrapping
+        textView.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        textView.setContentCompressionResistancePriority(.fittingSizeLevel, for: .horizontal)
         textView.linkTextAttributes = [
             .foregroundColor: linkColor
         ]
@@ -36,31 +39,23 @@ struct TextLinkView: UIViewRepresentable {
         uiView.attributedText = attributedString(text: text, linkColor: linkColor)
     }
 
-    private func attributedString(text: String, linkColor: UIColor) -> NSAttributedString? {
-        guard let data = text.data(using: .utf16) else { return nil }
+    // CHANGED — no more HTML parsing, no more NSException risk
+    private func attributedString(text: String, linkColor: UIColor) -> NSAttributedString {
+        let mutable = NSMutableAttributedString(
+            string: text,
+            attributes: [.foregroundColor: UIColor.label]
+        )
 
-        let options: [NSAttributedString.DocumentReadingOptionKey: Any] = [
-            .documentType: NSAttributedString.DocumentType.html,
-            .characterEncoding: String.Encoding.utf16.rawValue
-        ]
-
-        do {
-            let attributedString = try NSAttributedString(
-                data: data,
-                options: options,
-                documentAttributes: nil
-            )
-
-            let mutable = NSMutableAttributedString(attributedString: attributedString)
-            mutable.addAttribute(.foregroundColor, value: linkColor, range: NSRange(location: 0, length: mutable.length))
-            return mutable
-
-        } catch {
-            print("❌ Failed to create attributed string from HTML: \(error)")
-            return NSAttributedString(string: text) // ← fallback to plain string
+        // Manually detect URLs (and let dataDetectorTypes handle making them tappable)
+        if let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) {
+            let matches = detector.matches(in: text, range: NSRange(text.startIndex..., in: text))
+            for match in matches {
+                mutable.addAttribute(.foregroundColor, value: linkColor, range: match.range)
+            }
         }
-    }
 
+        return mutable
+    }
 
     class Coordinator: NSObject, UITextViewDelegate {
         func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
@@ -70,3 +65,8 @@ struct TextLinkView: UIViewRepresentable {
     }
 }
 
+private class NonScrollingTextView: UITextView {
+    override func scrollRectToVisible(_ rect: CGRect, animated: Bool) {
+        // no-op — prevents auto-scroll bubbling to an ancestor scroll view
+    }
+}

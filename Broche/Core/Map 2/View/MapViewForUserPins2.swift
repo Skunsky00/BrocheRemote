@@ -16,11 +16,14 @@ struct MapViewForUserPins2: View {
     @State private var showItinerary = false
     @State private var showError = false
     @State private var errorMessage = ""
-    @State private var selectedLocation: Location?
     @State private var selectedLocationType: MarkerType = .visited
+    @State private var overlayWasVisibleBeforeMarker = true   // NEW
 
     var user: User
-    var onToggleOverlay: (() -> Void)? = nil
+    @Binding var showOverlay: Bool
+    @Binding var selectedLocation: Location?
+    var deepLinkLocationId: String? = nil
+    var deepLinkTripId: String? = nil   // NEW param
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -57,7 +60,15 @@ struct MapViewForUserPins2: View {
                         user: user,
                         location: selectedLocation,
                         type: selectedLocationType
-                    ))
+                    ), onLocationUpdated: { updated in
+                        if let index = viewModel.visitedLocations.firstIndex(where: { $0.id == updated.id }) {
+                            viewModel.visitedLocations[index] = updated
+                        }
+                        if let index = viewModel.futureLocations.firstIndex(where: { $0.id == updated.id }) {
+                            viewModel.futureLocations[index] = updated
+                        }
+                        self.selectedLocation = updated   // ← explicit `self.` reaches the @State property, not the shadowed local
+                    })
                     .padding(.horizontal)
                     .padding(.bottom, 32)
                     .transition(.move(edge: .bottom))
@@ -68,37 +79,103 @@ struct MapViewForUserPins2: View {
             // MARK: - Active trip banner
             if let activeTrip = viewModel.activeTrip {
                 VStack {
-                    HStack {
+                    HStack(spacing: 12) {
                         Text(activeTrip.name)
-                            .font(.subheadline.bold())
+                            .font(.headline)
+                            .lineLimit(1)
+
                         Spacer()
+
                         Button {
                             viewModel.exitTripView()
                         } label: {
-                            Label("Exit", systemImage: "xmark.circle.fill")
-                                .font(.subheadline)
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.title2)
+                                .foregroundStyle(.secondary)
                         }
+
+                        Button {
+                            Task { await viewModel.toggleSaveTrip(activeTrip) }
+                        } label: {
+                            if viewModel.isSavingTrip {
+                                ProgressView()
+                                    .frame(width: 20, height: 20)
+                            } else {
+                                Label(viewModel.isTripSaved ? "Saved" : "Save", systemImage: viewModel.isTripSaved ? "bookmark.fill" : "bookmark")
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(.white)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(viewModel.isTripSaved ? Color.gray : Color.red)
+                                    .clipShape(Capsule())
+                            }
+                        }
+                        .disabled(viewModel.isSavingTrip)
                     }
-                    .padding(10)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 14)
                     .background(.ultraThinMaterial)
-                    .cornerRadius(12)
+                    .cornerRadius(16)
                     .padding(.horizontal)
                     .padding(.top, 8)
+                    .onAppear {
+                        Task { await viewModel.checkSavedStatus(activeTrip) }
+                    }
 
                     Spacer()
                 }
             }
         }
         .onAppear {
-            viewModel.fetchLocations(userId: user.id) { error in
-                if let error {
-                    errorMessage = error.localizedDescription
-                    showError = true
-                } else {
-                    viewModel.fitCameraToLocations()
+                    viewModel.fetchLocations(userId: user.id) { error in
+                        if let error {
+                            errorMessage = error.localizedDescription
+                            showError = true
+                        } else {
+                            viewModel.fitCameraToLocations()
+                            
+                            if let deepLinkTripId = deepLinkTripId {   // NEW
+                                            Task {
+                                                if let trips = try? await TripService.fetchTrips(forUserID: user.id),
+                                                   let match = trips.first(where: { $0.id == deepLinkTripId }) {
+                                                    viewModel.filterToTrip(match)
+                                                }
+                                            }
+                                        } else if let deepLinkLocationId = deepLinkLocationId {
+                                if let match = viewModel.visitedLocations.first(where: { $0.id == deepLinkLocationId }) {
+                                    withAnimation(.spring()) {
+                                        selectedLocation = match
+                                        selectedLocationType = .visited
+                                    }
+                                    viewModel.animateToCoordinate(.init(latitude: match.latitude, longitude: match.longitude))
+                                } else if let match = viewModel.futureLocations.first(where: { $0.id == deepLinkLocationId }) {
+                                    withAnimation(.spring()) {
+                                        selectedLocation = match
+                                        selectedLocationType = .future
+                                    }
+                                    viewModel.animateToCoordinate(.init(latitude: match.latitude, longitude: match.longitude))
+                                }
+                            }
+                        }
+                    }
+                }
+        .onChange(of: selectedLocation?.id) { newValue in
+            if newValue != nil {
+                // A marker is opening — remember the current preference, then force-hide
+                overlayWasVisibleBeforeMarker = showOverlay
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    showOverlay = false
+                }
+            } else {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    showOverlay = overlayWasVisibleBeforeMarker
+                }
+                withAnimation(.easeInOut(duration: 0.4)) {
+                    viewModel.fitCameraToLocations()   // CHANGED back — this now correctly falls back to the US region when needed, and fits actual pins when they exist
                 }
             }
         }
+        
         .sheet(isPresented: $showItinerary) {
             Itinerary(userId: user.id, user: user, canCreateTrip: false) { trip in
                 showItinerary = false
@@ -197,12 +274,15 @@ struct MapViewForUserPins2: View {
                             .background(.ultraThinMaterial)
                             .clipShape(Circle())
                     }
+                    .onboardingTarget(.viewTrips)
 
                     Spacer()
 
                     // Profile header toggle — circular person icon
                     Button {
-                        onToggleOverlay?()
+                                        withAnimation(.easeInOut(duration: 0.25)) {   // CHANGED — direct toggle, no closure
+                                            showOverlay.toggle()
+                                        }
                     } label: {
                         Image(systemName: "person.crop.circle")
                             .font(.system(size: 16, weight: .semibold))
@@ -211,6 +291,7 @@ struct MapViewForUserPins2: View {
                             .background(.ultraThinMaterial)
                             .clipShape(Circle())
                     }
+                    .onboardingTarget(.hideProfile)
                 }
                 .padding()
                 .padding(.bottom, 8)

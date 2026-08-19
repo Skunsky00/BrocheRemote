@@ -10,86 +10,96 @@ import SwiftUI
 struct ProfileView: View {
     let user: User
     @StateObject var viewModel: ProfileViewModel
-    @State private var selectedFilter: ProfileFilterSelector? = nil
+    @State private var selectedFilter: ProfileFilterSelector = .map
     @State private var showOverlay = true
-    @State private var overlayHeight: CGFloat = 0
+    @State private var selectedLocation: Location?
+    @Environment(\.dismiss) private var dismiss
+    var deepLinkLocationId: String? = nil
+    var deepLinkTripId: String? = nil   // NEW
 
-    init(user: User) {
-        self.user = user
-        self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
-    }
+    init(user: User, deepLinkLocationId: String? = nil, deepLinkTripId: String? = nil) {
+            self.user = user
+            self.deepLinkLocationId = deepLinkLocationId
+            self.deepLinkTripId = deepLinkTripId
+            self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
+        }
 
     var body: some View {
-        ZStack(alignment: .top) {
-            contentView
+        Group {
+            if selectedFilter == .map {
+                ZStack(alignment: .top) {
+                    MapViewForUserPins2(
+                        user: user,
+                        showOverlay: $showOverlay,
+                        selectedLocation: $selectedLocation,
+                        deepLinkLocationId: deepLinkLocationId,
+                        deepLinkTripId: deepLinkTripId   // NEW
+                    )
 
-            if showOverlay {
-                VStack(spacing: 0) {
-                    ProfileHeaderView(viewModel: viewModel)
-                    Divider().padding(.horizontal, 12).opacity(0.3)
-                    ProfileFilterView(selectedFilter: $selectedFilter)
-                        .padding(.horizontal, 8)
-                        .padding(.bottom, 6)
-                }
-                .background(.ultraThinMaterial)
-                .cornerRadius(18)
-                .padding(.horizontal)
-                .padding(.top, 8)
-                .background(
-                    GeometryReader { proxy in
-                        Color.clear
-                            .preference(key: OverlayHeightKey.self, value: proxy.size.height)
+                    if showOverlay {
+                        VStack(spacing: 0) {
+                            Spacer().frame(height: 12)
+                            ProfileHeaderView(viewModel: viewModel)
+                            Divider().padding(.horizontal, 12).opacity(0.3)
+                            ProfileFilterBar(selectedFilter: $selectedFilter, isCurrentUser: user.isCurrentUser)
+                                .padding(.horizontal, 8)
+                                .padding(.bottom, 6)
+                        }
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(18)
+                        .padding(.horizontal)
+                        .padding(.top, 8)
+                        .transition(.move(edge: .top).combined(with: .opacity))
                     }
-                )
-                .onPreferenceChange(OverlayHeightKey.self) { height in
-                    overlayHeight = height
                 }
-                .transition(.move(edge: .top).combined(with: .opacity))
+            } else {
+                VStack(spacing: 0) {
+                    ProfileFilterBar(selectedFilter: $selectedFilter, isCurrentUser: user.isCurrentUser)
+                    Divider().opacity(0.3)
+                    content
+                }
             }
-            // No more floating chevron button here — toggle now lives in the map's bottom bar
         }
         .navigationBarTitle("", displayMode: .inline)
+        .navigationBarBackButtonHidden(true)   // NEW
         .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {   // NEW
+                Button {
+                    if selectedLocation != nil {
+                        withAnimation(.spring()) {
+                            selectedLocation = nil
+                        }
+                    } else {
+                        dismiss()
+                    }
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.body.weight(.semibold))
+                }
+            }
             ToolbarItem(placement: .principal) {
                 UsernameWithBadgeView(user: user)
-            }
-        }
-        .onChange(of: selectedFilter) {
-            if selectedFilter != nil {
-                withAnimation { showOverlay = true }
             }
         }
     }
 
     @ViewBuilder
-    private var contentView: some View {
-        if let filter = selectedFilter {
-            switch filter {
-            case .broche:
-                ScrollView {
-                    LazyVStack { BrocheGridView(user: user) }
-                        .padding(.top, overlayHeight)
-                }
-            case .hearts:
-                ScrollView {
-                    LazyVStack { PostGridView(config: .likedPosts(user)) }
-                        .padding(.top, overlayHeight)
-                }
-            case .bookmarks:
-                ScrollView {
-                    LazyVStack { CollectionsView(user: user, disableScrolling: true) }
-                        .padding(.top, overlayHeight)
-                }
+    private var content: some View {
+        switch selectedFilter {
+        case .map:
+            EmptyView()
+        case .trips:
+            ScrollView {
+                SavedTripsListView(user: user)
             }
-        } else {
-            MapViewForUserPins2(
-                user: user,
-                onToggleOverlay: {
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        showOverlay.toggle()
-                    }
-                }
-            )
+        case .posts:
+            ScrollView {
+                PostGridView(config: .profile(user))
+            }
+        case .hearts:
+            ScrollView {
+                PostGridView(config: .likedPosts(user))
+            }
         }
     }
 }
