@@ -180,6 +180,8 @@ struct StatBlock: View {
                 .font(.caption)
                 .multilineTextAlignment(.center)
                 .foregroundColor(.primary)
+                .fixedSize(horizontal: false, vertical: true)   // NEW — never clip vertically, always show full text
+                .minimumScaleFactor(0.85)         
         }
         .frame(maxWidth: .infinity)
     }

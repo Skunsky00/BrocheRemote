@@ -40,10 +40,13 @@ enum SearchViewModelConfig: Hashable {
 
 @MainActor
 class SearchViewModel: ObservableObject {
-    @Published var users = [User]()
+    @Published var users = [User]()          // paginated browse list
+    @Published var searchResults = [User]()  // NEW — separate list, only populated during search
     private let config: SearchViewModelConfig
     private var lastDoc: QueryDocumentSnapshot?
-    private var searchQuery: String?
+    private let pageSize = 20
+    private var isFetching = false
+    private var hasMorePages = true
 
     init(config: SearchViewModelConfig) {
         self.config = config
@@ -51,19 +54,48 @@ class SearchViewModel: ObservableObject {
     }
 
     func fetchUsers() async {
+        guard !isFetching, hasMorePages else { return }
+        isFetching = true
+        defer { isFetching = false }
+
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
         let query = COLLECTION_USERS
+            .order(by: "username")
+            .limit(to: pageSize)
 
         if let last = lastDoc {
             let next = query.start(afterDocument: last)
             guard let snapshot = try? await next.getDocuments() else { return }
+            if snapshot.documents.count < pageSize { hasMorePages = false }
             self.lastDoc = snapshot.documents.last
             self.users.append(contentsOf: snapshot.documents.compactMap({ try? $0.data(as: User.self) }))
         } else {
             guard let snapshot = try? await query.getDocuments() else { return }
+            if snapshot.documents.count < pageSize { hasMorePages = false }
             self.lastDoc = snapshot.documents.last
             self.users = snapshot.documents.compactMap({ try? $0.data(as: User.self) }).filter({ $0.id != currentUid })
         }
+    }
+
+    // NEW — server-side search, independent of pagination state
+    func search(_ queryText: String) async {
+        let trimmed = queryText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !trimmed.isEmpty else {
+            searchResults = []
+            return
+        }
+        guard let currentUid = Auth.auth().currentUser?.uid else { return }
+
+        guard let snapshot = try? await COLLECTION_USERS
+            .order(by: "username")
+            .start(at: [trimmed])
+            .end(at: [trimmed + "\u{f8ff}"])
+            .limit(to: 20)
+            .getDocuments() else { return }
+
+        searchResults = snapshot.documents
+            .compactMap { try? $0.data(as: User.self) }
+            .filter { $0.id != currentUid }
     }
 
     func fetchUsers(forConfig config: SearchViewModelConfig) {
@@ -111,18 +143,18 @@ class SearchViewModel: ObservableObject {
         }
     }
 
-    func updateSearchQuery(_ query: String) {
-        users.removeAll()
-        searchQuery = query
-        fetchUsers(forConfig: config)
-    }
-
-    func filteredUsers(_ query: String) -> [User] {
-        let lowercasedQuery = query.lowercased()
-        return users.filter {
-            $0.fullname?.lowercased().contains(lowercasedQuery) ?? false || $0.username.contains(lowercasedQuery)
-        }
-    }
+//    func updateSearchQuery(_ query: String) {
+//        users.removeAll()
+//        searchQuery = query
+//        fetchUsers(forConfig: config)
+//    }
+//
+//    func filteredUsers(_ query: String) -> [User] {
+//        let lowercasedQuery = query.lowercased()
+//        return users.filter {
+//            $0.fullname?.lowercased().contains(lowercasedQuery) ?? false || $0.username.contains(lowercasedQuery)
+//        }
+//    }
 
     func clearUsers() {
         users.removeAll()

@@ -63,6 +63,7 @@ struct MainTabView: View {
                     }.tag(3)
             }
             .accentColor(accentColor)
+            .environment(\.horizontalSizeClass, .compact) 
             
             OnboardingOverlay(manager: onboardingManager, frames: onboardingFrames)
             MarkerOnboardingOverlay(manager: markerOnboardingManager, frames: markerOnboardingFrames)   // ADD THIS
