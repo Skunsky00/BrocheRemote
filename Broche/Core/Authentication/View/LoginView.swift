@@ -13,6 +13,7 @@ struct LoginView: View {
     @StateObject var viewModel = LoginViewModel()
     @EnvironmentObject var registrationViewModel: RegistrationViewModel
     @StateObject private var authViewModel = AuthViewModel()
+    @State private var showErrorAlert = false
     
     var body: some View {
         NavigationStack {
@@ -21,59 +22,75 @@ struct LoginView: View {
                     .ignoresSafeArea()
                 
                 VStack {
-                    
                     Spacer()
                     
-                    //logo name
                     Text("Broche")
-                        .font(.title)
-                        .fontWeight(.bold)
+                        .font(.largeTitle.bold())
                         .foregroundColor(.white)
                     
-                    //text fields
-                    VStack {
+                    VStack(spacing: 12) {
                         TextField("Enter your email", text: $email)
-                            .autocapitalization(.none)
+                            .keyboardType(.emailAddress)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
                             .modifier(BrocheTextFieldModifier())
                         
                         SecureField("Enter your password", text: $password)
+                            .textInputAutocapitalization(.never)
                             .modifier(BrocheTextFieldModifier())
+                    }
+                    .padding(.top, 20)
+                    
+                    if let errorMessage = viewModel.errorMessage {
+                        Text(errorMessage)
+                            .font(.footnote)
+                            .foregroundColor(Color(.systemRed))
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 28)
+                            .padding(.top, 4)
                     }
                     
                     NavigationLink(
                         destination: ResetPasswordView(email: $email)
                             .environmentObject(authViewModel)
-                        ,
-                        label: {
-                            Text("Forgot Password?")
-                                .font(.footnote)
-                                .fontWeight(.semibold)
-                                .padding(.top)
-                                .padding(.trailing, 28)
-                        })
+                    ) {
+                        Text("Forgot Password?")
+                            .font(.footnote)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                            .padding(.top)
+                            .padding(.trailing, 28)
+                    }
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     
                     Button {
-                        Task { try await viewModel.signIn(withEmail: email, password: password) }
+                        Task { await viewModel.signIn(withEmail: email, password: password) }
                     } label: {
-                        Text("Login")
-                            .modifier(TextFieldModifier())
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .tint(.white)
+                                .modifier(TextFieldModifier())
+                        } else {
+                            Text("Login")
+                                .modifier(TextFieldModifier())
+                        }
                     }
-                    .disabled(!formIsValid)
+                    .disabled(!formIsValid || viewModel.isLoading)
                     .opacity(formIsValid ? 1.0 : 0.5)
                     .padding(.vertical)
                     
                     Spacer()
                     
                     Divider()
+                        .background(Color.white.opacity(0.3))
                     
                     NavigationLink {
                         AddEmailView()
                             .navigationBarBackButtonHidden()
                     } label: {
                         HStack(spacing: 3) {
-                            Text("Dont have an account?")
-                            
+                            Text("Don't have an account?")
                             Text("Sign up")
                                 .fontWeight(.semibold)
                         }
@@ -86,7 +103,6 @@ struct LoginView: View {
         }
     }
 }
-
 
 extension LoginView: AuthenticationFormProtocol {
     var formIsValid: Bool {

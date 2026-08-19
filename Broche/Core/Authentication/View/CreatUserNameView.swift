@@ -29,12 +29,14 @@ struct CreatUserNameView: View {
                     .padding(.horizontal, 24)
                 
                 ZStack(alignment: .trailing) {
-                    TextField("Username", text: $viewModel.username, onCommit: {
-                            viewModel.username = viewModel.username.lowercased() // Convert to lowercase
-                        })
+                    TextField("Username", text: $viewModel.username)
                         .modifier(BrocheTextFieldModifier())
                         .padding(.top)
-                        .autocapitalization(.none)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .onChange(of: viewModel.username) { newValue in
+                            viewModel.username = newValue.lowercased().filter { !$0.isWhitespace }
+                        }
 
                     if viewModel.isLoading {
                         ProgressView()
