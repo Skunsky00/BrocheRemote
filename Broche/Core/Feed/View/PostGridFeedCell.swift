@@ -94,7 +94,7 @@ struct PostGridFeedCell: View {
                             .allowsHitTesting(false)
                         
                         if let user = viewModel.post.user {
-                            NavigationLink(value: user) {
+                            NavigationLink(destination: ProfileView(user: user)) {   // CHANGED
                                 CircularProfileImageView(user: user, size: .xSmall)
                             }
                         }
@@ -150,7 +150,7 @@ struct PostGridFeedCell: View {
                                     .resizable()
                                     .frame(width: 28, height: 28)
                                     .foregroundColor(didLike ? .red : .white)
-                                NavigationLink(value: SearchViewModelConfig.likes(viewModel.post.id ?? "")) {
+                                NavigationLink(destination: UserListView(config: .likes(viewModel.post.id ?? ""))) {   // CHANGED
                                     Text(viewModel.likeString)
                                         .font(.footnote)
                                         .fontWeight(.semibold)
@@ -250,9 +250,6 @@ struct PostGridFeedCell: View {
         }
         .onChange(of: showSharePostSheet) { newValue in
             print("� Bellamy showSharePostSheet changed: \(newValue)")
-        }
-        .navigationDestination(for: SearchViewModelConfig.self) { config in
-            UserListView(config: config)
         }
         .sheet(isPresented: $showSharePostSheet) {
             SharePostSheetView(post: viewModel.post)

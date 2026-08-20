@@ -136,6 +136,18 @@ class UploadPostViewModel: ObservableObject {
         }
     }
     
+    func snapshotForUpload(caption: String, location: String) -> PendingUpload {
+        PendingUpload(
+            caption: caption,
+            location: location,
+            isVideo: isVideoSelected,
+            videoURL: selectedVideoUrl,
+            image: selectedImage,
+            attachedLocationId: attachedLocationId,
+            attachedVisitId: attachedVisitId
+        )
+    }
+    
     func saveThumbnailLocally(data: Data) throws -> URL {
         let temporaryDirectory = FileManager.default.temporaryDirectory
         let temporaryFile = temporaryDirectory.appendingPathComponent(UUID().uuidString + ".jpg")
@@ -159,54 +171,34 @@ class UploadPostViewModel: ObservableObject {
         }
     }
     
-    func uploadPost(caption: String, location: String) async throws {
+    func uploadPost(_ pending: PendingUpload) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
-            errorMessage = "User not authenticated"
             throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
         }
 
-        isUploading = true
-        errorMessage = nil
         let postRef = db.collection("posts").document()
-
         var uploadedVideoUrl: String? = nil
         var uploadedImageUrl: String? = nil
         var uploadedThumbnailUrl: String? = nil
 
-        if isVideoSelected {
-            guard let videoUrl = selectedVideoUrl else {
-                isUploading = false
-                errorMessage = "No video selected"
+        if pending.isVideo {
+            guard let videoUrl = pending.videoURL else {
                 throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No video selected"])
             }
-            do {
-                videoData = try Data(contentsOf: videoUrl)
-            } catch {
-                isUploading = false
-                errorMessage = "Failed to load video data for upload"
-                throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to load video data"])
-            }
-            guard let result = try await VideoUploader.uploadVideo(withData: videoData!) else {
-                isUploading = false
-                errorMessage = "Video upload failed"
+            let videoData = try Data(contentsOf: videoUrl)
+            guard let result = try await VideoUploader.uploadVideo(withData: videoData) else {
                 throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Video upload failed"])
             }
             uploadedVideoUrl = result
 
-            if let thumbnailImage = thumbnailImage {
-                uploadedThumbnailUrl = try await ThumbnailUploader.uploadThumbnail(withImage: thumbnailImage)
-            } else if let generatedThumbnail = try await generateThumbnail(from: videoUrl) {
+            if let generatedThumbnail = try await generateThumbnail(from: videoUrl) {
                 uploadedThumbnailUrl = try await ThumbnailUploader.uploadThumbnail(withImage: generatedThumbnail)
             }
         } else {
-            guard let image = selectedImage else {
-                isUploading = false
-                errorMessage = "No photo selected"
+            guard let image = pending.image else {
                 throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No photo selected"])
             }
             guard let result = try await ImageUploader.uploadImage(image: image) else {
-                isUploading = false
-                errorMessage = "Photo upload failed"
                 throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Photo upload failed"])
             }
             uploadedImageUrl = result
@@ -215,26 +207,22 @@ class UploadPostViewModel: ObservableObject {
         let post = Post(
             id: postRef.documentID,
             ownerUid: uid,
-            caption: caption,
-            location: location,
+            caption: pending.caption,
+            location: pending.location,
             likes: 0,
             imageUrl: uploadedImageUrl,
             videoUrl: uploadedVideoUrl,
             thumbnailUrl: uploadedThumbnailUrl,
             comments: 0,
             timestamp: Timestamp(),
-            locationId: attachedLocationId,
-            visitId: attachedVisitId
+            locationId: pending.attachedLocationId,
+            visitId: pending.attachedVisitId
         )
 
         guard let encodedPost = try? Firestore.Encoder().encode(post) else {
-            isUploading = false
-            errorMessage = "Failed to encode post"
             throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to encode post"])
         }
 
         try await postRef.setData(encodedPost)
-        print("DEBUG: Finished post upload")
-        isUploading = false
     }
 }

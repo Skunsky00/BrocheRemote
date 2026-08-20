@@ -48,6 +48,7 @@ struct CurrentUserProfileView: View {
                             VStack(spacing: 0) {
                                 Spacer().frame(height: 12)
                                 ProfileHeaderView(viewModel: viewModel)
+                                    .id(viewModel.user.profileImageUrl)   // NEW — forces a fresh header whenever the picture URL changes
                                 Divider().padding(.horizontal, 12).opacity(0.3)
                                 ProfileFilterBar(selectedFilter: $selectedFilter, isCurrentUser: true)
                                     .padding(.horizontal, 8)

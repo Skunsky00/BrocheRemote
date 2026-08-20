@@ -8,18 +8,19 @@
 import PhotosUI
 import Firebase
 import SwiftUI
+import Kingfisher
 
 @MainActor
 class EditProfileViewModel: ObservableObject {
     @Published var user: User
-    @Published var selectedImage: PhotosPickerItem? {
-        didSet { Task { await loadImage(fromItem: selectedImage) } }
-    }
+    @Published var selectedImage: PhotosPickerItem? 
     @Published var profileImage: Image?
     
     @Published  var fullname = ""
     @Published  var bio = ""
     @Published  var link = ""
+    @Published var croppedImage: UIImage?
+
     
     private var uiImage: UIImage?
     
@@ -48,14 +49,25 @@ class EditProfileViewModel: ObservableObject {
         self.profileImage = Image(uiImage: uiImage)
     }
     
+    func applyCroppedImage(_ image: UIImage) {
+        self.croppedImage = image
+        self.profileImage = Image(uiImage: image)
+        self.uiImage = image   // reuse existing upload path — updateUserData() already reads uiImage
+    }
+    
     func updateUserData() async throws -> User {
             var data = [String: Any]()
 
-            if let uiImage = uiImage {
+        if let uiImage = uiImage {
+                let oldImageUrl = user.profileImageUrl   // NEW — capture before overwriting
                 let imageUrl = try? await ImageUploader.uploadImage(image: uiImage)
                 if let imageUrl {
                     data["profileImageUrl"] = imageUrl
-                    user.profileImageUrl = imageUrl   // NEW — keep local copy in sync
+                    user.profileImageUrl = imageUrl
+
+                    if let oldImageUrl, let oldURL = URL(string: oldImageUrl) {   // NEW
+                        KingfisherManager.shared.cache.removeImage(forKey: oldURL.absoluteString)
+                    }
                 }
             }
 

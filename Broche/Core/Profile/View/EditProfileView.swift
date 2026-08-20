@@ -15,6 +15,8 @@ struct EditProfileView: View {
     @State private var isSaving = false
     @State private var errorMessage: String?
     @State private var showError = false
+    @State private var rawPickedImage: UIImage?   // NEW
+    @State private var showCropper = false        // NEW
     var onSave: ((User) -> Void)? = nil
 
     init(user: User, onSave: ((User) -> Void)? = nil) {
@@ -51,6 +53,17 @@ struct EditProfileView: View {
                         }
                     }
                     .padding(.top, 12)
+                    .onChange(of: viewModel.selectedImage) { newValue in
+                        guard let item = newValue else { return }
+                        Task {
+                            if let data = try? await item.loadTransferable(type: Data.self),
+                               let uiImage = UIImage(data: data) {
+                                rawPickedImage = uiImage
+                                showCropper = true
+                            }
+                            viewModel.selectedImage = nil   // NEW — reset so the next pick always triggers onChange again
+                        }
+                    }
 
                     // MARK: - Fields
                     VStack(spacing: 20) {
@@ -113,6 +126,21 @@ struct EditProfileView: View {
                 Text(errorMessage ?? "")
             }
         }
+        .fullScreenCover(isPresented: $showCropper) {   // NEW
+                        if let rawPickedImage {
+                            ProfileImageCropperView(
+                                image: rawPickedImage,
+                                onCancel: {
+                                    showCropper = false
+                                    viewModel.selectedImage = nil
+                                },
+                                onConfirm: { cropped in
+                                    viewModel.applyCroppedImage(cropped)
+                                    showCropper = false
+                                }
+                            )
+                        }
+                    }
     }
 }
 

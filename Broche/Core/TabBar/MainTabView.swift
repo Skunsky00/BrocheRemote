@@ -63,10 +63,11 @@ struct MainTabView: View {
                     }.tag(3)
             }
             .accentColor(accentColor)
-            .environment(\.horizontalSizeClass, .compact) 
+            .environment(\.horizontalSizeClass, .compact)
             
             OnboardingOverlay(manager: onboardingManager, frames: onboardingFrames)
             MarkerOnboardingOverlay(manager: markerOnboardingManager, frames: markerOnboardingFrames)   // ADD THIS
+            UploadStatusToast()
         }
         .coordinateSpace(name: "onboardingSpace")   // NEW
         .environmentObject(onboardingManager)   // NEW — so MapView2/ProfileView can advance steps

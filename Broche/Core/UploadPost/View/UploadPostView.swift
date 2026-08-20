@@ -60,60 +60,44 @@ struct VideoSelectionView: View {
     @Binding var tabIndex: Int
     @ObservedObject var viewModel: UploadPostViewModel
     var onFinished: () -> Void
+    var onNext: (() -> Void)? = nil
     @Environment(\.dismiss) var dismiss
     @State private var imagePickerPresented = false
     @State private var showErrorAlert = false
     
     var body: some View {
         VStack(spacing: 16) {
-            if viewModel.isLoadingVideo {
-                ProgressView("Loading...")
-                    .padding()
-            } else if viewModel.isVideoSelected, let videoUrl = viewModel.selectedVideoUrl {
-                VideoPlayerForUploadView(videoURL: videoUrl)
-                    .frame(maxWidth: .infinity)
-                    .aspectRatio(9/16, contentMode: .fit)
-                
-                Button("Next") {
-                    print("DEBUG: Next button pressed")
-                    path.append("postDetails")
+                    if viewModel.isLoadingVideo {
+                        ProgressView("Loading...")
+                            .padding()
+                    } else if viewModel.isVideoSelected, let videoUrl = viewModel.selectedVideoUrl {
+                        VideoPlayerForUploadView(videoURL: videoUrl)
+                            .frame(maxWidth: .infinity)
+                            .aspectRatio(9/16, contentMode: .fit)
+                        
+                        Button("Next") {
+                            if let onNext { onNext() } else { path.append("postDetails") }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .padding()
+                    } else if !viewModel.isVideoSelected, let image = viewModel.selectedImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxWidth: .infinity)
+                            .aspectRatio(9/16, contentMode: .fit)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        
+                        Button("Next") {
+                            if let onNext { onNext() } else { path.append("postDetails") }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .padding()
+                    } else {
+                        ProgressView()
+                    }
                 }
-                .buttonStyle(.borderedProminent)
-                .padding()
-            } else if !viewModel.isVideoSelected, let image = viewModel.selectedImage {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxWidth: .infinity)
-                    .aspectRatio(9/16, contentMode: .fit)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                
-                Button("Next") {
-                    print("DEBUG: Next button pressed")
-                    path.append("postDetails")
-                }
-                .buttonStyle(.borderedProminent)
-                .padding()
-            } else {
-                ProgressView()
-            }
-        }
         .navigationBarBackButtonHidden(true)
-        .onAppear {
-            print("DEBUG: VideoSelectionView appeared")
-            imagePickerPresented = true
-        }
-        .photosPicker(isPresented: $imagePickerPresented, selection: $viewModel.selectedItem, matching: .any(of: [.images, .videos]))
-        .onChange(of: imagePickerPresented) { newValue in
-            // If the system picker was dismissed with nothing selected, exit the whole flow immediately
-            if newValue == false && viewModel.selectedItem == nil && viewModel.selectedVideoUrl == nil && viewModel.selectedImage == nil {
-                onFinished()
-            }
-        }
-        .onChange(of: viewModel.selectedItem) { _ in
-            print("DEBUG: PhotosPicker selection changed")
-            imagePickerPresented = false
-        }
         .tint(.blue)
         .accentColor(.blue)
         .environment(\.colorScheme, .light)

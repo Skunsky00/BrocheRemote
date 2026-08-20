@@ -57,18 +57,13 @@ struct PostDetailsView: View {
                 Spacer()
                 
                 Button {
-                    Task {
-                        if location.isEmpty {
+                    if location.isEmpty {
                             showAlert = true
                         } else {
-                            do {
-                                try await viewModel.uploadPost(caption: caption, location: location)
-                                clearPostDataAndReturnToFeed()
-                            } catch {
-                                viewModel.errorMessage = error.localizedDescription
-                            }
+                            let pending = viewModel.snapshotForUpload(caption: caption, location: location)   // capture FIRST
+                            UploadManager.shared.upload(pending, using: viewModel)                            // then start upload
+                            clearPostDataAndReturnToFeed()                                                    // then clear — safe now, snapshot already has its own copy
                         }
-                    }
                 } label: {
                     Text("Upload")
                         .font(.subheadline)

@@ -152,6 +152,9 @@
 		4ECD4E7F2D93A68700292441 /* BrocheGridViewModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ECD4E7E2D93A68700292441 /* BrocheGridViewModal.swift */; };
 		4EE0E8A1303134380079DEA4 /* Visit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE0E8A0303134380079DEA4 /* Visit.swift */; };
 		4EE0E8A3303134D60079DEA4 /* VisitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE0E8A2303134D60079DEA4 /* VisitService.swift */; };
+		4EE157B130366C64007E785B /* UploadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE157B030366C64007E785B /* UploadManager.swift */; };
+		4EE157B330366CD7007E785B /* UploadStatusToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE157B230366CD7007E785B /* UploadStatusToastView.swift */; };
+		4EE157B5303679F9007E785B /* ProfileImageCroppingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE157B4303679F9007E785B /* ProfileImageCroppingView.swift */; };
 		4EEE64C92E4D3DA4009A9CA1 /* MapView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64C82E4D3DA4009A9CA1 /* MapView2.swift */; };
 		4EEE64CB2E4D3DBE009A9CA1 /* MapViewState2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64CA2E4D3DBE009A9CA1 /* MapViewState2.swift */; };
 		4EEE64CD2E4D3EDD009A9CA1 /* LocationSearchViewModel2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64CC2E4D3EDD009A9CA1 /* LocationSearchViewModel2.swift */; };
@@ -287,6 +290,9 @@
 		4ECD4E7E2D93A68700292441 /* BrocheGridViewModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrocheGridViewModal.swift; sourceTree = "<group>"; };
 		4EE0E8A0303134380079DEA4 /* Visit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Visit.swift; sourceTree = "<group>"; };
 		4EE0E8A2303134D60079DEA4 /* VisitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitService.swift; sourceTree = "<group>"; };
+		4EE157B030366C64007E785B /* UploadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadManager.swift; sourceTree = "<group>"; };
+		4EE157B230366CD7007E785B /* UploadStatusToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadStatusToastView.swift; sourceTree = "<group>"; };
+		4EE157B4303679F9007E785B /* ProfileImageCroppingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageCroppingView.swift; sourceTree = "<group>"; };
 		4EEE64C82E4D3DA4009A9CA1 /* MapView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView2.swift; sourceTree = "<group>"; };
 		4EEE64CA2E4D3DBE009A9CA1 /* MapViewState2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewState2.swift; sourceTree = "<group>"; };
 		4EEE64CC2E4D3EDD009A9CA1 /* LocationSearchViewModel2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchViewModel2.swift; sourceTree = "<group>"; };
@@ -613,6 +619,7 @@
 				4EC081242A27BB7800B86052 /* SettingsView.swift */,
 				4EC10E042A4CB36400DA12EF /* TextLinkView.swift */,
 				4E358C8A2E20A6AB0058C06C /* UsernameWithBadge.swift */,
+				4EE157B4303679F9007E785B /* ProfileImageCroppingView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -622,6 +629,7 @@
 			children = (
 				4E85EBDF2A17DE040074A346 /* UploadPostViewModel.swift */,
 				4EB997C82A68401D003537FD /* UploadPostSearchViewModel.swift */,
+				4EE157B030366C64007E785B /* UploadManager.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -633,6 +641,7 @@
 				4EB997C62A683790003537FD /* UploadPostLocationSearchView.swift */,
 				4E8D3E992A782570000907A5 /* VideoPlayerForUploadView.swift */,
 				4E30437A2DCBF45300B9613E /* PostDetailsView.swift */,
+				4EE157B230366CD7007E785B /* UploadStatusToastView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1026,6 +1035,7 @@
 				4E3043812DCD6FD500B9613E /* ItineraryViewModel.swift in Sources */,
 				4E85EBC42A16CF730074A346 /* SearchView.swift in Sources */,
 				4E9A099B302A806200512139 /* Trip.swift in Sources */,
+				4EE157B330366CD7007E785B /* UploadStatusToastView.swift in Sources */,
 				4E85EBDC2A170A5A0074A346 /* ProfileHeaderView.swift in Sources */,
 				4EE0E8A1303134380079DEA4 /* Visit.swift in Sources */,
 				4E9A099D302A861100512139 /* TripService.swift in Sources */,
@@ -1045,6 +1055,7 @@
 				4E9770272A1C58D300919F88 /* EditProfileView.swift in Sources */,
 				4E2330032DFE9EE300B48755 /* CollectionsViewodel.swift in Sources */,
 				4E97703E2A1D725700919F88 /* PostGridViewModel.swift in Sources */,
+				4EE157B5303679F9007E785B /* ProfileImageCroppingView.swift in Sources */,
 				4E97701F2A1C38B100919F88 /* LoginViewModel.swift in Sources */,
 				4E97702D2A1C6E2C00919F88 /* ImageUploader.swift in Sources */,
 				4EBBF27E2AB243AC00AA444C /* AccountViewModel.swift in Sources */,
@@ -1068,6 +1079,7 @@
 				4EB997C92A68401D003537FD /* UploadPostSearchViewModel.swift in Sources */,
 				4EA3A7492A40BC5A005C548D /* NotificationsViewModel.swift in Sources */,
 				4EC0815A2A34D95700B86052 /* ChatViewModel.swift in Sources */,
+				4EE157B130366C64007E785B /* UploadManager.swift in Sources */,
 				4EC10E012A45291000DA12EF /* VideoThumbnail.swift in Sources */,
 				4EB997BE2A60C50C003537FD /* SearchFilterView.swift in Sources */,
 				4E85EBBE2A16A2A00074A346 /* UserStatView.swift in Sources */,

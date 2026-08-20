@@ -14,18 +14,12 @@ struct SearchView: View {
         NavigationStack {
             ScrollView {
                 SearchFilterView(selectedFilter: $selectedFilter)
-                
                 searchView
-//                    .padding(.top, -0)
             }
             .navigationTitle("Explore")
             .navigationBarTitleDisplayMode(.inline)
-            .navigationDestination(for: User.self) { user in
-                                ProfileView(user: user)
-                            }
         }
     }
-    
     
     var searchView: some View {
         ScrollView {
@@ -40,7 +34,6 @@ struct SearchView: View {
         }
     }
 }
-
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
         SearchView()

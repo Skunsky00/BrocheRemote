@@ -35,8 +35,8 @@ struct NewMessageView: View {
                     }, label: {
                         UserCell(user: selectedUser)
                     })
-                    .onAppear {   // NEW — keep pagination working here too, browse-only
-                        if searchText.isEmpty && selectedUser.id == viewModel.users.last?.id {
+                    .onAppear {
+                        if searchText.isEmpty && viewModel.supportsPagination && selectedUser.id == viewModel.users.last?.id {
                             Task { await viewModel.fetchUsers() }
                         }
                     }

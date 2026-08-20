@@ -50,10 +50,10 @@ struct PostGridFeedCellPhoto: View {
                 Spacer()
 
                 if let user = viewModel.post.user {
-                    NavigationLink(value: user) {
+                    NavigationLink(destination: ProfileView(user: user)) {   // CHANGED
                         HStack(spacing: 6) {
                             Text(user.username)
-                                .font(.subheadline.weight(.semibold))   // NEW — username visible up top too
+                                .font(.subheadline.weight(.semibold))
                                 .foregroundStyle(.primary)
                             CircularProfileImageView(user: user, size: .xSmall)
                         }
@@ -199,9 +199,6 @@ struct PostGridFeedCellPhoto: View {
                 showDetail.toggle()
                 selectedOptionsOption = nil
             }
-        }
-        .navigationDestination(for: SearchViewModelConfig.self) { config in
-            UserListView(config: config)
         }
         .sheet(isPresented: $showSharePostSheet) {
             SharePostSheetView(post: viewModel.post)

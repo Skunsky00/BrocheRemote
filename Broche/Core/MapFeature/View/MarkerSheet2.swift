@@ -10,14 +10,19 @@ import CoreLocation // For CLLocationCoordinate2D in related components
 import Firebase
 import FirebaseAuth
 import FirebaseFirestore
+import _PhotosUI_SwiftUI
 
 struct MarkerSheet2: View {
     @ObservedObject var viewModel: MarkerSheetViewModel2
     @EnvironmentObject var locationViewModel: LocationSearchViewModel2
     @EnvironmentObject var markerOnboarding: MarkerOnboardingManager
+    @ObservedObject private var uploadManager = UploadManager.shared   // NEW
     @Environment(\.dismiss) private var dismiss
     var onLocationUpdated: (Location) -> Void = { _ in }
     var onLocationRemoved: (Location) -> Void = { _ in }
+    
+    @StateObject private var uploadViewModel = UploadPostViewModel()   // NEW
+    @State private var pickerSelection: PhotosPickerItem?              // NEW
     
     @State private var showEditMarker = false
     @State private var showUnsaveAlert = false
@@ -27,6 +32,7 @@ struct MarkerSheet2: View {
     @State private var tabIndex = 0                  // NEW
     @State private var photoGridRefreshToken = UUID() // NEW
     @State private var showFutureActionSheet = false
+    @State private var showPostDetails = false   // NEW
     
     
     var body: some View {
@@ -149,23 +155,21 @@ struct MarkerSheet2: View {
                         }
                         
                         if viewModel.user.isCurrentUser {
-                            Button {
-                                showUpload = true
-                            } label: {
-                                Image(systemName: "camera.fill")
-                                    .font(.subheadline)
-                                    .foregroundStyle(.white)
-                                    .padding(8)
-                                    .background(Color.blue)
-                                    .clipShape(Circle())
-                                    .overlay(
-                                        Image(systemName: "plus.circle.fill")
-                                            .font(.system(size: 14))
-                                            .foregroundStyle(.white, .blue)
-                                            .offset(x: 10, y: 10)
-                                    )
-                            }
-                            .markerOnboardingTarget(.addPhoto)
+                            PhotosPicker(selection: $pickerSelection, matching: .any(of: [.images, .videos])) {
+                                                            Image(systemName: "camera.fill")
+                                                                .font(.subheadline)
+                                                                .foregroundStyle(.white)
+                                                                .padding(8)
+                                                                .background(Color.blue)
+                                                                .clipShape(Circle())
+                                                                .overlay(
+                                                                    Image(systemName: "plus.circle.fill")
+                                                                        .font(.system(size: 14))
+                                                                        .foregroundStyle(.white, .blue)
+                                                                        .offset(x: 10, y: 10)
+                                                                )
+                                                        }
+                                                        .markerOnboardingTarget(.addPhoto)
                         }
                     }
                     .padding(.horizontal, 24)
@@ -216,18 +220,39 @@ struct MarkerSheet2: View {
         .presentationDragIndicator(.visible)
         .presentationBackground(.clear)
         .presentationCornerRadius(28)
-        .fullScreenCover(isPresented: $showUpload) {           // NEW
-            UploadPostView(
-                tabIndex: $tabIndex,
-                locationId: viewModel.location.id,
-                visitId: nil,
-                locationName: viewModel.location.city ?? "",
-                onFinished: {
-                    showUpload = false
-                    photoGridRefreshToken = UUID()
-                }
-            )
+        .onChange(of: pickerSelection) { newItem in
+            guard let newItem else { return }
+            uploadViewModel.attachedLocationId = viewModel.location.id
+            uploadViewModel.attachedVisitId = nil
+            uploadViewModel.location = viewModel.location.city ?? ""
+            uploadViewModel.selectedItem = newItem   // this alone triggers loadMedia via its own didSet
+            showUpload = true                        // present immediately — VideoSelectionView shows its loading state while media loads
+            pickerSelection = nil
         }
+        .fullScreenCover(isPresented: $showUpload) {
+            NavigationStack {
+                VideoSelectionView(
+                    path: .constant(NavigationPath()),
+                    tabIndex: .constant(0),
+                    viewModel: uploadViewModel,
+                    onFinished: { showUpload = false },
+                    onNext: { showPostDetails = true }
+                )
+                .navigationDestination(isPresented: $showPostDetails) {
+                    PostDetailsView(
+                        viewModel: uploadViewModel,
+                        tabIndex: .constant(0),
+                        path: .constant(NavigationPath()),
+                        onFinished: { showUpload = false }
+                    )
+                }
+            }
+        }
+                .onChange(of: uploadManager.lastCompletedLocationId) { newValue in
+                    if newValue == viewModel.location.id {
+                        photoGridRefreshToken = UUID()
+                    }
+                }
         
         // MARK: - UNSAVE CONFIRMATION ALERT
         .alert("Remove this pin?", isPresented: $showUnsaveAlert) {

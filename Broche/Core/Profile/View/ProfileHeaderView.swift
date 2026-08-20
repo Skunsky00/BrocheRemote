@@ -24,11 +24,11 @@ struct ProfileHeaderView: View {
             }
             
             HStack(spacing: 8) {
-                NavigationLink(value: SearchViewModelConfig.followers(viewModel.user.id)) {
+                NavigationLink(destination: UserListView(config: .followers(viewModel.user.id))) {
                     UserStatView(value: viewModel.user.stats?.followers ?? 0, title: "Followers")
                 }
                 
-                NavigationLink(value: SearchViewModelConfig.following(viewModel.user.id)) {
+                NavigationLink(destination: UserListView(config: .following(viewModel.user.id))) {
                     UserStatView(value: viewModel.user.stats?.following ?? 0, title: "Following")
                 }
             }
@@ -57,9 +57,6 @@ struct ProfileHeaderView: View {
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
-        .navigationDestination(for: SearchViewModelConfig.self) { config in
-            UserListView(config: config)
-        }
         .sheet(isPresented: $showShareSheet) {
             ShareSheetView(username: viewModel.user.username ?? "")
                 .presentationDetents([.height(150)])

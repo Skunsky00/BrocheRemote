@@ -47,6 +47,15 @@ class SearchViewModel: ObservableObject {
     private let pageSize = 20
     private var isFetching = false
     private var hasMorePages = true
+    
+    var supportsPagination: Bool {   // NEW
+        switch config {
+        case .search, .newMessage:
+            return true
+        default:
+            return false
+        }
+    }
 
     init(config: SearchViewModelConfig) {
         self.config = config

@@ -54,8 +54,7 @@ struct UserListView: View {
                         }
                     }
                     .onAppear {
-                        // CHANGED — only paginate the browse list, never during search
-                        if searchText.isEmpty && user.id == users.last?.id {
+                        if searchText.isEmpty && viewModel.supportsPagination && user.id == users.last?.id {
                             Task { await viewModel.fetchUsers() }
                         }
                     }

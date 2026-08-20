@@ -7,6 +7,7 @@
 
 import SwiftUI
 import FirebaseAuth
+import _PhotosUI_SwiftUI
 
 struct VisitRowView: View {
     let visit: Visit
@@ -157,38 +158,59 @@ struct VisitListView: View {
 struct VisitPostGridScreen: View {
     let visit: Visit
     let location: Location
-    let isCurrentUser: Bool   // NEW
-    @State private var showUpload = false
-    @State private var tabIndex = 0
+    let isCurrentUser: Bool
     @State private var refreshToken = UUID()
+    
+    @StateObject private var uploadViewModel = UploadPostViewModel()
+    @State private var pickerSelection: PhotosPickerItem?
+    @State private var showUpload = false
+    @State private var showPostDetails = false
+    @ObservedObject private var uploadManager = UploadManager.shared
 
     var body: some View {
         PostGridView(config: .visit(visit))
             .id(refreshToken)
             .toolbar {
-                if isCurrentUser {   // NEW — only owner can add posts
+                if isCurrentUser {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button {
-                            showUpload = true
-                        } label: {
+                        PhotosPicker(selection: $pickerSelection, matching: .any(of: [.images, .videos])) {
                             Image(systemName: "plus")
                         }
                     }
                 }
             }
+            .onChange(of: pickerSelection) { newItem in
+                guard let newItem else { return }
+                uploadViewModel.attachedLocationId = visit.locationId
+                uploadViewModel.attachedVisitId = visit.id
+                uploadViewModel.location = location.city ?? ""
+                uploadViewModel.selectedItem = newItem
+                showUpload = true
+                pickerSelection = nil
+            }
             .fullScreenCover(isPresented: $showUpload) {
-                UploadPostView(
-                    tabIndex: $tabIndex,
-                    locationId: visit.locationId,
-                    visitId: visit.id,
-                    locationName: location.city ?? "",
-                    onFinished: {
-                        showUpload = false
-                        refreshToken = UUID()
+                NavigationStack {
+                    VideoSelectionView(
+                        path: .constant(NavigationPath()),
+                        tabIndex: .constant(0),
+                        viewModel: uploadViewModel,
+                        onFinished: { showUpload = false },
+                        onNext: { showPostDetails = true }
+                    )
+                    .navigationDestination(isPresented: $showPostDetails) {
+                        PostDetailsView(
+                            viewModel: uploadViewModel,
+                            tabIndex: .constant(0),
+                            path: .constant(NavigationPath()),
+                            onFinished: { showUpload = false }
+                        )
                     }
-                )
+                }
+            }
+            .onChange(of: uploadManager.lastCompletedLocationId) { newValue in
+                if newValue == visit.locationId {
+                    refreshToken = UUID()
+                }
             }
     }
 }
-
-
