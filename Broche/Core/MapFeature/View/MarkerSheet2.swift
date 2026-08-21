@@ -20,6 +20,7 @@ struct MarkerSheet2: View {
     @Environment(\.dismiss) private var dismiss
     var onLocationUpdated: (Location) -> Void = { _ in }
     var onLocationRemoved: (Location) -> Void = { _ in }
+    var autoOpenComments: Bool = false   // NEW
     
     @StateObject private var uploadViewModel = UploadPostViewModel()   // NEW
     @State private var pickerSelection: PhotosPickerItem?              // NEW
@@ -33,6 +34,7 @@ struct MarkerSheet2: View {
     @State private var photoGridRefreshToken = UUID() // NEW
     @State private var showFutureActionSheet = false
     @State private var showPostDetails = false   // NEW
+    @State private var showComments = false   // NEW
     
     
     var body: some View {
@@ -248,11 +250,20 @@ struct MarkerSheet2: View {
                 }
             }
         }
-                .onChange(of: uploadManager.lastCompletedLocationId) { newValue in
+        .onChange(of: uploadManager.lastCompletedLocationId) { newValue in
                     if newValue == viewModel.location.id {
                         photoGridRefreshToken = UUID()
                     }
                 }
+        .onAppear {
+                    markerOnboarding.start()
+                    if autoOpenComments {   // NEW
+                        showComments = true
+                        }
+                       }
+        .navigationDestination(isPresented: $showComments) {   // NEW
+            LocationsCommentsView(location: viewModel.location, locationType: viewModel.type)
+                       }
         
         // MARK: - UNSAVE CONFIRMATION ALERT
         .alert("Remove this pin?", isPresented: $showUnsaveAlert) {

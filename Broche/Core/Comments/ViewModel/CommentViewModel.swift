@@ -35,7 +35,7 @@ class CommentViewModel: ObservableObject {
 
         guard let ref = try? await COLLECTION_POSTS.document(postId).collection("post-comments").addDocument(data: data) else { return }
         async let _ = try await COLLECTION_POSTS.document(postId).updateData(["comments": (post.comments) + 1])
-        NotificationService.uploadNotification(toUid: self.post.ownerUid, type: .comment, post: self.post)
+        NotificationService.uploadNotification(toUid: self.post.ownerUid, type: .comment, post: self.post, commentText: commentText)
         self.comments.insert(Comment(id: ref.documentID, user: currentUser, data: data), at: 0)   // CHANGED — real doc ID
     }
 

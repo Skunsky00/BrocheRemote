@@ -59,7 +59,7 @@ struct NotificationService {
             }
     }
     
-    static func uploadNotification(toUid uid: String, type: NotificationType, post: Post? = nil, location: Location? = nil) {
+    static func uploadNotification(toUid uid: String, type: NotificationType, post: Post? = nil, location: Location? = nil, commentText: String? = nil) {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
         guard uid != currentUid else { return }
         
@@ -75,6 +75,10 @@ struct NotificationService {
         if let location = location {
             data["locationId"] = location.id
             data["city"] = location.city ?? ""
+        }
+        
+        if let commentText = commentText {   // NEW
+            data["commentText"] = commentText
         }
         
         COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").addDocument(data: data)

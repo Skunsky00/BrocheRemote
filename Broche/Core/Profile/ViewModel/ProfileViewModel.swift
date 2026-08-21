@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
+import FirebaseAuth
 
 @MainActor
 class ProfileViewModel: ObservableObject {
     @Published var user: User
+    @Published var followsMe: Bool = false   // NEW
     
     init(user: User) {
         self.user = user
@@ -17,23 +19,31 @@ class ProfileViewModel: ObservableObject {
     }
     
     func follow() {
-        UserService.follow(uid: user.id) { _ in
-            NotificationService.uploadNotification(toUid: self.user.id, type: .follow)
-            self.user.isFollowed = true
+            UserService.follow(uid: user.id) { _ in
+                NotificationService.uploadNotification(toUid: self.user.id, type: .follow)
+                self.user.isFollowed = true
+                self.user.stats?.followers = (self.user.stats?.followers ?? 0) + 1   // NEW
+            }
         }
-    }
-    
-    func unfollow() {
-        UserService.unfollow(uid: user.id) { _ in
-            self.user.isFollowed = false
-            NotificationService.deleteNotification(toUid: self.user.id, type: .follow)
+        
+        func unfollow() {
+            UserService.unfollow(uid: user.id) { _ in
+                self.user.isFollowed = false
+                self.user.stats?.followers = max((self.user.stats?.followers ?? 1) - 1, 0)   // NEW
+                NotificationService.deleteNotification(toUid: self.user.id, type: .follow)
+            }
         }
-    }
     
     func checkIfUserIsFollowed() async -> Bool {
         guard !user.isCurrentUser else { return false }
         return await UserService.checkIfUserIsFollowed(uid: user.id)
     }
+    
+    // NEW — checks the reverse relationship: does THIS person follow ME
+        func checkIfUserFollowsMe() async -> Bool {
+            guard !user.isCurrentUser, let currentUid = Auth.auth().currentUser?.uid else { return false }
+            return await UserService.checkIfUserIsFollowed(uid: currentUid, byUid: user.id)
+        }
     
     func fetchUserStats() async throws -> UserStats{
         let uid = user.id
@@ -55,6 +65,9 @@ class ProfileViewModel: ObservableObject {
 
             async let isFollowed = await checkIfUserIsFollowed()
             self.user.isFollowed = await isFollowed
+            
+            async let followsMe = await checkIfUserFollowsMe()   // NEW
+            self.followsMe = await followsMe
         }
     }
     

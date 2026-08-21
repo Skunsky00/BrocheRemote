@@ -37,6 +37,12 @@ struct UserService {
         guard let snapshot = try? await collection.document(uid).getDocument() else { return false }
         return snapshot.exists
     }
+    
+    static func checkIfUserIsFollowed(uid: String, byUid: String) async -> Bool {
+            let collection = COLLECTION_FOLLOWING.document(byUid).collection("user-following")
+            guard let snapshot = try? await collection.document(uid).getDocument() else { return false }
+            return snapshot.exists
+        }
 
     
     static func fetchUser(withUid uid: String) async throws -> User {

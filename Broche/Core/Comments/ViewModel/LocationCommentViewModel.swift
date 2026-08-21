@@ -51,7 +51,7 @@ class LocationCommentViewModel: ObservableObject {
         ]
 
         guard let ref = try? await collectionRef().addDocument(data: data) else { return }
-        NotificationService.uploadNotification(toUid: self.location.ownerUid, type: .locationComment, location: self.location)
+        NotificationService.uploadNotification(toUid: self.location.ownerUid, type: .locationComment, location: self.location, commentText: commentText)
         self.comments.insert(LocationComment(id: ref.documentID, user: currentUser, data: data), at: 0)   // CHANGED
     }
 

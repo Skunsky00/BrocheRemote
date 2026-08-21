@@ -14,28 +14,33 @@ struct NotificationsView: View {
         NavigationStack {
             ScrollView {
                 LazyVStack(spacing: 4) {
-                    ForEach($viewModel.notifications) { $notification in
-                        NotificationCell(notification: $notification)
-                            .padding(.top)
-                            .onAppear {
-                                if notification.id == viewModel.notifications.last?.id ?? "" {
-                                    print("DEBUG: paginate here..")
-                                }
+                    ForEach(viewModel.groupedNotifications) { group in
+                        GroupedNotificationCell(
+                            group: group,
+                            viewModel: NotificationCellViewModel(notification: group.representativeNotification)
+                        )
+                        .padding(.top)
+                        .onAppear {
+                            for notification in viewModel.notifications where groupMatches(notification, group) {
                                 viewModel.markNotificationAsViewed(notification: notification)
                             }
+                        }
                     }
                 }
                 .onAppear {
-                    // When NotificationsView is opened, set hasNewNotifications to false
                     viewModel.hasNewNotifications = false
                 }
                 .navigationTitle("Notifications")
                 .navigationBarTitleDisplayMode(.inline)
             }
             .refreshable {
-                Task { try await viewModel.updateNotifications() }
+                await viewModel.updateNotifications()
             }
         }
+    }
+
+    private func groupMatches(_ notification: Notification, _ group: GroupedNotification) -> Bool {
+        group.users.contains { $0.id == notification.uid } && notification.type == group.type
     }
 }
 

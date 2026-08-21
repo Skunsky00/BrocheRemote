@@ -13,6 +13,7 @@ struct Notification: Identifiable, Decodable {
     var postId: String?
     var locationId: String?
     var city: String?
+    var commentText: String?   // NEW
     let timestamp: Timestamp
     let type: NotificationType
     let uid: String
@@ -42,5 +43,14 @@ enum NotificationType: Int, Decodable {
         case .newPin: return "added a new pin to their map."   // NEW
         }
     }
+}
+
+struct GroupedNotification: Identifiable {
+    let id: String
+    let type: NotificationType
+    let users: [User]
+    let latestTimestamp: Timestamp
+    let representativeNotification: Notification   // the newest raw one, used for navigation/post/location context
+    var isViewed: Bool
 }
 

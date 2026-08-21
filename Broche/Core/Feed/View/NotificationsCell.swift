@@ -32,6 +32,18 @@ struct NotificationCell: View {
                         cellContent(user: user)
                     }
                     .buttonStyle(.plain)
+                } else if notification.type == .message {
+                    NavigationLink(destination: ChatView(user: user)) {
+                        cellContent(user: user)
+                    }
+                    .buttonStyle(.plain)
+                } else if notification.type == .comment, let post = notification.post {   // NEW
+                    Button {
+                        selectedPost = post
+                    } label: {
+                        cellContent(user: user)
+                    }
+                    .buttonStyle(.plain)
                 } else {
                     NavigationLink(destination: ProfileView(user: user)) {
                         cellContent(user: user)
@@ -138,9 +150,9 @@ struct NotificationCell: View {
     @ViewBuilder
     func feedCellDestination(for post: Post) -> some View {
         if let videoUrl = post.videoUrl, !videoUrl.isEmpty {
-            PostGridFeedCell(viewModel: FeedCellViewModel(post: post))
+            PostGridFeedCell(viewModel: FeedCellViewModel(post: post), autoOpenComments: true)
         } else {
-            PostGridFeedCellPhoto(viewModel: FeedCellViewModel(post: post))
+            PostGridFeedCellPhoto(viewModel: FeedCellViewModel(post: post), autoOpenComments: true)
         }
     }
 

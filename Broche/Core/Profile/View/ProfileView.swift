@@ -16,11 +16,13 @@ struct ProfileView: View {
     @Environment(\.dismiss) private var dismiss
     var deepLinkLocationId: String? = nil
     var deepLinkTripId: String? = nil   // NEW
+    var deepLinkOpenComments: Bool = false   // NEW
 
-    init(user: User, deepLinkLocationId: String? = nil, deepLinkTripId: String? = nil) {
+    init(user: User, deepLinkLocationId: String? = nil, deepLinkTripId: String? = nil, deepLinkOpenComments: Bool = false) {
             self.user = user
             self.deepLinkLocationId = deepLinkLocationId
             self.deepLinkTripId = deepLinkTripId
+            self.deepLinkOpenComments = deepLinkOpenComments
             self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
         }
 
@@ -33,7 +35,8 @@ struct ProfileView: View {
                         showOverlay: $showOverlay,
                         selectedLocation: $selectedLocation,
                         deepLinkLocationId: deepLinkLocationId,
-                        deepLinkTripId: deepLinkTripId   // NEW
+                        deepLinkTripId: deepLinkTripId,   // NEW
+                        deepLinkOpenComments: deepLinkOpenComments 
                     )
 
                     if showOverlay {

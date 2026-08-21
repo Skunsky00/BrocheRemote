@@ -25,6 +25,7 @@ struct MapViewForUserPins2: View {
     @Binding var selectedLocation: Location?
     var deepLinkLocationId: String? = nil
     var deepLinkTripId: String? = nil   // NEW param
+    var deepLinkOpenComments: Bool = false   // NEW
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -69,7 +70,7 @@ struct MapViewForUserPins2: View {
                             viewModel.futureLocations[index] = updated
                         }
                         self.selectedLocation = updated   // ← explicit `self.` reaches the @State property, not the shadowed local
-                    })
+                    },autoOpenComments: deepLinkOpenComments )
                     .padding(.horizontal)
                     .padding(.bottom, 32)
                     .transition(.move(edge: .bottom))
