@@ -18,6 +18,7 @@ struct PostGridFeedCellPhoto: View {
     @State private var showDetail = false
     @State private var showCommentsSheet = false
     @State private var showBookmarkSheet = false
+    @Environment(\.dismiss) var dismiss   // NEW, add to PostGridFeedCellPhoto
     
     var autoOpenComments: Bool = false   // NEW
 
@@ -200,7 +201,8 @@ struct PostGridFeedCellPhoto: View {
                 showSharePostSheet = true
                 selectedOptionsOption = nil
             } else if option == .delete {
-                Task { try await viewModel.deletePost() }
+                DeleteManager.shared.delete(viewModel.post)   // CHANGED — fire and forget
+                dismiss()                                      // CHANGED — leave immediately, no waiting
                 selectedOptionsOption = nil
             }
         }

@@ -68,6 +68,7 @@ struct MainTabView: View {
             OnboardingOverlay(manager: onboardingManager, frames: onboardingFrames)
             MarkerOnboardingOverlay(manager: markerOnboardingManager, frames: markerOnboardingFrames)   // ADD THIS
             UploadStatusToast()
+            DeleteStatusToast()
         }
         .coordinateSpace(name: "onboardingSpace")   // NEW
         .environmentObject(onboardingManager)   // NEW — so MapView2/ProfileView can advance steps

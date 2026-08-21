@@ -26,6 +26,7 @@ struct PostGridFeedCell: View {
        @State private var showPlayPauseIcon = false
        @State private var player: AVPlayer?
        @Environment(\.colorScheme) var colorScheme
+       @Environment(\.dismiss) var dismiss   // NEW, add to PostGridFeedCellPhoto
        
        var showDeleteOption: Bool { return viewModel.post.isCurrentUser }
        var didLike: Bool { return viewModel.post.didLike ?? false }
@@ -241,15 +242,14 @@ struct PostGridFeedCell: View {
         .onChange(of: selectedOptionsOption) { newValue in
             guard let option = newValue else { return }
             if option == .sharepost {
-                showOptionsSheet = false // Dismiss OptionsView
-                showSharePostSheet = true // Show SharePostSheetView
-                selectedOptionsOption = nil // Reset immediately
-            } else if option == .delete {
-                Task { try await viewModel.deletePost() }
+                showOptionsSheet = false
+                showSharePostSheet = true
                 selectedOptionsOption = nil
-                    
+            } else if option == .delete {
+                DeleteManager.shared.delete(viewModel.post)   // CHANGED — fire and forget
+                dismiss()                                      // CHANGED — leave immediately, no waiting
+                selectedOptionsOption = nil
             }
-            print("🔔 Selected option: \(option.title)")
         }
         .onChange(of: showSharePostSheet) { newValue in
             print("� Bellamy showSharePostSheet changed: \(newValue)")

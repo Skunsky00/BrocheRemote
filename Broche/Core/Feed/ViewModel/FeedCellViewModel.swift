@@ -137,3 +137,24 @@ class FeedCellViewModel: ObservableObject {
         }
     }
 }
+
+@MainActor
+final class DeleteManager: ObservableObject {
+    static let shared = DeleteManager()
+    @Published var didDeletePost = false   // toggled briefly to trigger the toast
+
+    private init() {}
+
+    func delete(_ post: Post) {
+        Task {
+            do {
+                try await PostService.deletePost(post)
+                didDeletePost = true
+                try? await Task.sleep(nanoseconds: 2_000_000_000)   // toast visible ~2s
+                didDeletePost = false
+            } catch {
+                print("DEBUG: Failed to delete post: \(error)")
+            }
+        }
+    }
+}
