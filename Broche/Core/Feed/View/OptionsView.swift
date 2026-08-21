@@ -11,13 +11,13 @@ import FirebaseAuth
 enum OptionsItemModel: Int, Identifiable, Hashable, CaseIterable {
     case sharepost
     case delete
-    case pinToBroche // New option
+    case emptyview
     
     var title: String {
         switch self {
         case .sharepost: return "Share Post"
         case .delete: return "Delete"
-        case .pinToBroche: return "Pin to Broche"
+        case .emptyview: return ""
         }
     }
     
@@ -25,7 +25,7 @@ enum OptionsItemModel: Int, Identifiable, Hashable, CaseIterable {
         switch self {
         case .sharepost: return "paperplane.circle"
         case .delete: return "trash"
-        case .pinToBroche: return "pin.fill"
+        case .emptyview: return ""
         }
     }
     var id: Int { return self.rawValue }
@@ -43,14 +43,14 @@ struct OptionsView: View {
     private var shareLink: String {
         "https://travelbroche.com/p/\(post.id ?? "")"
     }
-
+    
     var body: some View {
         VStack {
             Capsule()
                 .frame(width: 32, height: 4)
                 .foregroundColor(.gray)
                 .padding()
-
+            
             List {
                 if showDeleteOption {
                     OptionsRowView(model: .delete)
@@ -59,73 +59,24 @@ struct OptionsView: View {
                             dismiss()
                         }
                 }
-
+                
                 OptionsRowView(model: .sharepost)
                     .onTapGesture {
                         selectedOption = .sharepost
                         dismiss() // Dismiss OptionsView
                     }
-
-                OptionsRowView(model: .pinToBroche)
-                    .onTapGesture {
-                        selectedOption = .pinToBroche
-                        setupViewModel()
-                        showPinPicker = true
-                    }
+                
+                OptionsRowView(model: .emptyview)
+                
             }
             .listStyle(PlainListStyle())
-            .sheet(isPresented: $showPinPicker) {
-                PinPickerView(post: post, pinnedPosts: viewModel?.pinnedPosts ?? []) { position in
-                    pinPost(at: position)
-                }
-                .presentationDetents([.height(200)])
-            }
-        }
-    }
-
-    private func setupViewModel() {
-        guard let currentUser = Auth.auth().currentUser else { return }
-        let user = User(id: currentUser.uid, username: currentUser.displayName ?? "", email: currentUser.email ?? "")
-        viewModel = BrocheGridViewModel(user: user)
-    }
-
-    private func pinPost(at position: Int) {
-        viewModel?.pinPost(post, at: position)
-    }
-}
-
-
-struct PinPickerView: View {
-    let post: Post
-    let pinnedPosts: [Post?]
-    let onPin: (Int) -> Void
-    @State private var selectedPosition = 0
-    
-    var body: some View {
-        VStack {
-            Text("Pin \(post.caption.prefix(20))... to Position")
-                .font(.headline)
-                .padding()
             
-            Picker("Position", selection: $selectedPosition) {
-                ForEach(0..<9) { i in
-                    Text("\(i + 1) \(pinnedPosts[i] != nil ? "(Taken)" : "")")
-                        .tag(i)
-                }
-            }
-            .pickerStyle(.menu)
-            
-            Button("Pin") {
-                onPin(selectedPosition)
-            }
-            .font(.subheadline)
-            .padding()
-            .background(Color.blue)
-            .foregroundColor(.white)
-            .cornerRadius(8)
         }
     }
 }
+
+
+
 
 struct OptionsRowView: View {
     let model: OptionsItemModel

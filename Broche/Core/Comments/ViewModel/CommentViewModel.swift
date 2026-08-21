@@ -13,44 +13,61 @@ class CommentViewModel: ObservableObject {
     private let post: Post
     private let postId: String
     @Published var comments = [Comment]()
-    
+
     init(post: Post) {
         self.post = post
         self.postId = post.id ?? ""
-        
         Task { try await fetchComments() }
     }
-    
+
     func uploadComment(commentText: String) async {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         guard let currentUser = AuthService.shared.currentUser else { return }
-        
-        let data: [String: Any] = ["commentOwnerUid": uid,
-                                   "timestamp": Timestamp(date: Date()),
-                                   "postOwnerUid": post.ownerUid,
-                                   "postId": postId,
-                                   "commentText": commentText]
-        
-        let _ = try? await COLLECTION_POSTS.document(postId).collection("post-comments").addDocument(data: data)
+
+        let data: [String: Any] = [
+            "commentOwnerUid": uid,
+            "timestamp": Timestamp(date: Date()),
+            "postOwnerUid": post.ownerUid,
+            "postId": postId,
+            "commentText": commentText,
+            "likes": [String]()   // NEW — start empty
+        ]
+
+        guard let ref = try? await COLLECTION_POSTS.document(postId).collection("post-comments").addDocument(data: data) else { return }
         async let _ = try await COLLECTION_POSTS.document(postId).updateData(["comments": (post.comments) + 1])
         NotificationService.uploadNotification(toUid: self.post.ownerUid, type: .comment, post: self.post)
-        self.comments.insert(Comment(user: currentUser, data: data), at: 0)
+        self.comments.insert(Comment(id: ref.documentID, user: currentUser, data: data), at: 0)   // CHANGED — real doc ID
     }
-    
+
     func fetchComments() async throws {
         let query = COLLECTION_POSTS.document(postId).collection("post-comments").order(by: "timestamp", descending: true)
         guard let commentSnapshot = try? await query.getDocuments() else { return }
-        let documentData = commentSnapshot.documents.compactMap({ $0.data() })
-        
-        for data in documentData {
-            guard let uid = data ["commentOwnerUid"] as? String else { return }
+
+        for doc in commentSnapshot.documents {   // CHANGED — iterate docs, not just data(), so we keep documentID
+            let data = doc.data()
+            guard let uid = data["commentOwnerUid"] as? String else { continue }
             let user = try await UserService.fetchUser(withUid: uid)
-            let comment = Comment(user: user, data: data)
+            let comment = Comment(id: doc.documentID, user: user, data: data)   // CHANGED
             self.comments.append(comment)
         }
     }
-}
 
+    // NEW — like/unlike
+    func toggleLike(_ comment: Comment) async {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let index = comments.firstIndex(where: { $0.id == comment.id }) else { return }
+
+        let ref = COLLECTION_POSTS.document(postId).collection("post-comments").document(comment.id)
+
+        if comment.didLike(uid: uid) {
+            comments[index].likes.removeAll { $0 == uid }
+            try? await ref.updateData(["likes": FieldValue.arrayRemove([uid])])
+        } else {
+            comments[index].likes.append(uid)
+            try? await ref.updateData(["likes": FieldValue.arrayUnion([uid])])
+        }
+    }
+}
 // MARK: - Deletion
 
 extension CommentViewModel {

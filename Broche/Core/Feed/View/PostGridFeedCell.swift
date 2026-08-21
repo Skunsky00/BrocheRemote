@@ -13,29 +13,31 @@ import Firebase
 
 struct PostGridFeedCell: View {
     @ObservedObject var viewModel: FeedCellViewModel
-    @State private var showOptionsSheet = false
-    @State private var showSharePostSheet = false
-    @State private var selectedOptionsOption: OptionsItemModel?
-    @State private var showDetail = false
-    @State private var showDeleteConfirmation = false
-    @State private var isCaptionExpanded = false
-    @State private var showCommentsSheet = false
-    @State private var showBookmarkSheet = false
-    @State private var isPlaying = true          // NEW
-    @State private var showPlayPauseIcon = false // NEW
-    @State private var player: AVPlayer?
-    @Environment(\.colorScheme) var colorScheme
-    
-    var showDeleteOption: Bool { return viewModel.post.isCurrentUser }
-    var didLike: Bool { return viewModel.post.didLike ?? false }
-    var didBookmark: Bool { return viewModel.post.didBookmark ?? false }
-    
-    private let injectedPlayer: AVPlayer?
-    
-    init(viewModel: FeedCellViewModel, player: AVPlayer? = nil) {
-        self.viewModel = viewModel
-        self.injectedPlayer = player
-    }
+       var autoOpenComments: Bool = false
+       @State private var showOptionsSheet = false
+       @State private var showSharePostSheet = false
+       @State private var selectedOptionsOption: OptionsItemModel?
+       @State private var showDetail = false
+       @State private var showDeleteConfirmation = false
+       @State private var isCaptionExpanded = false
+       @State private var showCommentsSheet = false
+       @State private var showBookmarkSheet = false
+       @State private var isPlaying = true
+       @State private var showPlayPauseIcon = false
+       @State private var player: AVPlayer?
+       @Environment(\.colorScheme) var colorScheme
+       
+       var showDeleteOption: Bool { return viewModel.post.isCurrentUser }
+       var didLike: Bool { return viewModel.post.didLike ?? false }
+       var didBookmark: Bool { return viewModel.post.didBookmark ?? false }
+       
+       private let injectedPlayer: AVPlayer?
+       
+       init(viewModel: FeedCellViewModel, player: AVPlayer? = nil, autoOpenComments: Bool = false) {   // CHANGED
+           self.viewModel = viewModel
+           self.injectedPlayer = player
+           self.autoOpenComments = autoOpenComments   // NEW
+       }
     
     var body: some View {
         ZStack {
@@ -198,11 +200,14 @@ struct PostGridFeedCell: View {
             }
         }
         .onAppear {
-                    setupPlayerIfNeeded()   // NEW — creates the player ONCE, only if it doesn't already exist
+                    setupPlayerIfNeeded()
                     player?.seek(to: .zero)
                     player?.play()
                     isPlaying = true
                     showPlayPauseIcon = false
+                    if autoOpenComments {   // NEW
+                        showCommentsSheet = true
+                    }
                 }
                 .onDisappear {
                     player?.pause()
@@ -242,9 +247,7 @@ struct PostGridFeedCell: View {
             } else if option == .delete {
                 Task { try await viewModel.deletePost() }
                 selectedOptionsOption = nil
-            } else if option == .pinToBroche {
-                showDetail.toggle()
-                selectedOptionsOption = nil
+                    
             }
             print("🔔 Selected option: \(option.title)")
         }

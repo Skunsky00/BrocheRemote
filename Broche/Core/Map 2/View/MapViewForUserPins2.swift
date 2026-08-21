@@ -18,6 +18,7 @@ struct MapViewForUserPins2: View {
     @State private var errorMessage = ""
     @State private var selectedLocationType: MarkerType = .visited
     @State private var overlayWasVisibleBeforeMarker = true   // NEW
+    @State private var lastSelectedCoordinate: CLLocationCoordinate2D?
 
     var user: User
     @Binding var showOverlay: Bool
@@ -160,21 +161,33 @@ struct MapViewForUserPins2: View {
                     }
                 }
         .onChange(of: selectedLocation?.id) { newValue in
-            if newValue != nil {
-                // A marker is opening — remember the current preference, then force-hide
-                overlayWasVisibleBeforeMarker = showOverlay
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    showOverlay = false
+                    if newValue != nil {
+                        overlayWasVisibleBeforeMarker = showOverlay
+                        if let selectedLocation {   // NEW — capture coordinate before it's gone
+                            lastSelectedCoordinate = CLLocationCoordinate2D(
+                                latitude: selectedLocation.latitude,
+                                longitude: selectedLocation.longitude
+                            )
+                        }
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            showOverlay = false
+                        }
+                    } else {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            showOverlay = overlayWasVisibleBeforeMarker
+                        }
+                        withAnimation(.easeInOut(duration: 0.4)) {
+                            if let coordinate = lastSelectedCoordinate {   // CHANGED — zoom out around the last pin, not fit-to-all
+                                viewModel.cameraPosition = .region(MKCoordinateRegion(
+                                    center: coordinate,
+                                    span: MKCoordinateSpan(latitudeDelta: 25, longitudeDelta: 25)
+                                ))
+                            } else {
+                                viewModel.fitCameraToLocations()   // fallback if we somehow have no coordinate
+                            }
+                        }
+                    }
                 }
-            } else {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    showOverlay = overlayWasVisibleBeforeMarker
-                }
-                withAnimation(.easeInOut(duration: 0.4)) {
-                    viewModel.fitCameraToLocations()   // CHANGED back — this now correctly falls back to the US region when needed, and fits actual pins when they exist
-                }
-            }
-        }
         
         .sheet(isPresented: $showItinerary) {
             Itinerary(userId: user.id, user: user, canCreateTrip: false) { trip in

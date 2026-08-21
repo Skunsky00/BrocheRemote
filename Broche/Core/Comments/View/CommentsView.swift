@@ -27,7 +27,7 @@ struct CommentsView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 24) {
                     ForEach(viewModel.comments) { comment in
-                        CommentCell(comment: comment)
+                        CommentCell(comment: comment, viewModel: viewModel)   // CHANGED
                     }
                 }
             }.padding(.top)

@@ -18,6 +18,8 @@ struct PostGridFeedCellPhoto: View {
     @State private var showDetail = false
     @State private var showCommentsSheet = false
     @State private var showBookmarkSheet = false
+    
+    var autoOpenComments: Bool = false   // NEW
 
     var showDeleteOption: Bool { viewModel.post.isCurrentUser }
     var didLike: Bool { viewModel.post.didLike ?? false }
@@ -164,6 +166,11 @@ struct PostGridFeedCellPhoto: View {
                 .padding(.bottom, 14)   // CHANGED — was 12
         }
         .background(Color(.systemBackground))
+        .onAppear {   // NEW
+                    if autoOpenComments {
+                        showCommentsSheet = true
+                    }
+                }
         .sheet(isPresented: $showCommentsSheet) {
             CommentsView(post: viewModel.post)
                 .presentationDetents([.fraction(0.8), .large])
@@ -194,9 +201,6 @@ struct PostGridFeedCellPhoto: View {
                 selectedOptionsOption = nil
             } else if option == .delete {
                 Task { try await viewModel.deletePost() }
-                selectedOptionsOption = nil
-            } else if option == .pinToBroche {
-                showDetail.toggle()
                 selectedOptionsOption = nil
             }
         }
