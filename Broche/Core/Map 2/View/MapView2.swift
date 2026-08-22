@@ -99,7 +99,6 @@ struct MapView2: View {
                     }
                     .mapStyle(.standard)
                     .mapControls {
-                        MapCompass()
                         MapScaleView()
                     }
                     .ignoresSafeArea(.all, edges: .top)

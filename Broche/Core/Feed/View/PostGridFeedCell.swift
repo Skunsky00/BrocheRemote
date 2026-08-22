@@ -185,19 +185,50 @@ struct PostGridFeedCell: View {
                 
                 
                 // Caption
-                HStack {
-                    Text("\(viewModel.post.caption ?? "")")
-                        .font(.system(size: 14))
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.white)
-                        .allowsHitTesting(false)
+                VStack(alignment: .leading, spacing: 6) {
+                    if !isCaptionExpanded {
+                        ExpandableCaptionText(
+                            username: "",
+                            caption: viewModel.post.caption ?? "",
+                            textColor: .white,
+                            font: .system(size: 15, weight: .medium),
+                            onShowMore: {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isCaptionExpanded = true
+                                }
+                            }
+                        )
+                        .frame(maxWidth: .infinity, alignment: .leading)   // NEW — forces full width
+                        .allowsHitTesting(true)
+                    } else {
+                        ScrollView {
+                            Text(viewModel.post.caption ?? "")
+                                .font(.system(size: 15, weight: .medium))   // CHANGED — was 14
+                                .foregroundStyle(.white)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(maxWidth: .infinity, alignment: .leading)   // NEW
+                        }
+                        .frame(maxHeight: 120)
+
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isCaptionExpanded = false
+                            }
+                        } label: {
+                            Text("Show less")
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(.white.opacity(0.8))
+                        }
+                    }
+
                     Text(viewModel.timestampString)
                         .font(.footnote)
                         .foregroundColor(.gray)
-                        .allowsHitTesting(false)
                 }
-                .padding()
+                .padding(.horizontal, 12)
+                .padding(.bottom, 10)
                 .padding(.top, 1)
+                // REMOVED — LinearGradient background/mask
             }
         }
         .onAppear {

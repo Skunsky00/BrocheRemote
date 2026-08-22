@@ -133,16 +133,14 @@ struct PostGridFeedCellPhoto: View {
 
             // MARK: - Caption
             if !viewModel.post.caption.isEmpty {
-                HStack(alignment: .top, spacing: 5) {
-                    Text(viewModel.post.user?.username ?? "")
-                        .fontWeight(.semibold)
-                    Text(viewModel.post.caption)
-                }
-                .font(.subheadline)   // CHANGED — was size 14, now scales with Dynamic Type
+                CaptionBlock(
+                    username: viewModel.post.user?.username ?? "",
+                    caption: viewModel.post.caption
+                )
                 .padding(.horizontal, 16)
-                .padding(.top, 5)   // CHANGED — was 4
+                .padding(.top, 5)
             }
-
+            
             // MARK: - View comments
             Button {
                 showCommentsSheet = true
