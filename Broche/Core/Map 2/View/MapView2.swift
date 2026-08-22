@@ -23,7 +23,8 @@ struct MapView2: View {
     @State private var selectedLocation: Location?
     @State private var selectedLocationType: MarkerType = .visited
     @State private var showTripSelector = false
-    @State private var showEditTrip = false   // NEW
+    @State private var showEditTrip = false
+    @State private var lastSelectedCoordinate: CLLocationCoordinate2D?   // NEW
 
     var user: User
 
@@ -59,6 +60,7 @@ struct MapView2: View {
                                                 selectedLocationType = .visited
                                                 viewModel.mapState = .locationSelected
                                             }
+                                            lastSelectedCoordinate = .init(latitude: location.latitude, longitude: location.longitude)   // NEW
                                             viewModel.animateToCoordinate(.init(latitude: location.latitude, longitude: location.longitude))
                                         }
                                 }
@@ -86,6 +88,7 @@ struct MapView2: View {
                                             selectedLocationType = .future
                                             viewModel.mapState = .locationSelected
                                         }
+                                        lastSelectedCoordinate = .init(latitude: location.latitude, longitude: location.longitude)   // NEW
                                         viewModel.animateToCoordinate(.init(latitude: location.latitude, longitude: location.longitude))
                                     }
                                 }
@@ -320,26 +323,33 @@ struct MapView2: View {
                 viewModel.locationViewModel.userId = user.id
             }
             .onChange(of: viewModel.mapState) { _, newState in
-                if newState != .searchingForLocation {
-                    showSearchSheet = false
-                }
+                           if newState != .searchingForLocation {
+                               showSearchSheet = false
+                           }
 
-                if newState == .noInput {
-                    selectedLocation = nil
-                    viewModel.locationViewModel.selectedLocationCoordinate = nil
-                    viewModel.locationViewModel.selectedLocationTitle = nil
-                    withAnimation(.easeInOut(duration: 1.0)) {
-                        viewModel.cameraPosition = .region(
-                            MKCoordinateRegion(
-                                center: CLLocationCoordinate2D(latitude: 39.8283, longitude: -98.5795),
-                                span: MKCoordinateSpan(latitudeDelta: 70, longitudeDelta: 70)
-                            )
-                        )
-                    }
-                }
+                           if newState == .noInput {
+                               selectedLocation = nil
+                               viewModel.locationViewModel.selectedLocationCoordinate = nil
+                               viewModel.locationViewModel.selectedLocationTitle = nil
+                               withAnimation(.easeInOut(duration: 0.4)) {   // CHANGED — was 1.0
+                                   if let coordinate = lastSelectedCoordinate {   // NEW
+                                       viewModel.cameraPosition = .region(MKCoordinateRegion(
+                                           center: coordinate,
+                                           span: MKCoordinateSpan(latitudeDelta: 25, longitudeDelta: 25)
+                                       ))
+                                   } else {
+                                       viewModel.cameraPosition = .region(
+                                           MKCoordinateRegion(
+                                               center: CLLocationCoordinate2D(latitude: 39.8283, longitude: -98.5795),
+                                               span: MKCoordinateSpan(latitudeDelta: 70, longitudeDelta: 70)
+                                           )
+                                       )
+                                   }
+                               }
+                           }
 
-                viewModel.handleMapStateChange(newState, userId: user.id) { _ in }
-            }
+                           viewModel.handleMapStateChange(newState, userId: user.id) { _ in }
+                       }
             .sheet(isPresented: $isSheetPresented) {
                 Text("Your Sheet Here")
             }

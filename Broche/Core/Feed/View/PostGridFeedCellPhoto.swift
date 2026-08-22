@@ -69,11 +69,7 @@ struct PostGridFeedCellPhoto: View {
 
             // MARK: - Image
             if let imageUrl = viewModel.post.imageUrl {
-                KFImage(URL(string: imageUrl))
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width)
-                    .clipped()
+                ZoomableImageView(url: imageUrl)   // CHANGED — was a plain KFImage
                     .contentShape(Rectangle())
                     .simultaneousGesture(
                         TapGesture(count: 2).onEnded { handleDoubleTap() }
@@ -221,5 +217,78 @@ struct PostGridFeedCellPhoto: View {
                 print("Error liking post: \(error)")
             }
         }
+    }
+}
+
+struct ZoomableImageView: View {
+    let url: String
+    @State private var scale: CGFloat = 1.0
+    @State private var lastScale: CGFloat = 1.0      // NEW — baseline for accumulating pinch
+    @State private var offset: CGSize = .zero
+    @State private var lastOffset: CGSize = .zero    // NEW — baseline for accumulating pan
+
+    private let maxScale: CGFloat = 4.0   // CHANGED — Instagram allows a bit more headroom than 3x
+
+    var body: some View {
+        GeometryReader { geo in
+            KFImage(URL(string: url))
+                .resizable()
+                .scaledToFill()
+                .frame(width: geo.size.width, height: geo.size.height)
+                .scaleEffect(scale)
+                .offset(offset)
+                .clipped()
+                .gesture(
+                    SimultaneousGesture(
+                        MagnificationGesture()
+                            .onChanged { value in
+                                let newScale = lastScale * value
+                                scale = min(max(1.0, newScale), maxScale)
+                                offset = clampedOffset(offset, scale: scale, in: geo.size)   // NEW — keep pan valid as scale changes
+                            }
+                            .onEnded { _ in
+                                lastScale = scale   // CHANGED — remember where we ended up, don't reset
+                                if scale <= 1.0 {   // NEW — only snap back if genuinely zoomed all the way out
+                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                                        scale = 1.0
+                                        lastScale = 1.0
+                                        offset = .zero
+                                        lastOffset = .zero
+                                    }
+                                }
+                            },
+                        DragGesture()
+                            .onChanged { value in
+                                guard scale > 1.0 else { return }   // no panning at fit-frame, matches Instagram
+                                let proposed = CGSize(
+                                    width: lastOffset.width + value.translation.width,
+                                    height: lastOffset.height + value.translation.height
+                                )
+                                offset = clampedOffset(proposed, scale: scale, in: geo.size)
+                            }
+                            .onEnded { _ in
+                                lastOffset = offset   // CHANGED — remember where we ended up, don't reset
+                            }
+                    )
+                )
+                .onTapGesture(count: 2) {   // NEW — double-tap to reset, same as Instagram
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                        scale = 1.0
+                        lastScale = 1.0
+                        offset = .zero
+                        lastOffset = .zero
+                    }
+                }
+        }
+    }
+
+    // NEW — shared clamp so image edges never leave the visible frame while panned/zoomed
+    private func clampedOffset(_ proposed: CGSize, scale: CGFloat, in size: CGSize) -> CGSize {
+        let maxOffsetX = max(0, (size.width * (scale - 1)) / 2)
+        let maxOffsetY = max(0, (size.height * (scale - 1)) / 2)
+        return CGSize(
+            width: min(max(proposed.width, -maxOffsetX), maxOffsetX),
+            height: min(max(proposed.height, -maxOffsetY), maxOffsetY)
+        )
     }
 }

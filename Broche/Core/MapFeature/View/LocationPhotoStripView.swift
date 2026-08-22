@@ -13,10 +13,11 @@ struct LocationPhotoGridPreview: View {
     let isCurrentUser: Bool
     @State private var posts: [Post] = []
     @State private var isLoading = true
-
+    @State private var loadedForLocationId: String?
+    
     private let previewLimit = 6
     private let columns = [GridItem(.flexible(), spacing: 6), GridItem(.flexible(), spacing: 6)]
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             if isLoading {
@@ -28,7 +29,7 @@ struct LocationPhotoGridPreview: View {
             } else {
                 GeometryReader { geo in
                     let tileSize = (geo.size.width - 6) / 2   // 6 = the single inter-column spacing
-
+                    
                     LazyVGrid(columns: columns, spacing: 6) {
                         ForEach(posts.prefix(previewLimit)) { post in
                             NavigationLink(destination: destinationView(for: post)) {
@@ -46,7 +47,7 @@ struct LocationPhotoGridPreview: View {
                     }
                 }
                 .frame(height: gridHeight)
-
+                
                 if posts.count > previewLimit {
                     NavigationLink(destination: PostGridView(config: .location(location))) {
                         Text("View All \(posts.count) Photos")
@@ -69,16 +70,18 @@ struct LocationPhotoGridPreview: View {
             PostGridFeedCellPhoto(viewModel: FeedCellViewModel(post: post))
         }
     }
-
+    
     private var gridHeight: CGFloat {
         let rowCount = Int(ceil(Double(min(posts.count, previewLimit)) / 2.0))
         let approxTileHeight = (UIScreen.main.bounds.width - 32 - 48 - 6) / 2   // rough estimate for row height
         return CGFloat(rowCount) * approxTileHeight + CGFloat(max(rowCount - 1, 0)) * 6
     }
-
+    
     private func load() async {
+        guard loadedForLocationId != location.id else { return }   // NEW — skip if already loaded for this pin
         isLoading = true
         posts = (try? await PostService.fetchPosts(forLocationId: location.id)) ?? []
+        loadedForLocationId = location.id   // NEW
         isLoading = false
     }
 }

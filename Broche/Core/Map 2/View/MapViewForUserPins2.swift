@@ -19,14 +19,14 @@ struct MapViewForUserPins2: View {
     @State private var selectedLocationType: MarkerType = .visited
     @State private var overlayWasVisibleBeforeMarker = true   // NEW
     @State private var lastSelectedCoordinate: CLLocationCoordinate2D?
-
+    
     var user: User
     @Binding var showOverlay: Bool
     @Binding var selectedLocation: Location?
     var deepLinkLocationId: String? = nil
     var deepLinkTripId: String? = nil   // NEW param
     var deepLinkOpenComments: Bool = false   // NEW
-
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             mapView
@@ -34,26 +34,26 @@ struct MapViewForUserPins2: View {
             
             // MARK: - Location button, top-trailing
             VStack {
-                            HStack {
-                                Spacer()
-                                Button {
-                                    withAnimation {
-                                        viewModel.cameraPosition = .userLocation(fallback: .automatic)
-                                    }
-                                } label: {
-                                    Image(systemName: "location.fill")
-                                        .font(.system(size: 16, weight: .semibold))
-                                        .foregroundColor(.primary)
-                                        .frame(width: 40, height: 40)
-                                        .background(.ultraThinMaterial)
-                                        .clipShape(Circle())
-                                }
-                                .padding(.trailing, 16)
-                                .padding(.top, 8)
-                            }
-                            Spacer()
+                HStack {
+                    Spacer()
+                    Button {
+                        withAnimation {
+                            viewModel.cameraPosition = .userLocation(fallback: .automatic)
                         }
-
+                    } label: {
+                        Image(systemName: "location.fill")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.primary)
+                            .frame(width: 40, height: 40)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
+                    }
+                    .padding(.trailing, 16)
+                    .padding(.top, 8)
+                }
+                Spacer()
+            }
+            
             // MARK: - MARKER DETAIL SHEET
             if let selectedLocation = selectedLocation {
                 VStack {
@@ -85,9 +85,9 @@ struct MapViewForUserPins2: View {
                         Text(activeTrip.name)
                             .font(.headline)
                             .lineLimit(1)
-
+                        
                         Spacer()
-
+                        
                         Button {
                             viewModel.exitTripView()
                         } label: {
@@ -95,7 +95,7 @@ struct MapViewForUserPins2: View {
                                 .font(.title2)
                                 .foregroundStyle(.secondary)
                         }
-
+                        
                         Button {
                             Task { await viewModel.toggleSaveTrip(activeTrip) }
                         } label: {
@@ -123,72 +123,72 @@ struct MapViewForUserPins2: View {
                     .onAppear {
                         Task { await viewModel.checkSavedStatus(activeTrip) }
                     }
-
+                    
                     Spacer()
                 }
             }
         }
         .onAppear {
-                    viewModel.fetchLocations(userId: user.id) { error in
-                        if let error {
-                            errorMessage = error.localizedDescription
-                            showError = true
-                        } else {
-                            viewModel.fitCameraToLocations()
-                            
-                            if let deepLinkTripId = deepLinkTripId {   // NEW
-                                            Task {
-                                                if let trips = try? await TripService.fetchTrips(forUserID: user.id),
-                                                   let match = trips.first(where: { $0.id == deepLinkTripId }) {
-                                                    viewModel.filterToTrip(match)
-                                                }
-                                            }
-                                        } else if let deepLinkLocationId = deepLinkLocationId {
-                                if let match = viewModel.visitedLocations.first(where: { $0.id == deepLinkLocationId }) {
-                                    withAnimation(.spring()) {
-                                        selectedLocation = match
-                                        selectedLocationType = .visited
-                                    }
-                                    viewModel.animateToCoordinate(.init(latitude: match.latitude, longitude: match.longitude))
-                                } else if let match = viewModel.futureLocations.first(where: { $0.id == deepLinkLocationId }) {
-                                    withAnimation(.spring()) {
-                                        selectedLocation = match
-                                        selectedLocationType = .future
-                                    }
-                                    viewModel.animateToCoordinate(.init(latitude: match.latitude, longitude: match.longitude))
-                                }
+            viewModel.fetchLocations(userId: user.id) { error in
+                if let error {
+                    errorMessage = error.localizedDescription
+                    showError = true
+                } else {
+                    viewModel.fitCameraToLocations()
+                    
+                    if let deepLinkTripId = deepLinkTripId {   // NEW
+                        Task {
+                            if let trips = try? await TripService.fetchTrips(forUserID: user.id),
+                               let match = trips.first(where: { $0.id == deepLinkTripId }) {
+                                viewModel.filterToTrip(match)
                             }
+                        }
+                    } else if let deepLinkLocationId = deepLinkLocationId {
+                        if let match = viewModel.visitedLocations.first(where: { $0.id == deepLinkLocationId }) {
+                            withAnimation(.spring()) {
+                                selectedLocation = match
+                                selectedLocationType = .visited
+                            }
+                            viewModel.animateToCoordinate(.init(latitude: match.latitude, longitude: match.longitude))
+                        } else if let match = viewModel.futureLocations.first(where: { $0.id == deepLinkLocationId }) {
+                            withAnimation(.spring()) {
+                                selectedLocation = match
+                                selectedLocationType = .future
+                            }
+                            viewModel.animateToCoordinate(.init(latitude: match.latitude, longitude: match.longitude))
                         }
                     }
                 }
+            }
+        }
         .onChange(of: selectedLocation?.id) { newValue in
-                    if newValue != nil {
-                        overlayWasVisibleBeforeMarker = showOverlay
-                        if let selectedLocation {   // NEW — capture coordinate before it's gone
-                            lastSelectedCoordinate = CLLocationCoordinate2D(
-                                latitude: selectedLocation.latitude,
-                                longitude: selectedLocation.longitude
-                            )
-                        }
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            showOverlay = false
-                        }
+            if newValue != nil {
+                overlayWasVisibleBeforeMarker = showOverlay
+                if let selectedLocation {   // NEW — capture coordinate before it's gone
+                    lastSelectedCoordinate = CLLocationCoordinate2D(
+                        latitude: selectedLocation.latitude,
+                        longitude: selectedLocation.longitude
+                    )
+                }
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    showOverlay = false
+                }
+            } else {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    showOverlay = overlayWasVisibleBeforeMarker
+                }
+                withAnimation(.easeInOut(duration: 0.4)) {
+                    if let coordinate = lastSelectedCoordinate {   // CHANGED — zoom out around the last pin, not fit-to-all
+                        viewModel.cameraPosition = .region(MKCoordinateRegion(
+                            center: coordinate,
+                            span: MKCoordinateSpan(latitudeDelta: 25, longitudeDelta: 25)
+                        ))
                     } else {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            showOverlay = overlayWasVisibleBeforeMarker
-                        }
-                        withAnimation(.easeInOut(duration: 0.4)) {
-                            if let coordinate = lastSelectedCoordinate {   // CHANGED — zoom out around the last pin, not fit-to-all
-                                viewModel.cameraPosition = .region(MKCoordinateRegion(
-                                    center: coordinate,
-                                    span: MKCoordinateSpan(latitudeDelta: 25, longitudeDelta: 25)
-                                ))
-                            } else {
-                                viewModel.fitCameraToLocations()   // fallback if we somehow have no coordinate
-                            }
-                        }
+                        viewModel.fitCameraToLocations()   // fallback if we somehow have no coordinate
                     }
                 }
+            }
+        }
         
         .sheet(isPresented: $showItinerary) {
             Itinerary(userId: user.id, user: user, canCreateTrip: false) { trip in
@@ -204,7 +204,7 @@ struct MapViewForUserPins2: View {
             Text(errorMessage)
         }
     }
-
+    
     private var mapView: some View {
         Map(position: $viewModel.cameraPosition) {
             // VISITED PINS (Red)
@@ -260,56 +260,56 @@ struct MapViewForUserPins2: View {
             }
         }
         .mapStyle(.standard)
-           .mapControls {
-               MapCompass()
-               MapScaleView()
-           }
-           .ignoresSafeArea(.all, edges: .bottom)
-           .onTapGesture {
-               withAnimation(.spring()) {
-                   selectedLocation = nil
-               }
-           }
-       }
-
-    private var interfaceView: some View {
-            VStack {
-                Spacer()
-
-                HStack {
-                    // Itinerary — circular hamburger icon
-                    Button {
-                        showItinerary = true
-                    } label: {
-                        Image(systemName: "line.3.horizontal")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.primary)
-                            .frame(width: 44, height: 44)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Circle())
-                    }
-                    .onboardingTarget(.viewTrips)
-
-                    Spacer()
-
-                    // Profile header toggle — circular person icon
-                    Button {
-                                        withAnimation(.easeInOut(duration: 0.25)) {   // CHANGED — direct toggle, no closure
-                                            showOverlay.toggle()
-                                        }
-                    } label: {
-                        Image(systemName: "person.crop.circle")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.primary)
-                            .frame(width: 44, height: 44)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Circle())
-                    }
-                    .onboardingTarget(.hideProfile)
-                }
-                .padding()
-                .padding(.bottom, 8)
+        .mapControls {
+            MapCompass()
+            MapScaleView()
+        }
+        .ignoresSafeArea(.all, edges: .bottom)
+        .onTapGesture {
+            withAnimation(.spring()) {
+                selectedLocation = nil
             }
         }
+    }
+    
+    private var interfaceView: some View {
+        VStack {
+            Spacer()
+            
+            HStack {
+                // Itinerary — circular hamburger icon
+                Button {
+                    showItinerary = true
+                } label: {
+                    Image(systemName: "line.3.horizontal")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
+                        .frame(width: 44, height: 44)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Circle())
+                }
+                .onboardingTarget(.viewTrips)
+                
+                Spacer()
+                
+                // Profile header toggle — circular person icon
+                Button {
+                    withAnimation(.easeInOut(duration: 0.25)) {   // CHANGED — direct toggle, no closure
+                        showOverlay.toggle()
+                    }
+                } label: {
+                    Image(systemName: "person.crop.circle")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
+                        .frame(width: 44, height: 44)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Circle())
+                }
+                .onboardingTarget(.hideProfile)
+            }
+            .padding()
+            .padding(.bottom, 8)
+        }
+    }
     
 }
