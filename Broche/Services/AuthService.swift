@@ -9,6 +9,8 @@ import Foundation
 import FirebaseAuth
 import FirebaseFirestoreSwift
 import Firebase
+import SwiftUI
+import FirebaseMessaging   // NEW
 
 class AuthService {
     
@@ -39,6 +41,7 @@ class AuthService {
             let result = try await Auth.auth().createUser(withEmail: email, password: password)
             self.userSession = result.user
             await uploadUserData(uid: result.user.uid, username: username, email: email)
+            await saveFCMTokenIfNeeded(uid: result.user.uid)   // NEW
         } catch {
             print("DEBUG: Failed to register user with error \(error.localizedDescription)")
             throw error
@@ -55,6 +58,7 @@ class AuthService {
         }
         do {
             self.currentUser = try await UserService.fetchUser(withUid: currentUid)
+            await saveFCMTokenIfNeeded(uid: currentUid)   // NEW
         } catch {
             print("DEBUG: Failed to load user data: \(error.localizedDescription)")
             self.currentUser = nil
@@ -69,7 +73,7 @@ class AuthService {
     }
     
     private func uploadUserData(uid: String, username: String, email: String) async {
-        let user = User(id: uid, username: username, email: email, verificationStatus: .none) // Explicitly set
+        let user = User(id: uid, username: username, email: email, verificationStatus: .none)
         self.currentUser = user
         guard let encodedUser = try? Firestore.Encoder().encode(user) else {
             print("DEBUG: Failed to encode user data")
@@ -81,5 +85,18 @@ class AuthService {
             print("DEBUG: Failed to upload user data: \(error.localizedDescription)")
         }
     }
+    
+    // NEW — saves the device's push token to this user's doc so the Cloud Function can find it
+    private func saveFCMTokenIfNeeded(uid: String) async {
+        guard let token = Messaging.messaging().fcmToken else {
+            print("DEBUG: No FCM token available yet")
+            return
+        }
+        do {
+            try await Firestore.firestore().collection("users").document(uid)
+                .updateData(["fcmToken": token])
+        } catch {
+            print("DEBUG: Failed to save FCM token: \(error.localizedDescription)")
+        }
+    }
 }
-

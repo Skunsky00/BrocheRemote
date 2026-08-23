@@ -19,7 +19,7 @@ struct NotificationsView: View {
                             group: group,
                             viewModel: NotificationCellViewModel(notification: group.representativeNotification)
                         )
-                        .padding(.top)
+                        //.padding(.top)
                         .onAppear {
                             for notification in viewModel.notifications where groupMatches(notification, group) {
                                 viewModel.markNotificationAsViewed(notification: notification)

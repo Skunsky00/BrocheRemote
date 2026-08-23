@@ -18,6 +18,10 @@ struct MainTabView: View {
     @State private var markerOnboardingFrames: [MarkerOnboardingStep: CGRect] = [:]
     @Environment(\.colorScheme) var colorScheme
     
+    @StateObject private var deepLinkManager = DeepLinkManager.shared   // NEW
+    @State private var presentedDeepLinkUser: DeepLinkUserWrapper?      // NEW
+    @State private var presentedDeepLinkPost: DeepLinkPostWrapper?
+    
     var accentColor: Color {
         colorScheme == .dark ? .white : .black
     }
@@ -70,23 +74,109 @@ struct MainTabView: View {
             UploadStatusToast()
             DeleteStatusToast()
         }
-        .coordinateSpace(name: "onboardingSpace")   // NEW
-        .environmentObject(onboardingManager)   // NEW — so MapView2/ProfileView can advance steps
+        .coordinateSpace(name: "onboardingSpace")
+        .environmentObject(onboardingManager)
         .environmentObject(markerOnboardingManager)
-        .onPreferenceChange(OnboardingTargetKey.self) { onboardingFrames = $0 }   // NEW
+        .onPreferenceChange(OnboardingTargetKey.self) { onboardingFrames = $0 }
         .onPreferenceChange(MarkerOnboardingTargetKey.self) { markerOnboardingFrames = $0 }
-        .onChange(of: onboardingManager.requestedTabIndex) { newValue in   // NEW
-                    if let newValue {
-                        withAnimation {
-                            selectedIndex = newValue
+        .onChange(of: onboardingManager.requestedTabIndex) { newValue in
+            if let newValue {
+                withAnimation { selectedIndex = newValue }
+            }
+        }
+        .onAppear {
+            if let initialTab = onboardingManager.requestedTabIndex {
+                selectedIndex = initialTab
+            }
+        }
+        .onReceive(deepLinkManager.$pendingDestination) { destination in   // NEW
+            guard let destination else { return }
+            Task { await handleDeepLink(destination) }
+        }
+        .fullScreenCover(item: $presentedDeepLinkUser) { wrapper in
+            NavigationStack {
+                if wrapper.mode == .chat {
+                    ChatView(user: wrapper.user)
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                Button { presentedDeepLinkUser = nil } label: {
+                                    Image(systemName: "chevron.left").font(.body.weight(.semibold))
+                                }
+                            }
+                        }
+                } else {
+                    ProfileView(user: wrapper.user, onDismissOverride: { presentedDeepLinkUser = nil })   // CHANGED
+                }
+            }
+        }
+        .fullScreenCover(item: $presentedDeepLinkPost) { wrapper in
+            NavigationStack {
+                Group {
+                    if let videoUrl = wrapper.post.videoUrl, !videoUrl.isEmpty {
+                        PostGridFeedCell(viewModel: FeedCellViewModel(post: wrapper.post), autoOpenComments: wrapper.openComments)
+                    } else {
+                        PostGridFeedCellPhoto(viewModel: FeedCellViewModel(post: wrapper.post), autoOpenComments: wrapper.openComments)
+                    }
+                }
+                .toolbar {   // NEW
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button {
+                            presentedDeepLinkPost = nil
+                        } label: {
+                            Image(systemName: "chevron.left")
+                                .font(.body.weight(.semibold))
+                                .foregroundColor(.white)   // post cells have dark/video backgrounds, keep it visible
                         }
                     }
                 }
-                .onAppear {   // NEW — handle the very first step too, on initial launch
-                    if let initialTab = onboardingManager.requestedTabIndex {
-                        selectedIndex = initialTab
-                    }
+            }
+        }
+        .task {   // NEW — seeds the badge once per app session, not per tab switch
+                    await PushBadgeState.shared.refreshFromFirestore()
                 }
+        
+    }
+    
+    @MainActor
+    private func handleDeepLink(_ destination: DeepLinkDestination) async {
+        defer { deepLinkManager.pendingDestination = nil }
+        
+        presentedDeepLinkUser = nil
+        presentedDeepLinkPost = nil
+        
+        switch destination {
+        case .notifications:
+            withAnimation { selectedIndex = 2 }
+            
+        case .profile(let uid):
+            guard let fetchedUser = try? await UserService.fetchUser(withUid: uid) else { return }
+            presentedDeepLinkUser = DeepLinkUserWrapper(user: fetchedUser, mode: .profile)
+            await markMatchingNotificationViewed { $0.uid == uid && $0.type == .follow }   // NEW
+            
+        case .chat(let uid):
+            guard let fetchedUser = try? await UserService.fetchUser(withUid: uid) else { return }
+            presentedDeepLinkUser = DeepLinkUserWrapper(user: fetchedUser, mode: .chat)
+            await markMatchingNotificationViewed { $0.uid == uid && $0.type == .message }
+            await NotificationService.markAllMessageNotificationsAsViewed()   // CHANGED — awaited, not fire-and-forget
+            PushBadgeState.shared.hasUnreadMessages = false   // CHANGED — now set only after the write is actually confirmed done
+            
+        case .post(let postId, let openComments):
+            guard let post = await PostService.fetchPost(withId: postId) else { return }
+            presentedDeepLinkPost = DeepLinkPostWrapper(post: post, openComments: openComments)
+            await markMatchingNotificationViewed { $0.postId == postId && ($0.type == .like || $0.type == .comment) }   // NEW
+        }
+    }
+    
+    // NEW — finds the matching notification(s) in what's already loaded and marks them viewed
+    @MainActor
+    private func markMatchingNotificationViewed(where predicate: (Notification) -> Bool) async {
+        if notiViewModel.notifications.isEmpty {
+            await notiViewModel.updateNotifications()
+        }
+        for notification in notiViewModel.notifications where predicate(notification) && !notification.isViewed {
+            notiViewModel.markNotificationAsViewed(notification: notification)
+        }
+        await notiViewModel.updateNotifications()   // refresh badge/list state
     }
 }
 struct MainTabView_Previews: PreviewProvider {

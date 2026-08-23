@@ -13,15 +13,78 @@ import FirebaseMessaging
 import Firebase
 import UIKit
 
-class AppDelegate: NSObject, UIApplicationDelegate {
-    let gcmMessageIDKey = "gcm.Message_ID"
-    
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
+
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         FirebaseApp.configure()
-        
-        
+
+        UNUserNotificationCenter.current().delegate = self
+        Messaging.messaging().delegate = self
+
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+            guard granted else { return }
+            DispatchQueue.main.async {
+                application.registerForRemoteNotifications()
+            }
+        }
+
         return true
+    }
+
+    // Required so FCM can pair the APNs token with an FCM token
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        Messaging.messaging().apnsToken = deviceToken
+    }
+
+    // Fires whenever the FCM token is created/refreshed
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        guard let fcmToken, let uid = Auth.auth().currentUser?.uid else { return }
+        Firestore.firestore().collection("users").document(uid)
+            .updateData(["fcmToken": fcmToken])
+    }
+
+    // Show the banner even while the app is open
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+        let userInfo = response.notification.request.content.userInfo
+
+        guard let typeString = userInfo["type"] as? String else {
+            completionHandler()
+            return
+        }
+
+        switch typeString {
+        case "0", "1":   // like, comment
+            if let postId = userInfo["postId"] as? String {
+                DeepLinkManager.shared.pendingDestination = .post(postId: postId, openComments: typeString == "1")
+            } else {
+                DeepLinkManager.shared.pendingDestination = .notifications
+            }
+        case "2":   // follow
+            if let actorUid = userInfo["actorUid"] as? String {
+                DeepLinkManager.shared.pendingDestination = .profile(uid: actorUid)
+            }
+        case "3":   // message
+            if let actorUid = userInfo["actorUid"] as? String {
+                DeepLinkManager.shared.pendingDestination = .chat(uid: actorUid)
+            }
+        default:
+            DeepLinkManager.shared.pendingDestination = .notifications
+        }
+
+        completionHandler()
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        let userInfo = notification.request.content.userInfo
+        if let typeString = userInfo["type"] as? String, typeString == "3" {   // NEW — message
+            PushBadgeState.shared.hasUnreadMessages = true
+        }
+        completionHandler([.banner, .sound, .badge])
     }
 }
 
@@ -97,73 +160,3 @@ struct SplashView: View {
 }
 
 
-//extension AppDelegate: UNUserNotificationCenterDelegate {
-//    // Receive displayed notifications for iOS 10 devices.
-//    func userNotificationCenter(_ center: UNUserNotificationCenter,
-//                                willPresent notification: UNNotification) async
-//      -> UNNotificationPresentationOptions {
-//      let userInfo = notification.request.content.userInfo
-//
-//      // With swizzling disabled you must let Messaging know about the message, for Analytics
-//      // Messaging.messaging().appDidReceiveMessage(userInfo)
-//
-//      // ...
-//
-//      // Print full message.
-//      print(userInfo)
-//
-//      // Change this to your preferred presentation option
-//          return [[.sound]]
-//    }
-//
-//    func userNotificationCenter(_ center: UNUserNotificationCenter,
-//                                didReceive response: UNNotificationResponse) async {
-//      let userInfo = response.notification.request.content.userInfo
-//
-//      // ...
-//
-//      // With swizzling disabled you must let Messaging know about the message, for Analytics
-//      // Messaging.messaging().appDidReceiveMessage(userInfo)
-//
-//      // Print full message.
-//      print(userInfo)
-//    }
-//    
-//    
-//    // Silent notifications
-//    func application(_ application: UIApplication,
-//                     didReceiveRemoteNotification userInfo: [AnyHashable: Any]) async
-//      -> UIBackgroundFetchResult {
-//      // If you are receiving a notification message while your app is in the background,
-//      // this callback will not be fired till the user taps on the notification launching the application.
-//      // TODO: Handle data of notification
-//
-//      // With swizzling disabled you must let Messaging know about the message, for Analytics
-//      // Messaging.messaging().appDidReceiveMessage(userInfo)
-//
-//      // Print message ID.
-//      if let messageID = userInfo[gcmMessageIDKey] {
-//        print("Message ID: \(messageID)")
-//      }
-//
-//      // Print full message.
-//      print(userInfo)
-//
-//      return UIBackgroundFetchResult.newData
-//    }
-//  }
-//
-//extension AppDelegate: MessagingDelegate {
-//    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-//      print("Firebase registration token: \(String(describing: fcmToken))")
-//
-//      let dataDict: [String: String] = ["token": fcmToken ?? ""]
-//        Foundation.NotificationCenter.default.post(
-//        name: Foundation.Notification.Name("FCMToken"),
-//        object: nil,
-//        userInfo: dataDict
-//      )
-//      // TODO: If necessary send token to application server.
-//      // Note: This callback is fired at each app startup and whenever a new token is generated.
-//    }
-//}

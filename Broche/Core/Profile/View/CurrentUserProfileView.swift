@@ -20,6 +20,11 @@ struct CurrentUserProfileView: View {
     @State private var selectedLocation: Location?   // NEW — required by MapViewForUserPins2
     @StateObject var brocheViewModel: BrocheGridViewModel
     @Environment(\.colorScheme) var colorScheme
+    @StateObject private var pushBadgeState = PushBadgeState.shared   // NEW
+
+    private var showUnreadMessageBadge: Bool {
+            notiViewModel.hasUnreadMessages || pushBadgeState.hasUnreadMessages   // NEW
+        }
     
     init(user: User) {
         self.user = user
@@ -113,14 +118,18 @@ struct CurrentUserProfileView: View {
                     UsernameWithBadgeView(user: user)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    NavigationLink {
-                        ConversationsView()
-                    } label: {
-                        Image(systemName: "paperplane")
-                            .imageScale(.large)
-                            .scaledToFit()
+                        NavigationLink {
+                            ConversationsView()
+                        } label: {
+                            Image(systemName: "paperplane")
+                                .imageScale(.large)
+                                .scaledToFit()
+                                .foregroundColor(showUnreadMessageBadge ? .red : (colorScheme == .dark ? .white : .black))   // CHANGED
+                        }
+                        .simultaneousGesture(TapGesture().onEnded {   // NEW — clear on open
+                            pushBadgeState.hasUnreadMessages = false
+                        })
                     }
-                }
                     ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         selectedSettingsOption = nil
@@ -131,6 +140,9 @@ struct CurrentUserProfileView: View {
                     }
                 }
             }
+            .task {   // NEW
+                    await pushBadgeState.refreshFromFirestore()
+                }
             .onChange(of: notiViewModel.hasNewNotifications) {
                 print("DEBUG: CurrentUserProfileView - hasNewNotifications: \(notiViewModel.hasNewNotifications)")
             }

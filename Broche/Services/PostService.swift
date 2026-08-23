@@ -77,7 +77,14 @@ struct PostService {
         
         return posts
     }
-//    
+    
+    static func fetchPost(withId postId: String) async -> Post? {
+        guard let snapshot = try? await COLLECTION_POSTS.document(postId).getDocument(),
+              var post = try? snapshot.data(as: Post.self) else { return nil }
+        post.user = try? await UserService.fetchUser(withUid: post.ownerUid)
+        return post
+    }
+//
     static func deletePost(_ post: Post) async throws {
             // Delete the post from Firebase
             guard let postId = post.id else { return }

@@ -134,4 +134,21 @@ struct NotificationService {
         
         return updated
     }
+    // Add to NotificationService
+    static func markAllMessageNotificationsAsViewed() async {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        let snapshot = try? await COLLECTION_NOTIFICATIONS
+            .document(uid)
+            .collection("user-notifications")
+            .whereField("type", isEqualTo: NotificationType.message.rawValue)
+            .whereField("isViewed", isEqualTo: false)
+            .getDocuments()
+        
+        guard let documents = snapshot?.documents else { return }
+        
+        for doc in documents {
+            try? await doc.reference.updateData(["isViewed": true])
+        }
+    }
 }

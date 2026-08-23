@@ -157,6 +157,7 @@
 		4EE157B73037F57B007E785B /* GroupedNotificationCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE157B63037F57B007E785B /* GroupedNotificationCellView.swift */; };
 		4EE157E33038F083007E785B /* DeleteStatusToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE157E23038F083007E785B /* DeleteStatusToast.swift */; };
 		4EE15829303A429B007E785B /* ExpandableCaptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE15828303A429B007E785B /* ExpandableCaptionView.swift */; };
+		4EE1582B303A9D19007E785B /* DeepLinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE1582A303A9D19007E785B /* DeepLinkManager.swift */; };
 		4EEE64C92E4D3DA4009A9CA1 /* MapView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64C82E4D3DA4009A9CA1 /* MapView2.swift */; };
 		4EEE64CB2E4D3DBE009A9CA1 /* MapViewState2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64CA2E4D3DBE009A9CA1 /* MapViewState2.swift */; };
 		4EEE64CD2E4D3EDD009A9CA1 /* LocationSearchViewModel2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64CC2E4D3EDD009A9CA1 /* LocationSearchViewModel2.swift */; };
@@ -297,6 +298,7 @@
 		4EE157B63037F57B007E785B /* GroupedNotificationCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GroupedNotificationCellView.swift; path = Broche/Core/Profile/View/GroupedNotificationCellView.swift; sourceTree = SOURCE_ROOT; };
 		4EE157E23038F083007E785B /* DeleteStatusToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteStatusToast.swift; sourceTree = "<group>"; };
 		4EE15828303A429B007E785B /* ExpandableCaptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpandableCaptionView.swift; sourceTree = "<group>"; };
+		4EE1582A303A9D19007E785B /* DeepLinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkManager.swift; sourceTree = "<group>"; };
 		4EEE64C82E4D3DA4009A9CA1 /* MapView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView2.swift; sourceTree = "<group>"; };
 		4EEE64CA2E4D3DBE009A9CA1 /* MapViewState2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewState2.swift; sourceTree = "<group>"; };
 		4EEE64CC2E4D3EDD009A9CA1 /* LocationSearchViewModel2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchViewModel2.swift; sourceTree = "<group>"; };
@@ -610,8 +612,8 @@
 				4E85EBBA2A169AD70074A346 /* ProfileView.swift */,
 				4E85EBD52A16F12D0074A346 /* CurrentUserProfileView.swift */,
 				4E85EBDB2A170A5A0074A346 /* ProfileHeaderView.swift */,
-				4E9770262A1C58D300919F88 /* EditProfileView.swift */,
 				4EC081082A2588F700B86052 /* ProfileFilterView.swift */,
+				4E9770262A1C58D300919F88 /* EditProfileView.swift */,
 				4EC081112A26D68300B86052 /* ProfileActionButtonView.swift */,
 				4EC081242A27BB7800B86052 /* SettingsView.swift */,
 				4EC10E042A4CB36400DA12EF /* TextLinkView.swift */,
@@ -759,6 +761,7 @@
 			isa = PBXGroup;
 			children = (
 				4EC0810D2A26B62200B86052 /* Constants.swift */,
+				4EE1582A303A9D19007E785B /* DeepLinkManager.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -1103,6 +1106,7 @@
 				4EC081182A27A7A300B86052 /* Comment.swift in Sources */,
 				4EA3A7452A40BC07005C548D /* NotificationsView.swift in Sources */,
 				4EC0814A2A34D84A00B86052 /* ConversationsView.swift in Sources */,
+				4EE1582B303A9D19007E785B /* DeepLinkManager.swift in Sources */,
 				4EA3A74D2A40BCA8005C548D /* Notification.swift in Sources */,
 				4E9770252A1C4EAD00919F88 /* SearchViewModel.swift in Sources */,
 				4EBBF2802AB26E2900AA444C /* PrivacyView.swift in Sources */,

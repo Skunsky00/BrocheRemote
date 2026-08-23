@@ -12,6 +12,7 @@ import Firebase
 class NotificationsViewModel: ObservableObject {
     @Published var notifications = [Notification]()
     @Published var hasNewNotifications = false
+    @Published var hasUnreadMessages = false   // NEW
     @Published var groupedNotifications: [GroupedNotification] = []
     
     init() {
@@ -36,13 +37,18 @@ class NotificationsViewModel: ObservableObject {
         }
         
         checkForNewNotifications()
+        checkForUnreadMessages()
         buildGroups()
     }
     
     private func checkForNewNotifications() {
-        let unviewedNotifications = notifications.filter { !$0.isViewed }
+        let unviewedNotifications = notifications.filter { !$0.isViewed && $0.type != .message }   // CHANGED — exclude messages, that's the plane's job now
         hasNewNotifications = !unviewedNotifications.isEmpty
     }
+    
+    private func checkForUnreadMessages() {
+           hasUnreadMessages = notifications.contains { $0.type == .message && !$0.isViewed }
+       }
     
     func markNotificationAsViewed(notification: Notification) {
         NotificationService.markNotificationAsViewed(notification: notification)
@@ -52,14 +58,14 @@ class NotificationsViewModel: ObservableObject {
         var buckets: [String: [Notification]] = [:]
         var order: [String] = []
 
-        for notification in notifications {
-            let key = groupingKey(for: notification)
-            if buckets[key] == nil {
-                order.append(key)
-                buckets[key] = []
+        for notification in notifications where notification.type != .message {   // CHANGED — skip messages, they live in the plane badge now
+                let key = groupingKey(for: notification)
+                if buckets[key] == nil {
+                    order.append(key)
+                    buckets[key] = []
+                }
+                buckets[key]?.append(notification)
             }
-            buckets[key]?.append(notification)
-        }
 
         var results: [GroupedNotification] = []
 
@@ -112,9 +118,30 @@ class NotificationsViewModel: ObservableObject {
         case .locationComment:
             return "\(notification.type.rawValue)-\(notification.locationId ?? notification.id ?? UUID().uuidString)"
         case .follow:
-            return "follow-\(notification.id ?? UUID().uuidString)"   // CHANGED — no longer shared, each stays standalone
-        case .newPin, .message:
+            return "follow-\(notification.id ?? UUID().uuidString)"
+        case .newPin:
             return notification.id ?? UUID().uuidString
+        case .message:   // CHANGED — group all messages from the same sender into one cell
+            return "message-\(notification.uid)"
         }
+    }
+}
+
+@MainActor
+class PushBadgeState: ObservableObject {
+    static let shared = PushBadgeState()
+    @Published var hasUnreadMessages = false
+    
+    // NEW — checks Firestore directly, used on cold load / profile appear
+    func refreshFromFirestore() async {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let snapshot = try? await COLLECTION_NOTIFICATIONS
+            .document(uid)
+            .collection("user-notifications")
+            .whereField("type", isEqualTo: NotificationType.message.rawValue)
+            .whereField("isViewed", isEqualTo: false)
+            .limit(to: 1)
+            .getDocuments()
+        hasUnreadMessages = !(snapshot?.documents.isEmpty ?? true)
     }
 }

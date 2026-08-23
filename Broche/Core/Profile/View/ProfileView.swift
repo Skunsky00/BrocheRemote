@@ -17,15 +17,18 @@ struct ProfileView: View {
     var deepLinkLocationId: String? = nil
     var deepLinkTripId: String? = nil   // NEW
     var deepLinkOpenComments: Bool = false   // NEW
+    var onDismissOverride: (() -> Void)? = nil   // NEW
+    
+    init(user: User, deepLinkLocationId: String? = nil, deepLinkTripId: String? = nil, deepLinkOpenComments: Bool = false, onDismissOverride: (() -> Void)? = nil) { 
+               self.user = user
+               self.deepLinkLocationId = deepLinkLocationId
+               self.deepLinkTripId = deepLinkTripId
+               self.deepLinkOpenComments = deepLinkOpenComments
+               self.onDismissOverride = onDismissOverride   // NEW
+               self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
+           }
 
-    init(user: User, deepLinkLocationId: String? = nil, deepLinkTripId: String? = nil, deepLinkOpenComments: Bool = false) {
-            self.user = user
-            self.deepLinkLocationId = deepLinkLocationId
-            self.deepLinkTripId = deepLinkTripId
-            self.deepLinkOpenComments = deepLinkOpenComments
-            self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
-        }
-
+    
     var body: some View {
         Group {
             if selectedFilter == .map {
@@ -36,9 +39,9 @@ struct ProfileView: View {
                         selectedLocation: $selectedLocation,
                         deepLinkLocationId: deepLinkLocationId,
                         deepLinkTripId: deepLinkTripId,   // NEW
-                        deepLinkOpenComments: deepLinkOpenComments 
+                        deepLinkOpenComments: deepLinkOpenComments
                     )
-
+                    
                     if showOverlay {
                         VStack(spacing: 0) {
                             Spacer().frame(height: 12)
@@ -66,12 +69,12 @@ struct ProfileView: View {
         .navigationBarTitle("", displayMode: .inline)
         .navigationBarBackButtonHidden(true)   // NEW
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {   // NEW
+            ToolbarItem(placement: .navigationBarLeading) {
                 Button {
                     if selectedLocation != nil {
-                        withAnimation(.spring()) {
-                            selectedLocation = nil
-                        }
+                        withAnimation(.spring()) { selectedLocation = nil }
+                    } else if let onDismissOverride {   // NEW
+                        onDismissOverride()
                     } else {
                         dismiss()
                     }
@@ -79,13 +82,14 @@ struct ProfileView: View {
                     Image(systemName: "chevron.left")
                         .font(.body.weight(.semibold))
                 }
+                
             }
             ToolbarItem(placement: .principal) {
                 UsernameWithBadgeView(user: user)
             }
         }
     }
-
+    
     @ViewBuilder
     private var content: some View {
         switch selectedFilter {

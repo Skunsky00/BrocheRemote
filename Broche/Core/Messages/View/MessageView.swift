@@ -11,15 +11,34 @@ import AVFoundation
 
 struct MessageView: View {
     let viewModel: MessageViewModel
+    var dragOffset: CGFloat = 0   // NEW
     @State private var post: Post?
-    @State private var thumbnailImage: UIImage? // For generated video thumbnails
+    @State private var thumbnailImage: UIImage?
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
+        ZStack(alignment: .trailing) {   // NEW — wraps everything so the timestamp can peek out from behind
+            messageContent
+                .offset(x: dragOffset)   // NEW — bubble slides left as you drag
+            
+            Text(viewModel.message.timestamp.dateValue().timeAgoDisplay())
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .opacity(min(1.0, Double(abs(dragOffset)) / 40.0))   // CHANGED — explicit Double, no ambiguity
+                .padding(.trailing, 8)
+        }
+        .onAppear {
+            if let postId = viewModel.postId, !postId.isEmpty {
+                fetchPost(postId: postId)
+            }
+        }
+    }
+    
+    private var messageContent: some View {   // NEW — this is your original body, unchanged internally
         HStack {
             if viewModel.isFromCurrentUser {
                 Spacer()
                 if let postId = viewModel.postId, !postId.isEmpty {
-                    // Shared post preview
                     NavigationLink {
                         postDestination
                     } label: {
@@ -28,7 +47,6 @@ struct MessageView: View {
                     .padding(.leading, 100)
                     .padding(.trailing)
                 } else {
-                    // Regular text message
                     Text(viewModel.message.text)
                         .font(.system(size: 15))
                         .padding(10)
@@ -45,20 +63,18 @@ struct MessageView: View {
                     }
                     
                     if let postId = viewModel.postId, !postId.isEmpty {
-                        // Shared post preview
                         NavigationLink {
                             postDestination
                         } label: {
                             postPreview
                         }
                     } else {
-                        // Regular text message
                         Text(viewModel.message.text)
                             .font(.system(size: 15))
                             .padding(10)
-                            .background(Color.gray.opacity(0.8)) // Improved dark mode visibility
+                            .background(Color(.secondarySystemBackground))   // CHANGED — dark-mode safe, was flat gray
                             .clipShape(ChatBubble(isFromCurrentUser: false))
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)   // CHANGED — was hardcoded .black
                     }
                 }
                 .padding(.trailing, 100)
@@ -66,12 +82,6 @@ struct MessageView: View {
                 
                 Spacer()
             }
-        }
-        .onAppear {
-            if let postId = viewModel.postId, !postId.isEmpty {
-                fetchPost(postId: postId)
-            }
-            print("🔔 MessageView onAppear - post: \(String(describing: post)), type: \(type(of: post)), isRead: \(viewModel.message.isRead)")
         }
     }
     

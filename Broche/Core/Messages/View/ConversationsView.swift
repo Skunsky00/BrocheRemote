@@ -26,7 +26,7 @@ struct ConversationsView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                LazyVStack {
+                LazyVStack(spacing: 0) {   // CHANGED — was default spacing, now 0 since padding lives in the cell
                     ForEach(viewModel.recentMessages) { message in
                         NavigationLink {
                             if let user = message.user {
@@ -35,9 +35,11 @@ struct ConversationsView: View {
                         } label: {
                             ConversationCell(message: message)
                         }
+                        Divider()   // MOVED — now between cells, in the parent, not baked into every cell
+                            .padding(.leading, 60)   // NEW — inset so it doesn't run under the avatar, matches iOS convention
                     }
                 }
-                .padding()
+                .padding(.horizontal)   // CHANGED — was .padding() (all sides), horizontal only since row padding now handles vertical
             }
         }
         .toolbar(.hidden, for: .tabBar)
@@ -56,7 +58,10 @@ struct ConversationsView: View {
         })
         .onAppear {
             viewModel.loadData()
-            print("🔔 ConversationsView onAppear - recentMessages count: \(viewModel.recentMessages.count)")
+            Task {
+                await NotificationService.markAllMessageNotificationsAsViewed()   // CHANGED — awaited
+                PushBadgeState.shared.hasUnreadMessages = false   // CHANGED — moved after the write completes
+            }
         }
         .navigationDestination(isPresented: $showChat) {
             if let user = user {
