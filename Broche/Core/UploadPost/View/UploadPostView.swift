@@ -98,6 +98,22 @@ struct VideoSelectionView: View {
                     }
                 }
         .navigationBarBackButtonHidden(true)
+        .toolbar {   // NEW
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    imagePickerPresented = true
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.blue)
+                        .fontWeight(.bold)
+                }
+            }
+        }
+        .photosPicker(   // NEW
+            isPresented: $imagePickerPresented,
+            selection: $viewModel.selectedItem,
+            matching: .any(of: [.images, .videos])
+        )
         .tint(.blue)
         .accentColor(.blue)
         .environment(\.colorScheme, .light)

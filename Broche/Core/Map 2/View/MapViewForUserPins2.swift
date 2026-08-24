@@ -19,6 +19,7 @@ struct MapViewForUserPins2: View {
     @State private var selectedLocationType: MarkerType = .visited
     @State private var overlayWasVisibleBeforeMarker = true   // NEW
     @State private var lastSelectedCoordinate: CLLocationCoordinate2D?
+    @State private var hasHandledInitialDeepLink = false   // NEW
     
     var user: User
     @Binding var showOverlay: Bool
@@ -136,7 +137,10 @@ struct MapViewForUserPins2: View {
                 } else {
                     viewModel.fitCameraToLocations()
                     
-                    if let deepLinkTripId = deepLinkTripId {   // NEW
+                    guard !hasHandledInitialDeepLink else { return }   // NEW
+                    hasHandledInitialDeepLink = true                    // NEW
+                    
+                    if let deepLinkTripId = deepLinkTripId {
                         Task {
                             if let trips = try? await TripService.fetchTrips(forUserID: user.id),
                                let match = trips.first(where: { $0.id == deepLinkTripId }) {

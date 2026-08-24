@@ -17,13 +17,38 @@ struct LocationBookMarkView2: View {
     
     @Environment(\.colorScheme) var colorScheme
     @State private var savedStates: [PinType: Bool] = [:]
+    @State private var savedLocationIds: [PinType: Location] = [:]
+    
+    private var hasSelection: Bool {   // NEW
+        (savedStates[.visited] ?? false) || (savedStates[.future] ?? false)
+    }
     
     var body: some View {
         VStack(spacing: 14) {
-            Capsule()
+            Capsule()   // NEW — capsule now on its own, tight to the top edge
                 .fill(Color(.systemGray4))
                 .frame(width: 36, height: 4)
                 .padding(.top, 10)
+            
+            HStack {   // NEW — Done button gets its own row, no longer sharing space with the capsule
+                Spacer()
+                Button {
+                    withAnimation(.spring()) {
+                        viewModel.mapViewModel?.mapState = .noInput
+                    }
+                } label: {
+                    Text("Done")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(hasSelection ? .white : .secondary)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .background(hasSelection ? Color.blue : Color(.systemGray5))
+                        .clipShape(Capsule())
+                }
+                .disabled(!hasSelection)
+                .animation(.easeInOut(duration: 0.2), value: hasSelection)
+            }
+            .padding(.trailing, 16)
             
             Text(viewModel.selectedLocationTitle ?? "Unnamed Location")
                 .font(.headline)
@@ -43,13 +68,28 @@ struct LocationBookMarkView2: View {
                         userId: user.id
                     ) { newValue, savedLocation in
                         savedStates[type] = newValue
+                        
+                        if newValue, let savedLocation {
+                            savedLocationIds[type] = savedLocation
+                        }
+                        
                         if type == .visited {
                             didSaveLocation = newValue
-                            if newValue, let savedLocation { viewModel.mapViewModel?.addVisitedLocation(savedLocation) }
+                            if newValue, let savedLocation {
+                                viewModel.mapViewModel?.addVisitedLocation(savedLocation)
+                            } else if !newValue, let toRemove = savedLocationIds[type] {
+                                viewModel.mapViewModel?.removeVisitedLocation(id: toRemove.id)
+                                savedLocationIds[type] = nil
+                            }
                         }
                         if type == .future {
                             didSaveFutureLocation = newValue
-                            if newValue, let savedLocation { viewModel.mapViewModel?.addFutureLocation(savedLocation) }
+                            if newValue, let savedLocation {
+                                viewModel.mapViewModel?.addFutureLocation(savedLocation)
+                            } else if !newValue, let toRemove = savedLocationIds[type] {
+                                viewModel.mapViewModel?.removeFutureLocation(id: toRemove.id)
+                                savedLocationIds[type] = nil
+                            }
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -91,12 +131,18 @@ struct PinToggleButton: View {
                 let location = Location(id: "", ownerUid: userId, latitude: coordinate.latitude, longitude: coordinate.longitude, city: title.isEmpty ? nil : title)
                 do {
                     if newSaved {
-                        // NEW — block saving as Future if already Visited here
                         if type == .future {
                             let alreadyVisited = (try? await UserService.checkIfSavedLocation(uid: userId, coordinate: coordinate, type: .visited)) ?? false
                             if alreadyVisited {
                                 isAnimating = false
-                                return   // silently block — you've already been here, no need to also mark it as future
+                                return
+                            }
+                        }
+                        if type == .visited {   // NEW — block saving as Visited if already Future here
+                            let alreadyFuture = (try? await UserService.checkIfSavedLocation(uid: userId, coordinate: coordinate, type: .future)) ?? false
+                            if alreadyFuture {
+                                isAnimating = false
+                                return   // silently block — it's already planned as a future visit, don't also mark it visited
                             }
                         }
                         let saved = try await UserService.saveLocation(uid: userId, location: location, type: type.markerType)

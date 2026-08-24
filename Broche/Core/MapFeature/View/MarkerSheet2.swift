@@ -227,6 +227,7 @@ struct MarkerSheet2: View {
             uploadViewModel.attachedLocationId = viewModel.location.id
             uploadViewModel.attachedVisitId = nil
             uploadViewModel.location = viewModel.location.city ?? ""
+            showPostDetails = false
             uploadViewModel.selectedItem = newItem   // this alone triggers loadMedia via its own didSet
             showUpload = true                        // present immediately — VideoSelectionView shows its loading state while media loads
             pickerSelection = nil
@@ -237,7 +238,8 @@ struct MarkerSheet2: View {
                     path: .constant(NavigationPath()),
                     tabIndex: .constant(0),
                     viewModel: uploadViewModel,
-                    onFinished: { showUpload = false },
+                    onFinished: { showUpload = false
+                                showPostDetails = false },
                     onNext: { showPostDetails = true }
                 )
                 .navigationDestination(isPresented: $showPostDetails) {
@@ -245,16 +247,17 @@ struct MarkerSheet2: View {
                         viewModel: uploadViewModel,
                         tabIndex: .constant(0),
                         path: .constant(NavigationPath()),
-                        onFinished: { showUpload = false }
+                        onFinished: { showUpload = false
+                                    showPostDetails = false}
                     )
                 }
             }
         }
-        .onChange(of: uploadManager.lastCompletedLocationId) { newValue in
-                    if newValue == viewModel.location.id {
-                        photoGridRefreshToken = UUID()
-                    }
-                }
+        .onChange(of: uploadManager.uploadCompletionCount) { _ in
+            if uploadManager.lastCompletedLocationId == viewModel.location.id {
+                photoGridRefreshToken = UUID()
+            }
+        }
         .onAppear {
                     markerOnboarding.start()
                     if autoOpenComments {   // NEW

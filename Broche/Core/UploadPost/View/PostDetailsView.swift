@@ -237,7 +237,6 @@ struct PostDetailsView: View {
     }
     
     func clearPostDataAndReturnToFeed() {
-        print("DEBUG: Clearing post data and resetting navigation")
         caption = ""
         location = ""
         viewModel.selectedItem = nil
@@ -249,6 +248,6 @@ struct PostDetailsView: View {
         viewModel.selectedLocation = nil
         path = NavigationPath()
         tabIndex = 0
-        onFinished()
+        onFinished()   // → showUpload = false
     }
 }

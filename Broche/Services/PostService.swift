@@ -264,7 +264,7 @@ extension PostService {
                     "id": collectionId,
                     "name": name,
                     "postIds": [],
-                    "createdAt": ISO8601DateFormatter().string(from: Date()),
+                    "createdAt": Timestamp(date: Date()),   // was ISO8601 string
                     "thumbnailUrl": NSNull()
                 ])
             

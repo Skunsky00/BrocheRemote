@@ -136,7 +136,11 @@ struct MessageView: View {
     private var postDestination: some View {
         Group {
             if let post = post {
-                PostGridFeedCell(viewModel: FeedCellViewModel(post: post))
+                if let videoUrl = post.videoUrl, !videoUrl.isEmpty {
+                    PostGridFeedCell(viewModel: FeedCellViewModel(post: post))
+                } else {
+                    PostGridFeedCellPhoto(viewModel: FeedCellViewModel(post: post))
+                }
             } else {
                 Text("Post not found")
                     .foregroundColor(.red)

@@ -25,6 +25,7 @@ final class UploadManager: ObservableObject {
     @Published var isUploading = false
     @Published var uploadFailed = false
     @Published var lastCompletedLocationId: String? = nil
+    @Published var uploadCompletionCount = 0   // NEW — always increments, never repeats
 
     private init() {}
 
@@ -38,6 +39,7 @@ final class UploadManager: ObservableObject {
                 try await uploader.uploadPost(pending)
                 self.isUploading = false
                 self.lastCompletedLocationId = locationId
+                self.uploadCompletionCount += 1   // NEW — fires onChange every single time
             } catch {
                 self.isUploading = false
                 self.uploadFailed = true
