@@ -142,7 +142,7 @@ struct SettingsAndPrivacyView: View {
                     VerificationRequestView()
                         .navigationTitle("Verification")
                 case .help:
-                    Text("Help & support — link to email or FAQ page")
+                    HelpSupportView()
                 case .terms:
                     LegalView()               // CHANGED — was EmptyView()/sheet trigger, now a normal push
                 case .about:
