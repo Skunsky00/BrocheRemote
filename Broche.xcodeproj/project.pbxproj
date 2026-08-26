@@ -158,6 +158,7 @@
 		4EE157E33038F083007E785B /* DeleteStatusToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE157E23038F083007E785B /* DeleteStatusToast.swift */; };
 		4EE15829303A429B007E785B /* ExpandableCaptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE15828303A429B007E785B /* ExpandableCaptionView.swift */; };
 		4EE1582B303A9D19007E785B /* DeepLinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE1582A303A9D19007E785B /* DeepLinkManager.swift */; };
+		4EE15871303E7531007E785B /* NotificationsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE15870303E7531007E785B /* NotificationsSettingsView.swift */; };
 		4EEE64C92E4D3DA4009A9CA1 /* MapView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64C82E4D3DA4009A9CA1 /* MapView2.swift */; };
 		4EEE64CB2E4D3DBE009A9CA1 /* MapViewState2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64CA2E4D3DBE009A9CA1 /* MapViewState2.swift */; };
 		4EEE64CD2E4D3EDD009A9CA1 /* LocationSearchViewModel2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64CC2E4D3EDD009A9CA1 /* LocationSearchViewModel2.swift */; };
@@ -299,6 +300,7 @@
 		4EE157E23038F083007E785B /* DeleteStatusToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteStatusToast.swift; sourceTree = "<group>"; };
 		4EE15828303A429B007E785B /* ExpandableCaptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpandableCaptionView.swift; sourceTree = "<group>"; };
 		4EE1582A303A9D19007E785B /* DeepLinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkManager.swift; sourceTree = "<group>"; };
+		4EE15870303E7531007E785B /* NotificationsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsSettingsView.swift; sourceTree = "<group>"; };
 		4EEE64C82E4D3DA4009A9CA1 /* MapView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView2.swift; sourceTree = "<group>"; };
 		4EEE64CA2E4D3DBE009A9CA1 /* MapViewState2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewState2.swift; sourceTree = "<group>"; };
 		4EEE64CC2E4D3EDD009A9CA1 /* LocationSearchViewModel2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchViewModel2.swift; sourceTree = "<group>"; };
@@ -744,6 +746,7 @@
 				4E358C882E2072A30058C06C /* VerificationRequestView.swift */,
 				4EBBF27F2AB26E2900AA444C /* PrivacyView.swift */,
 				4EBBF27C2AB2439000AA444C /* ViewModel */,
+				4EE15870303E7531007E785B /* NotificationsSettingsView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -1039,6 +1042,7 @@
 				4E232FFF2DFE937F00B48755 /* Collection.swift in Sources */,
 				4E3043812DCD6FD500B9613E /* ItineraryViewModel.swift in Sources */,
 				4E85EBC42A16CF730074A346 /* SearchView.swift in Sources */,
+				4EE15871303E7531007E785B /* NotificationsSettingsView.swift in Sources */,
 				4E9A099B302A806200512139 /* Trip.swift in Sources */,
 				4EE157B330366CD7007E785B /* UploadStatusToastView.swift in Sources */,
 				4E85EBDC2A170A5A0074A346 /* ProfileHeaderView.swift in Sources */,
@@ -1269,7 +1273,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.2;
+				MARKETING_VERSION = 2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.brochetravel.broche;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1310,7 +1314,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.2;
+				MARKETING_VERSION = 2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.brochetravel.broche;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

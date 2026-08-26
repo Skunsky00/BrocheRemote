@@ -151,4 +151,19 @@ struct NotificationService {
             try? await doc.reference.updateData(["isViewed": true])
         }
     }
+    
+    // NEW — alongside your existing fetchNotifications(), doesn't replace it
+    static func observeNotifications(onUpdate: @escaping ([Notification]) -> Void) -> ListenerRegistration? {
+        guard let uid = Auth.auth().currentUser?.uid else { return nil }
+        
+        let query = COLLECTION_NOTIFICATIONS
+            .document(uid).collection("user-notifications")
+            .order(by: "timestamp", descending: true)
+        
+        return query.addSnapshotListener { snapshot, error in
+            guard let documents = snapshot?.documents else { return }
+            let notifications = documents.compactMap { try? $0.data(as: Notification.self) }
+            onUpdate(notifications)
+        }
+    }
 }

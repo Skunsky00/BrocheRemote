@@ -53,9 +53,8 @@ struct MainTabView: View {
                         selectedIndex = 2
                     }
                     .tabItem {
-                        Image(systemName: "bell")
+                        Image(systemName: notiViewModel.hasNewNotifications ? "bell.badge" : "bell")
                     }
-                    .badge(notiViewModel.hasNewNotifications ? "" : nil)
                     .tag(2)
                 
                 CurrentUserProfileView(user: user)
@@ -179,6 +178,7 @@ struct MainTabView: View {
         await notiViewModel.updateNotifications()   // refresh badge/list state
     }
 }
+
 struct MainTabView_Previews: PreviewProvider {
     static var previews: some View {
         MainTabView(user: User.MOCK_USERS[1])

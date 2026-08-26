@@ -67,6 +67,7 @@ class FeedCellViewModel: ObservableObject {
     }
     
     func like() async throws {
+        guard post.didLike != true else { return }   // NEW — already liked, ignore repeat calls (double-tap spam, rapid taps, etc)
         self.post.didLike = true
         try await PostService.likePost(post)
         self.post.likes += 1
@@ -141,7 +142,9 @@ class FeedCellViewModel: ObservableObject {
 @MainActor
 final class DeleteManager: ObservableObject {
     static let shared = DeleteManager()
-    @Published var didDeletePost = false   // toggled briefly to trigger the toast
+    @Published var didDeletePost = false
+    @Published var lastDeletedLocationId: String? = nil   // NEW
+    @Published var deletionCompletionCount = 0             // NEW — always increments, mirrors uploadCompletionCount
 
     private init() {}
 
@@ -149,8 +152,10 @@ final class DeleteManager: ObservableObject {
         Task {
             do {
                 try await PostService.deletePost(post)
+                lastDeletedLocationId = post.locationId   // NEW
+                deletionCompletionCount += 1              // NEW
                 didDeletePost = true
-                try? await Task.sleep(nanoseconds: 2_000_000_000)   // toast visible ~2s
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
                 didDeletePost = false
             } catch {
                 print("DEBUG: Failed to delete post: \(error)")

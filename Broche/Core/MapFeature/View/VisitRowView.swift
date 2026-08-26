@@ -80,7 +80,7 @@ struct VisitListView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
             } else if visits.isEmpty {
-                Text(isCurrentUser ? "No visits yet. Add one to start posting photos here." : "No visits yet.")
+                Text(isCurrentUser ? "No albums yet. Add one to start posting photos here." : "No albums yet.")
                     .font(.footnote)
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)

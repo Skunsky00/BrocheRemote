@@ -80,6 +80,81 @@ extension UserService {
         let lastDocument = snapshot.documents.last
         return (users, lastDocument)
     }
+    
+    // Add to UserService
+    static func deleteAccount(uid: String) async throws {
+        // 1. Delete all owned posts
+        if let posts = try? await PostService.fetchUserPosts(user: User(id: uid, username: "", email: "")) {
+            for post in posts {
+                try? await PostService.deletePost(post)
+            }
+        }
+        
+        // 2. Delete all saved locations (visited + future) — cascades visits/posts/comments
+        for type in [MarkerType.visited, MarkerType.future] {
+            if let locations = try? await UserService.fetchSavedLocations(forUserID: uid, type: type) {
+                for location in locations {
+                    try? await UserService.unSaveLocation(uid: uid, location: location, type: type)
+                }
+            }
+        }
+        
+        // 3. Delete owned trips — NEW
+        if let trips = try? await TripService.fetchTrips(forUserID: uid) {
+            for trip in trips {
+                try? await TripService.deleteTrip(uid: uid, tripId: trip.id)
+            }
+        }
+        
+        // 4. Delete this user's own message threads and recent-messages summary — NEW
+        if let recentDocs = try? await COLLECTION_MESSAGES.document(uid).collection("recent-messages").getDocuments() {
+            for doc in recentDocs.documents {
+                // delete the actual thread with this partner
+                if let threadDocs = try? await COLLECTION_MESSAGES.document(uid).collection(doc.documentID).getDocuments() {
+                    for message in threadDocs.documents {
+                        try? await message.reference.delete()
+                    }
+                }
+                try? await doc.reference.delete()
+            }
+        }
+        
+        // 5. Delete notifications inbox
+        if let notifDocs = try? await COLLECTION_NOTIFICATIONS.document(uid).collection("user-notifications").getDocuments() {
+            for doc in notifDocs.documents {
+                try? await doc.reference.delete()
+            }
+        }
+        
+        // 6. Remove follow relationships both directions
+        if let following = try? await COLLECTION_FOLLOWING.document(uid).collection("user-following").getDocuments() {
+            for doc in following.documents {
+                try? await COLLECTION_FOLLOWERS.document(doc.documentID).collection("user-followers").document(uid).delete()
+                try? await doc.reference.delete()
+            }
+        }
+        if let followers = try? await COLLECTION_FOLLOWERS.document(uid).collection("user-followers").getDocuments() {
+            for doc in followers.documents {
+                try? await COLLECTION_FOLLOWING.document(doc.documentID).collection("user-following").document(uid).delete()
+                try? await doc.reference.delete()
+            }
+        }
+        
+        // 7. Delete this user's own subcollections under COLLECTION_USERS — NEW, this is the gotcha
+        for subcollection in ["user-likes", "user-bookmarks", "user-pinned", "collections", "saved-trips"] {
+            if let docs = try? await COLLECTION_USERS.document(uid).collection(subcollection).getDocuments() {
+                for doc in docs.documents {
+                    try? await doc.reference.delete()
+                }
+            }
+        }
+        
+        // 8. Delete the user doc itself
+        try? await COLLECTION_USERS.document(uid).delete()
+        
+        // 9. Delete the Firebase Auth account — must be last
+        try await Auth.auth().currentUser?.delete()
+    }
 }
 
 

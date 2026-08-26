@@ -17,6 +17,7 @@ struct MarkerSheet2: View {
     @EnvironmentObject var locationViewModel: LocationSearchViewModel2
     @EnvironmentObject var markerOnboarding: MarkerOnboardingManager
     @ObservedObject private var uploadManager = UploadManager.shared   // NEW
+    @ObservedObject private var deleteManager = DeleteManager.shared
     @Environment(\.dismiss) private var dismiss
     var onLocationUpdated: (Location) -> Void = { _ in }
     var onLocationRemoved: (Location) -> Void = { _ in }
@@ -35,6 +36,7 @@ struct MarkerSheet2: View {
     @State private var showFutureActionSheet = false
     @State private var showPostDetails = false   // NEW
     @State private var showComments = false   // NEW
+    
     
     
     var body: some View {
@@ -255,6 +257,11 @@ struct MarkerSheet2: View {
         }
         .onChange(of: uploadManager.uploadCompletionCount) { _ in
             if uploadManager.lastCompletedLocationId == viewModel.location.id {
+                photoGridRefreshToken = UUID()
+            }
+        }
+        .onChange(of: deleteManager.deletionCompletionCount) { _ in   // NEW
+            if deleteManager.lastDeletedLocationId == viewModel.location.id {
                 photoGridRefreshToken = UUID()
             }
         }

@@ -11,10 +11,8 @@ struct CurrentUserProfileView: View {
     let user: User
     @StateObject var viewModel: ProfileViewModel
     @StateObject var notiViewModel: NotificationsViewModel
-    @State private var showSettingsSheet = false
-    @State private var selectedSettingsOption: SettingsItemModel?
+    @State private var showSettings = false   // CHANGED — replaces showSettingsSheet + selectedSettingsOption + showDetail for settings
     @State private var selectedSettingsPrivacy: SettingsPrivacyModel?
-    @State private var showDetail = false
     @State private var selectedFilter: ProfileFilterSelector = .map
     @State private var showOverlay = true
     @State private var selectedLocation: Location?   // NEW — required by MapViewForUserPins2
@@ -77,28 +75,8 @@ struct CurrentUserProfileView: View {
             }
             .navigationBarTitle("", displayMode: .inline)
             .environmentObject(brocheViewModel)
-            .navigationDestination(isPresented: $showDetail) {
-                if let option = selectedSettingsOption {
-                    switch option {
-                    case .settings:
-                        NavigationView {
-                            SettingsAndPrivacyView(user: user, selectedOption: $selectedSettingsPrivacy)
-                                .navigationTitle("Settings")
-                        }
-                    case .bookmark:
-                        ScrollView {
-                                        CollectionsView(user: user, disableScrolling: true)
-                                    }
-                    case .emptyView:
-                        EmptyView()
-                    default:
-                        Text(option.title)
-                    }
-                }
-            }
-            .sheet(isPresented: $showSettingsSheet) {
-                SettingsView(selectedOption: $selectedSettingsOption)
-                    .presentationDetents([.height(CGFloat(SettingsItemModel.allCases.count * 56))])
+            .navigationDestination(isPresented: $showSettings) {
+                SettingsAndPrivacyView(user: user, selectedOption: $selectedSettingsPrivacy)
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {   // NEW
@@ -117,7 +95,7 @@ struct CurrentUserProfileView: View {
                 ToolbarItem(placement: .principal) {
                     UsernameWithBadgeView(user: user)
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .navigationBarLeading) {
                         NavigationLink {
                             ConversationsView()
                         } label: {
@@ -130,32 +108,19 @@ struct CurrentUserProfileView: View {
                             pushBadgeState.hasUnreadMessages = false
                         })
                     }
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        selectedSettingsOption = nil
-                        showSettingsSheet.toggle()
-                    } label: {
-                        Image(systemName: "line.3.horizontal")
-                            .foregroundColor(colorScheme == .dark ? .white : .black)
-                    }
-                }
-            }
-            .task {   // NEW
-                    await pushBadgeState.refreshFromFirestore()
-                }
-            .onChange(of: notiViewModel.hasNewNotifications) {
-                print("DEBUG: CurrentUserProfileView - hasNewNotifications: \(notiViewModel.hasNewNotifications)")
-            }
-            .onChange(of: selectedSettingsOption) {
-                guard let option = selectedSettingsOption else { return }
-                switch option {
-                case .logout:
-                    AuthService.shared.signout()
-                case .settings, .bookmark, .emptyView:   // CHANGED — bookmark now routes through showDetail too
-                    showDetail = true
-                }
-            }
-        } 
+                ToolbarItem(placement: .navigationBarTrailing) {
+                                    Button {
+                                        showSettings = true   // CHANGED — straight to full settings, no sheet
+                                    } label: {
+                                        Image(systemName: "line.3.horizontal")
+                                            .foregroundColor(colorScheme == .dark ? .white : .black)
+                                    }
+                                }
+                            }
+                            .task {
+                                await pushBadgeState.refreshFromFirestore()
+                            }
+        }
     }
     
     @ViewBuilder

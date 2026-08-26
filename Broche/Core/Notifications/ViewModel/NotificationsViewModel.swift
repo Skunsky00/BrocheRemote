@@ -12,33 +12,65 @@ import Firebase
 class NotificationsViewModel: ObservableObject {
     @Published var notifications = [Notification]()
     @Published var hasNewNotifications = false
-    @Published var hasUnreadMessages = false   // NEW
+    @Published var hasUnreadMessages = false
     @Published var groupedNotifications: [GroupedNotification] = []
     
+    private var listener: ListenerRegistration?
+    private var hydrationTask: Task<Void, Never>?   // NEW — the in-flight debounce timer
+    
     init() {
-        Task { await updateNotifications() }
+        startListening()
     }
     
-    func updateNotifications() async {
-        notifications = await NotificationService.fetchNotifications()
+    deinit {
+        listener?.remove()
+        hydrationTask?.cancel()   // NEW
+    }
+    
+    private func startListening() {
+        listener = NotificationService.observeNotifications { [weak self] rawNotifications in
+            guard let self else { return }
+            self.scheduleHydration(for: rawNotifications)   // CHANGED — was calling handleNotificationsUpdate directly
+        }
+    }
+    
+    // NEW — debounce wrapper
+    private func scheduleHydration(for rawNotifications: [Notification]) {
+        hydrationTask?.cancel()   // cancel whatever was waiting, this newer change supersedes it
+        hydrationTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 500_000_000)   // 0.5s of quiet before we actually hydrate
+            guard !Task.isCancelled else { return }
+            await self.handleNotificationsUpdate(rawNotifications)
+        }
+    }
+    
+    private func handleNotificationsUpdate(_ rawNotifications: [Notification]) async {
+        var updated = rawNotifications
         
         await withTaskGroup(of: (Int, Notification).self) { group in
-            for (index, notification) in notifications.enumerated() {
+            for (index, notification) in updated.enumerated() {
                 group.addTask {
-                    let updated = await NotificationService.fetchMetadata(for: notification)
-                    return (index, updated)
+                    let hydrated = await NotificationService.fetchMetadata(for: notification)
+                    return (index, hydrated)
                 }
             }
-            for await (index, updated) in group {
-                if index < self.notifications.count {
-                    self.notifications[index] = updated
+            for await (index, hydrated) in group {
+                if index < updated.count {
+                    updated[index] = hydrated
                 }
             }
         }
         
+        self.notifications = updated
         checkForNewNotifications()
         checkForUnreadMessages()
         buildGroups()
+    }
+    
+    func updateNotifications() async {
+        hydrationTask?.cancel()   // CHANGED — manual refresh should win over any pending debounce, run immediately
+        let raw = await NotificationService.fetchNotifications()
+        await handleNotificationsUpdate(raw)
     }
     
     private func checkForNewNotifications() {

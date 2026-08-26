@@ -85,22 +85,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "93C15C0C-95E5-4782-AA2C-A930E47F8B95"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Broche/Core/Settings/SettingsAndPrivacyView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "84"
-            endingLineNumber = "84"
-            landmarkName = "body"
-            landmarkType = "24">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "5C3A54C7-1DA9-48BA-8B5E-C8DAB4409BD3"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -124,9 +108,9 @@
             filePath = "Broche/Services/UserService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "89"
-            endingLineNumber = "89"
-            landmarkName = "fetchSavedLocations(forUserID:type:)"
+            startingLineNumber = "164"
+            endingLineNumber = "164"
+            landmarkName = "saveLocation(uid:location:type:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
