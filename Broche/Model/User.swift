@@ -24,6 +24,8 @@ struct User: Identifiable, Codable {
     var didSaveLocation: Bool? = false
     var didSaveFutureLocation: Bool? = false
     var verificationStatus: VerificationType = .none
+    var followersCount: Int? = 0   // NEW — persisted, updated via increment on follow/unfollow
+    var followingCount: Int? = 0   // NEW
     
     var isCurrentUser: Bool {
         guard let currentUid = Auth.auth().currentUser?.uid else { return false }

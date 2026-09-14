@@ -15,19 +15,39 @@ struct UserService {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
         
         COLLECTION_FOLLOWING.document(currentUid)
-            .collection("user-following").document(uid).setData([:]) { _ in
+            .collection("user-following").document(uid).setData([:]) { error in
+                guard error == nil else { completion?(error); return }
                 COLLECTION_FOLLOWERS.document(uid).collection("user-followers")
-                    .document(currentUid).setData([:], completion: completion)
+                    .document(currentUid).setData([:]) { error in
+                        guard error == nil else { completion?(error); return }
+                        // NEW — keep denormalized counts in sync
+                        COLLECTION_USERS.document(currentUid).updateData([
+                            "followingCount": FieldValue.increment(Int64(1))
+                        ])
+                        COLLECTION_USERS.document(uid).updateData([
+                            "followersCount": FieldValue.increment(Int64(1))
+                        ], completion: completion)
+                    }
             }
     }
-    
+
     static func unfollow(uid: String, completion: ((Error?) -> Void)?) {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
 
         COLLECTION_FOLLOWING.document(currentUid).collection("user-following")
-            .document(uid).delete { _ in
+            .document(uid).delete { error in
+                guard error == nil else { completion?(error); return }
                 COLLECTION_FOLLOWERS.document(uid).collection("user-followers")
-                    .document(currentUid).delete(completion: completion)
+                    .document(currentUid).delete { error in
+                        guard error == nil else { completion?(error); return }
+                        // NEW
+                        COLLECTION_USERS.document(currentUid).updateData([
+                            "followingCount": FieldValue.increment(Int64(-1))
+                        ])
+                        COLLECTION_USERS.document(uid).updateData([
+                            "followersCount": FieldValue.increment(Int64(-1))
+                        ], completion: completion)
+                    }
             }
     }
     
@@ -54,6 +74,27 @@ struct UserService {
     static func fetchAllUsers() async throws -> [User] {
         let snapshot = try await COLLECTION_USERS.getDocuments()
         return snapshot.documents.compactMap({ try? $0.data(as: User.self) })
+    }
+}
+
+extension UserService {
+    static func backfillFollowCounts(uid: String) async {
+        guard let userDoc = try? await COLLECTION_USERS.document(uid).getDocument(),
+              let user = try? userDoc.data(as: User.self) else { return }
+        
+        // Skip if this user already has counts (avoids re-querying on every launch)
+        guard user.followersCount == nil || user.followingCount == nil else { return }
+        
+        async let followersSnapshot = try? await COLLECTION_FOLLOWERS.document(uid).collection("user-followers").getDocuments()
+        async let followingSnapshot = try? await COLLECTION_FOLLOWING.document(uid).collection("user-following").getDocuments()
+        
+        let followersCount = await followersSnapshot?.count ?? 0
+        let followingCount = await followingSnapshot?.count ?? 0
+        
+        try? await COLLECTION_USERS.document(uid).updateData([
+            "followersCount": followersCount,
+            "followingCount": followingCount
+        ])
     }
 }
 
@@ -174,7 +215,7 @@ extension UserService {
                 return nil
             }
         }
-        print("Fetched \(locations.count) \(type) locations for user \(uid): \(locations)")
+        print("Fetched \(locations.count) \(type) locations for user \(uid)")
         return locations
     }
     

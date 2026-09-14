@@ -19,20 +19,22 @@ class ProfileViewModel: ObservableObject {
     }
     
     func follow() {
-            UserService.follow(uid: user.id) { _ in
-                NotificationService.uploadNotification(toUid: self.user.id, type: .follow)
-                self.user.isFollowed = true
-                self.user.stats?.followers = (self.user.stats?.followers ?? 0) + 1   // NEW
-            }
+        UserService.follow(uid: user.id) { _ in
+            NotificationService.uploadNotification(toUid: self.user.id, type: .follow)
+            self.user.isFollowed = true
+            self.user.followersCount = (self.user.followersCount ?? 0) + 1   // CHANGED
+            self.user.stats?.followers = self.user.followersCount ?? 0        // keep stats in sync for the UI
         }
-        
-        func unfollow() {
-            UserService.unfollow(uid: user.id) { _ in
-                self.user.isFollowed = false
-                self.user.stats?.followers = max((self.user.stats?.followers ?? 1) - 1, 0)   // NEW
-                NotificationService.deleteNotification(toUid: self.user.id, type: .follow)
-            }
+    }
+
+    func unfollow() {
+        UserService.unfollow(uid: user.id) { _ in
+            self.user.isFollowed = false
+            self.user.followersCount = max((self.user.followersCount ?? 1) - 1, 0)   // CHANGED
+            self.user.stats?.followers = self.user.followersCount ?? 0
+            NotificationService.deleteNotification(toUid: self.user.id, type: .follow)
         }
+    }
     
     func checkIfUserIsFollowed() async -> Bool {
         guard !user.isCurrentUser else { return false }
@@ -44,29 +46,25 @@ class ProfileViewModel: ObservableObject {
             guard !user.isCurrentUser, let currentUid = Auth.auth().currentUser?.uid else { return false }
             return await UserService.checkIfUserIsFollowed(uid: currentUid, byUid: user.id)
         }
-    
-    func fetchUserStats() async throws -> UserStats{
-        let uid = user.id
 
-        async let followingSnapshot = try await COLLECTION_FOLLOWING.document(uid).collection("user-following").getDocuments()
-        let following = try await followingSnapshot.count
-
-        async let followerSnapshot = try await COLLECTION_FOLLOWERS.document(uid).collection("user-followers").getDocuments()
-        let followers = try await followerSnapshot.count
-
-
-        return .init(following: following, followers: followers)
-    }
 
     func loadUserData() {
+        self.user.stats = UserStats(following: user.followingCount ?? 0, followers: user.followersCount ?? 0)
+        
         Task {
-            async let stats = try await fetchUserStats()
-            self.user.stats = try await stats
-
+            if user.followersCount == nil || user.followingCount == nil {
+                await UserService.backfillFollowCounts(uid: user.id)
+                if let refreshed = try? await UserService.fetchUser(withUid: user.id) {
+                    self.user.followersCount = refreshed.followersCount
+                    self.user.followingCount = refreshed.followingCount
+                    self.user.stats = UserStats(following: refreshed.followingCount ?? 0, followers: refreshed.followersCount ?? 0)
+                }
+            }
+            
             async let isFollowed = await checkIfUserIsFollowed()
             self.user.isFollowed = await isFollowed
             
-            async let followsMe = await checkIfUserFollowsMe()   // NEW
+            async let followsMe = await checkIfUserFollowsMe()
             self.followsMe = await followsMe
         }
     }
