@@ -15,6 +15,7 @@ struct Itinerary: View {
     var onSelectTrip: ((Trip) -> Void)? = nil
     
     @State private var showTripSelector = false   // NEW
+    @State private var selectedRegionType: RegionType? = nil
     
     var body: some View {
         VStack(spacing: 24) {
@@ -27,27 +28,29 @@ struct Itinerary: View {
                 .fontWeight(.semibold)
             
             HStack(spacing: 16) {
-                StatBlock(
-                    icon: "mappin.circle.fill",
-                    label: "States",
-                    count: viewModel.travelStats.visitedStates,
-                    total: 50,
-                    color: Color(.sRGB, red: 76/255, green: 175/255, blue: 80/255)
-                )
-                StatBlock(
-                    icon: "globe.americas.fill",
-                    label: "Countries",
-                    count: viewModel.travelStats.visitedCountries,
-                    total: 195,
-                    color: Color(.sRGB, red: 33/255, green: 150/255, blue: 243/255)
-                )
-                StatBlock(
-                    icon: "globe",
-                    label: "Continents",
-                    count: viewModel.travelStats.visitedContinents,
-                    total: 7,
-                    color: Color(.sRGB, red: 255/255, green: 193/255, blue: 7/255)
-                )
+                Button { selectedRegionType = .states } label: {
+                    StatBlock(icon: "mappin.circle.fill", label: "States",
+                               count: viewModel.travelStats.visitedStates, total: 50,
+                               color: Color(.sRGB, red: 76/255, green: 175/255, blue: 80/255))
+                }
+                .buttonStyle(.plain)
+                .disabled(viewModel.travelStats.visitedStates == 0)
+
+                Button { selectedRegionType = .countries } label: {
+                    StatBlock(icon: "globe.americas.fill", label: "Countries",
+                               count: viewModel.travelStats.visitedCountries, total: 195,
+                               color: Color(.sRGB, red: 33/255, green: 150/255, blue: 243/255))
+                }
+                .buttonStyle(.plain)
+                .disabled(viewModel.travelStats.visitedCountries == 0)
+
+                Button { selectedRegionType = .continents } label: {
+                    StatBlock(icon: "globe", label: "Continents",
+                               count: viewModel.travelStats.visitedContinents, total: 7,
+                               color: Color(.sRGB, red: 255/255, green: 193/255, blue: 7/255))
+                }
+                .buttonStyle(.plain)
+                .disabled(viewModel.travelStats.visitedContinents == 0)
             }
             .padding(.horizontal)
             
@@ -91,6 +94,16 @@ struct Itinerary: View {
             if viewModel.visited.isEmpty {
                 viewModel.fetchItinerary(userId: userId)
             }
+        }
+        .sheet(item: $selectedRegionType) { type in
+            let regions: [RegionPinGroup] = {
+                switch type {
+                case .states: return viewModel.stateGroups
+                case .countries: return viewModel.countryGroups
+                case .continents: return viewModel.continentGroups
+                }
+            }()
+            RegionMapView(title: type.title, regions: regions)
         }
         .sheet(isPresented: $viewModel.showSheet) {
             Text("Itinerary Details Sheet")

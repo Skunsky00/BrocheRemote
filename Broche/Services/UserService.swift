@@ -191,12 +191,25 @@ extension UserService {
             }
         }
         
+        // NEW — resolve region info once, at creation time, instead of on every stats read
+        var locationToSave = location
+        do {
+            let region = try await LocationResolver.resolve(latitude: location.latitude, longitude: location.longitude)
+            locationToSave.state = region.countryCode == "US" ? region.state?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() : nil
+            locationToSave.country = region.country?.trimmingCharacters(in: .whitespacesAndNewlines)
+            locationToSave.countryCode = region.countryCode
+            locationToSave.continent = region.continent?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        } catch {
+            print("DEBUG: Failed to resolve region for new location: \(error.localizedDescription)")
+            // Leave region fields nil — it'll just be excluded from stats until backfilled
+        }
+        
         let docRef = subCollection.document()
-        var data = try Firestore.Encoder().encode(location)
+        var data = try Firestore.Encoder().encode(locationToSave)
         data["id"] = docRef.documentID
         try await docRef.setData(data)
         
-        var saved = location
+        var saved = locationToSave
         saved.id = docRef.documentID
         
         if type == .visited {
@@ -258,6 +271,60 @@ extension UserService {
         
         print("No saved \(type) location at: \(coordinate)")
         return false
+    }
+}
+
+extension UserService {
+    static func backfillRegionData(uid: String, type: MarkerType) async {
+        let collection = type == .visited ? COLLECTION_LOCATION : COLLECTION_FUTURE_LOCATIONS
+        let subCollection = collection.document(uid).collection("user-locations")
+        
+        guard let querySnapshot = try? await subCollection.getDocuments() else { return }
+        
+        let needsBackfill = querySnapshot.documents.compactMap { doc -> (String, Location)? in
+            guard let location = try? doc.data(as: Location.self) else { return nil }
+            // If any region field is missing, it needs resolving
+            if location.country == nil && location.continent == nil {
+                return (doc.documentID, location)
+            }
+            return nil
+        }
+        
+        guard !needsBackfill.isEmpty else { return }
+        print("DEBUG: Backfilling region data for \(needsBackfill.count) locations")
+        
+        let batchSize = 45
+        for batchStart in stride(from: 0, to: needsBackfill.count, by: batchSize) {
+            let batchEnd = min(batchStart + batchSize, needsBackfill.count)
+            let chunk = Array(needsBackfill[batchStart..<batchEnd])
+            
+            await withTaskGroup(of: Void.self) { group in
+                for (docId, location) in chunk {
+                    group.addTask {
+                        do {
+                            let region = try await LocationResolver.resolve(latitude: location.latitude, longitude: location.longitude)
+                            var update: [String: Any] = [:]
+                            if region.countryCode == "US" {
+                                update["state"] = region.state?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                            }
+                            update["country"] = region.country?.trimmingCharacters(in: .whitespacesAndNewlines)
+                            update["countryCode"] = region.countryCode
+                            update["continent"] = region.continent?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                            try await subCollection.document(docId).updateData(update)
+                        } catch {
+                            print("DEBUG: Backfill failed for \(docId): \(error.localizedDescription)")
+                        }
+                    }
+                }
+                for await _ in group { }
+            }
+            
+            if batchEnd < needsBackfill.count {
+                try? await Task.sleep(nanoseconds: 61_000_000_000)
+            }
+        }
+        
+        print("DEBUG: Backfill complete for \(type)")
     }
 }
 

@@ -16,6 +16,9 @@ class ItineraryViewModel: ObservableObject {
     @Published var showSheet = false
     @Published var visited: [Location] = []
     @Published var trips: [Trip] = []
+    @Published var stateGroups: [RegionPinGroup] = []
+    @Published var countryGroups: [RegionPinGroup] = []
+    @Published var continentGroups: [RegionPinGroup] = []
     @Published var isLoadingStats = false
     
     private var userId: String?
@@ -34,8 +37,11 @@ class ItineraryViewModel: ObservableObject {
     
     func fetchItinerary(userId: String) {
         self.userId = userId
-        fetchVisitedPins()
-        fetchTrips(userId: userId)
+        Task {
+            await UserService.backfillRegionData(uid: userId, type: .visited)
+            fetchVisitedPins()
+            fetchTrips(userId: userId)
+        }
     }
     
     func toggleSheet() {
@@ -88,65 +94,23 @@ class ItineraryViewModel: ObservableObject {
     }
     
     private func computeStats(locations: [Location]) async {
-        let validUSStates = Set([
-            "al", "ak", "az", "ar", "ca", "co", "ct", "de", "fl", "ga",
-            "hi", "id", "il", "in", "ia", "ks", "ky", "la", "me", "md",
-            "ma", "mi", "mn", "ms", "mo", "mt", "ne", "nv", "nh", "nj",
-            "nm", "ny", "nc", "nd", "oh", "ok", "or", "pa", "ri", "sc",
-            "sd", "tn", "tx", "ut", "vt", "va", "wa", "wv", "wi", "wy"
-        ])
+        var statesDict: [String: [Location]] = [:]
+        var countriesDict: [String: [Location]] = [:]
+        var continentsDict: [String: [Location]] = [:]
 
-        var statesSet = Set<String>()
-        var countriesSet = Set<String>()
-        var continentsSet = Set<String>()
-
-        // Filter out invalid coordinates up front, before spawning tasks
-        let validLocations = locations.filter { location in
-            location.latitude != 0.0 &&
-            location.longitude != 0.0 &&
-            location.latitude >= -90.0 && location.latitude <= 90.0 &&
-            location.longitude >= -180.0 && location.longitude <= 180.0
-        }
-
-        // Run all geocode lookups concurrently, collect results as they complete
-        await withTaskGroup(of: ResolvedRegion?.self) { group in
-            for location in validLocations {
-                group.addTask {
-                    do {
-                        return try await LocationResolver.resolve(
-                            latitude: location.latitude,
-                            longitude: location.longitude
-                        )
-                    } catch {
-                        print("DEBUG: Failed to resolve location ID: \(location.id) (\(location.latitude), \(location.longitude)): \(error.localizedDescription)")
-                        return nil
-                    }
-                }
+        for location in locations {
+            if let state = location.state {
+                statesDict[state, default: []].append(location)
             }
-
-            for await result in group {
-                guard let region = result else { continue }
-
-                if region.countryCode == "US",
-                   let state = region.state?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
-                   validUSStates.contains(state) {
-                    statesSet.insert(state)
-                }
-
-                if let country = region.country?.trimmingCharacters(in: .whitespacesAndNewlines) {
-                    countriesSet.insert(country)
-                }
-                if let continent = region.continent?.trimmingCharacters(in: .whitespacesAndNewlines) {
-                    continentsSet.insert(continent)
-                }
+            if let country = location.country {
+                countriesDict[country, default: []].append(location)
+            }
+            if let continent = location.continent {
+                continentsDict[continent, default: []].append(location)
             }
         }
 
-        print("DEBUG: Unique states: \(statesSet.sorted()) (count: \(statesSet.count))")
-        print("DEBUG: Unique countries: \(countriesSet.sorted()) (count: \(countriesSet.count))")
-        print("DEBUG: Unique continents: \(continentsSet.sorted()) (count: \(continentsSet.count))")
-
-        let unlockedContinents = continentsSet.compactMap { continent -> String? in
+        let unlockedContinents = continentsDict.keys.compactMap { continent -> String? in
             switch continent {
             case "north america": return "🟦 North America"
             case "south america": return "🟨 South America"
@@ -159,14 +123,40 @@ class ItineraryViewModel: ObservableObject {
             }
         }
 
+        let newStateGroups = statesDict.keys.compactMap { key -> RegionPinGroup? in
+            guard let coord = RegionGeography.usStateCentroids[key] else { return nil }
+            return RegionPinGroup(id: key, name: usStateNames[key] ?? key.uppercased(), coordinate: coord)
+        }.sorted { $0.name < $1.name }
+
+        let newContinentGroups = continentsDict.keys.compactMap { key -> RegionPinGroup? in
+            guard let coord = RegionGeography.continentCenters[key] else { return nil }
+            return RegionPinGroup(id: key, name: key.capitalized, coordinate: coord)
+        }.sorted { $0.name < $1.name }
+
+        var newCountryGroups: [RegionPinGroup] = []
+        await withTaskGroup(of: RegionPinGroup?.self) { group in
+            for country in countriesDict.keys {
+                group.addTask {
+                    guard let coord = await RegionGeography.geocodeCountryCenter(country) else { return nil }
+                    return RegionPinGroup(id: country, name: country, coordinate: coord)
+                }
+            }
+            for await result in group {
+                if let result { newCountryGroups.append(result) }
+            }
+        }
+        newCountryGroups.sort { $0.name < $1.name }
+
         await MainActor.run {
             self.travelStats = TravelStats(
-                visitedStates: statesSet.count,
-                visitedCountries: countriesSet.count,
-                visitedContinents: continentsSet.count,
+                visitedStates: statesDict.count,
+                visitedCountries: countriesDict.count,
+                visitedContinents: continentsDict.count,
                 unlockedContinents: unlockedContinents
             )
-            print("DEBUG: Updated travelStats: States=\(statesSet.count), Countries=\(countriesSet.count), Continents=\(continentsSet.count)")
+            self.stateGroups = newStateGroups
+            self.countryGroups = newCountryGroups
+            self.continentGroups = newContinentGroups
         }
     }
     
@@ -243,4 +233,42 @@ struct Badge: Identifiable, Hashable {
     static func == (lhs: Badge, rhs: Badge) -> Bool {
         lhs.id == rhs.id
     }
+}
+
+struct RegionPinGroup: Identifiable {
+    let id: String
+    let name: String
+    let coordinate: CLLocationCoordinate2D
+}
+
+enum RegionType: String, Identifiable {
+    case states, countries, continents
+    var id: String { rawValue }
+    var title: String {
+        switch self {
+        case .states: return "States Visited"
+        case .countries: return "Countries Visited"
+        case .continents: return "Continents Visited"
+        }
+    }
+}
+
+// Optional but nicer than showing raw two-letter codes on the map
+private let usStateNames: [String: String] = [
+    "al":"Alabama","ak":"Alaska","az":"Arizona","ar":"Arkansas","ca":"California",
+    "co":"Colorado","ct":"Connecticut","de":"Delaware","fl":"Florida","ga":"Georgia",
+    "hi":"Hawaii","id":"Idaho","il":"Illinois","in":"Indiana","ia":"Iowa","ks":"Kansas",
+    "ky":"Kentucky","la":"Louisiana","me":"Maine","md":"Maryland","ma":"Massachusetts",
+    "mi":"Michigan","mn":"Minnesota","ms":"Mississippi","mo":"Missouri","mt":"Montana",
+    "ne":"Nebraska","nv":"Nevada","nh":"New Hampshire","nj":"New Jersey","nm":"New Mexico",
+    "ny":"New York","nc":"North Carolina","nd":"North Dakota","oh":"Ohio","ok":"Oklahoma",
+    "or":"Oregon","pa":"Pennsylvania","ri":"Rhode Island","sc":"South Carolina",
+    "sd":"South Dakota","tn":"Tennessee","tx":"Texas","ut":"Utah","vt":"Vermont",
+    "va":"Virginia","wa":"Washington","wv":"West Virginia","wi":"Wisconsin","wy":"Wyoming"
+]
+
+private func centroid(of locations: [Location]) -> CLLocationCoordinate2D {
+    let lat = locations.map(\.latitude).reduce(0, +) / Double(locations.count)
+    let lon = locations.map(\.longitude).reduce(0, +) / Double(locations.count)
+    return CLLocationCoordinate2D(latitude: lat, longitude: lon)
 }

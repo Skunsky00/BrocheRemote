@@ -21,6 +21,10 @@ struct Location: Codable, Identifiable {
     let link: String?
     let linkTitle: String?
     let createdAt: Date?
+    var state: String?        // NEW — lowercase 2-letter code, e.g. "fl" (US only)
+    var country: String?      // NEW — e.g. "United States"
+    var countryCode: String?  // NEW — e.g. "US"
+    var continent: String?    // NEW — lowercase, e.g. "north america"
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -33,6 +37,10 @@ struct Location: Codable, Identifiable {
         case link
         case linkTitle
         case createdAt
+        case state
+        case country
+        case countryCode
+        case continent
     }
 
     init(from decoder: Decoder) throws {
@@ -47,6 +55,10 @@ struct Location: Codable, Identifiable {
         self.link = try container.decodeIfPresent(String.self, forKey: .link)
         self.linkTitle = try container.decodeIfPresent(String.self, forKey: .linkTitle)
         self.createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt)
+        self.state = try container.decodeIfPresent(String.self, forKey: .state)
+        self.country = try container.decodeIfPresent(String.self, forKey: .country)
+        self.countryCode = try container.decodeIfPresent(String.self, forKey: .countryCode)
+        self.continent = try container.decodeIfPresent(String.self, forKey: .continent)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -61,9 +73,13 @@ struct Location: Codable, Identifiable {
         try container.encode(link, forKey: .link)
         try container.encodeIfPresent(linkTitle, forKey: .linkTitle)
         try container.encodeIfPresent(createdAt, forKey: .createdAt)
+        try container.encodeIfPresent(state, forKey: .state)
+        try container.encodeIfPresent(country, forKey: .country)
+        try container.encodeIfPresent(countryCode, forKey: .countryCode)
+        try container.encodeIfPresent(continent, forKey: .continent)
     }
 
-    init(id: String, ownerUid: String = "", latitude: Double = 0.0, longitude: Double = 0.0, city: String? = nil, date: String? = nil, description: String? = nil, link: String? = nil, linkTitle: String? = nil, createdAt: Date? = Date()) {
+    init(id: String, ownerUid: String = "", latitude: Double = 0.0, longitude: Double = 0.0, city: String? = nil, date: String? = nil, description: String? = nil, link: String? = nil, linkTitle: String? = nil, createdAt: Date? = Date(), state: String? = nil, country: String? = nil, countryCode: String? = nil, continent: String? = nil) {
         self.id = id
         self.ownerUid = ownerUid
         self.latitude = latitude
@@ -74,6 +90,10 @@ struct Location: Codable, Identifiable {
         self.link = link
         self.linkTitle = linkTitle
         self.createdAt = createdAt
+        self.state = state
+        self.country = country
+        self.countryCode = countryCode
+        self.continent = continent
     }
 }
 

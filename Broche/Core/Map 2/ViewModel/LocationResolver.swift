@@ -89,3 +89,78 @@ struct ResolvedRegion {
     let countryCode: String?
     let continent: String?
 }
+
+enum RegionGeography {
+    static let usStateCentroids: [String: CLLocationCoordinate2D] = [
+        "al": .init(latitude: 32.806671, longitude: -86.791130),
+        "ak": .init(latitude: 61.370716, longitude: -152.404419),
+        "az": .init(latitude: 33.729759, longitude: -111.431221),
+        "ar": .init(latitude: 34.969704, longitude: -92.373123),
+        "ca": .init(latitude: 36.116203, longitude: -119.681564),
+        "co": .init(latitude: 39.059811, longitude: -105.311104),
+        "ct": .init(latitude: 41.597782, longitude: -72.755371),
+        "de": .init(latitude: 39.318523, longitude: -75.507141),
+        "fl": .init(latitude: 27.766279, longitude: -81.686783),
+        "ga": .init(latitude: 33.040619, longitude: -83.643074),
+        "hi": .init(latitude: 21.094318, longitude: -157.498337),
+        "id": .init(latitude: 44.240459, longitude: -114.478828),
+        "il": .init(latitude: 40.349457, longitude: -88.986137),
+        "in": .init(latitude: 39.849426, longitude: -86.258278),
+        "ia": .init(latitude: 42.011539, longitude: -93.210526),
+        "ks": .init(latitude: 38.526600, longitude: -96.726486),
+        "ky": .init(latitude: 37.668140, longitude: -84.670067),
+        "la": .init(latitude: 31.169546, longitude: -91.867805),
+        "me": .init(latitude: 44.693947, longitude: -69.381927),
+        "md": .init(latitude: 39.063946, longitude: -76.802101),
+        "ma": .init(latitude: 42.230171, longitude: -71.530106),
+        "mi": .init(latitude: 43.326618, longitude: -84.536095),
+        "mn": .init(latitude: 45.694454, longitude: -93.900192),
+        "ms": .init(latitude: 32.741646, longitude: -89.678696),
+        "mo": .init(latitude: 38.456085, longitude: -92.288368),
+        "mt": .init(latitude: 46.921925, longitude: -110.454353),
+        "ne": .init(latitude: 41.125370, longitude: -98.268082),
+        "nv": .init(latitude: 38.313515, longitude: -117.055374),
+        "nh": .init(latitude: 43.452492, longitude: -71.563896),
+        "nj": .init(latitude: 40.298904, longitude: -74.521011),
+        "nm": .init(latitude: 34.840515, longitude: -106.248482),
+        "ny": .init(latitude: 42.165726, longitude: -74.948051),
+        "nc": .init(latitude: 35.630066, longitude: -79.806419),
+        "nd": .init(latitude: 47.528912, longitude: -99.784012),
+        "oh": .init(latitude: 40.388783, longitude: -82.764915),
+        "ok": .init(latitude: 35.565342, longitude: -96.928917),
+        "or": .init(latitude: 44.572021, longitude: -122.070938),
+        "pa": .init(latitude: 40.590752, longitude: -77.209755),
+        "ri": .init(latitude: 41.680893, longitude: -71.511780),
+        "sc": .init(latitude: 33.856892, longitude: -80.945007),
+        "sd": .init(latitude: 44.299782, longitude: -99.438828),
+        "tn": .init(latitude: 35.747845, longitude: -86.692345),
+        "tx": .init(latitude: 31.054487, longitude: -97.563461),
+        "ut": .init(latitude: 40.150032, longitude: -111.862434),
+        "vt": .init(latitude: 44.045876, longitude: -72.710686),
+        "va": .init(latitude: 37.769337, longitude: -78.169968),
+        "wa": .init(latitude: 47.400902, longitude: -121.490494),
+        "wv": .init(latitude: 38.491226, longitude: -80.954453),
+        "wi": .init(latitude: 44.268543, longitude: -89.616508),
+        "wy": .init(latitude: 42.755966, longitude: -107.302490)
+    ]
+
+    static let continentCenters: [String: CLLocationCoordinate2D] = [
+        "north america": .init(latitude: 54.5, longitude: -105.0),
+        "south america": .init(latitude: -8.8, longitude: -63.5),
+        "europe": .init(latitude: 54.5, longitude: 15.2),
+        "asia": .init(latitude: 34.0, longitude: 100.6),
+        "oceania": .init(latitude: -25.0, longitude: 140.0),
+        "africa": .init(latitude: 2.0, longitude: 21.8),
+        "antarctica": .init(latitude: -82.0, longitude: 135.0)
+    ]
+
+    static func geocodeCountryCenter(_ name: String) async -> CLLocationCoordinate2D? {
+        do {
+            let placemarks = try await CLGeocoder().geocodeAddressString(name)
+            return placemarks.first?.location?.coordinate
+        } catch {
+            print("DEBUG: Failed to geocode country center for \(name): \(error.localizedDescription)")
+            return nil
+        }
+    }
+}
