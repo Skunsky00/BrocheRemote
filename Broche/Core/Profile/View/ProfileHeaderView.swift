@@ -44,15 +44,11 @@ struct ProfileHeaderView: View {
                     .padding(.vertical, 4)
             }
             
-            if let link = viewModel.user.link {
-                Text(link)
-                    .font(.system(size: 15, weight: .regular))
-                    .overlay(
-                        TextLinkView(text: link, linkColor: .cyan)
-                    )
-                    .padding(.vertical, 2)
-                    .frame(maxWidth: .infinity)
-            }
+                if let link = viewModel.user.link {
+                    LinkChipView(title: viewModel.user.linkTitle ?? "", urlString: link)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.vertical, 2)
+                }
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 16)

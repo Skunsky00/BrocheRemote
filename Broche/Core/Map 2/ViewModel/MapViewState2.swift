@@ -44,8 +44,8 @@ enum PinType: String, CaseIterable, Identifiable {
     
     var color: Color {
         switch self {
-        case .visited: .red      // BRIGHT RED
-        case .future: .blue      // BRIGHT BLUE
+        case .visited: Color.theme.brocheCoral
+        case .future:  Color.theme.brocheIndigo
         }
     }
     

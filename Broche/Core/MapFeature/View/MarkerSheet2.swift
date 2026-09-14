@@ -192,7 +192,7 @@ struct MarkerSheet2: View {
                     
                     // MARK: - Link (visited only)
                     if let link = viewModel.location.link, viewModel.type == .visited {
-                        TextLinkView(text: link, linkColor: .cyan)
+                        LinkChipView(title: viewModel.location.linkTitle ?? "", urlString: link)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 24)
                             .padding(.top, 12)

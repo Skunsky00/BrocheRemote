@@ -19,7 +19,8 @@ struct Location: Codable, Identifiable {
     let date: String?
     let description: String?
     let link: String?
-    let createdAt: Date?   // CHANGED — optional, no fake default
+    let linkTitle: String?
+    let createdAt: Date?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -30,6 +31,7 @@ struct Location: Codable, Identifiable {
         case date
         case description
         case link
+        case linkTitle
         case createdAt
     }
 
@@ -43,7 +45,8 @@ struct Location: Codable, Identifiable {
         self.date = try container.decodeIfPresent(String.self, forKey: .date)
         self.description = try container.decodeIfPresent(String.self, forKey: .description)
         self.link = try container.decodeIfPresent(String.self, forKey: .link)
-        self.createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt)   // CHANGED — stays nil if missing
+        self.linkTitle = try container.decodeIfPresent(String.self, forKey: .linkTitle)
+        self.createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -56,10 +59,11 @@ struct Location: Codable, Identifiable {
         try container.encode(date, forKey: .date)
         try container.encode(description, forKey: .description)
         try container.encode(link, forKey: .link)
-        try container.encodeIfPresent(createdAt, forKey: .createdAt)   // CHANGED — omit if nil rather than writing null
+        try container.encodeIfPresent(linkTitle, forKey: .linkTitle)
+        try container.encodeIfPresent(createdAt, forKey: .createdAt)
     }
 
-    init(id: String, ownerUid: String = "", latitude: Double = 0.0, longitude: Double = 0.0, city: String? = nil, date: String? = nil, description: String? = nil, link: String? = nil, createdAt: Date? = Date()) {
+    init(id: String, ownerUid: String = "", latitude: Double = 0.0, longitude: Double = 0.0, city: String? = nil, date: String? = nil, description: String? = nil, link: String? = nil, linkTitle: String? = nil, createdAt: Date? = Date()) {
         self.id = id
         self.ownerUid = ownerUid
         self.latitude = latitude
@@ -68,6 +72,7 @@ struct Location: Codable, Identifiable {
         self.date = date
         self.description = description
         self.link = link
+        self.linkTitle = linkTitle
         self.createdAt = createdAt
     }
 }

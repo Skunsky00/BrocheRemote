@@ -16,6 +16,7 @@ struct User: Identifiable, Codable {
     var fullname: String?
     var bio: String?
     var link: String?
+    var linkTitle: String?
     let email: String
     var stats: UserStats?
     var location: Location?

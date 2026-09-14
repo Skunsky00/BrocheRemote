@@ -97,6 +97,9 @@ struct MapView2: View {
                             }
                         }
                     }
+                    .onMapCameraChange { context in
+                        viewModel.locationViewModel.updateSearchRegion(context.region)
+                    }
                     .mapStyle(.standard)
                     .mapControls {
                         MapScaleView()
@@ -196,6 +199,9 @@ struct MapView2: View {
                                 .padding(.top, -20)
                                 .onTapGesture {
                                     withAnimation(.spring()) {
+                                        if let region = viewModel.cameraPosition.region {
+                                            viewModel.locationViewModel.updateSearchRegion(region)
+                                        }
                                         showSearchSheet = true
                                         viewModel.mapState = .searchingForLocation
                                     }
@@ -251,9 +257,14 @@ struct MapView2: View {
                                     .font(.title2)
                                     .foregroundStyle(.white)
                                     .frame(width: 44, height: 44)
-                                    .background(Color.blue)
+                                    .background(Color.theme.brocheIndigo)
                                     .clipShape(Circle())
-                                    .shadow(radius: 4)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(LinearGradient.brocheStroke, lineWidth: 1.5)
+                                            .padding(1)
+                                    )
+                                    .shadow(color: .black.opacity(0.25), radius: 6)
                             }
                             .padding(.trailing, 16)
                             .padding(.bottom, 30)
@@ -372,7 +383,8 @@ struct MapView2: View {
             }
             .fullScreenCover(isPresented: $showSearchSheet) {
                 ZStack(alignment: .top) {
-                    Color(.systemBackground).ignoresSafeArea()
+                    Color(.systemBackground)
+                        .ignoresSafeArea()   // background only — no longer on the whole ZStack
 
                     VStack(spacing: 12) {
                         HStack {
@@ -400,7 +412,7 @@ struct MapView2: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .top)
                 }
-                .ignoresSafeArea(edges: .bottom)
+                // removed: .ignoresSafeArea(edges: .bottom)
             }
         }
     }

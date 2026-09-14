@@ -8,65 +8,51 @@
 import Foundation
 import SwiftUI
 
-struct TextLinkView: UIViewRepresentable {
-    let text: String
-    let linkColor: UIColor
+struct LinkChipView: View {
+    let title: String
+    let urlString: String
+    @State private var showBrowser = false
 
-    func makeCoordinator() -> Coordinator {
-        Coordinator()
+    private var displayTitle: String {
+        title.trimmingCharacters(in: .whitespaces).isEmpty ? cleanedHost : title
     }
 
-    func makeUIView(context: Context) -> UITextView {
-        let textView = NonScrollingTextView()
-        textView.isEditable = false
-        textView.isSelectable = true
-        textView.isScrollEnabled = false
-        textView.dataDetectorTypes = .link
-        textView.delegate = context.coordinator
-        textView.backgroundColor = .clear
-        textView.textContainerInset = .zero
-        textView.textContainer.lineFragmentPadding = 0
-        textView.textContainer.lineBreakMode = .byWordWrapping
-        textView.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        textView.setContentCompressionResistancePriority(.fittingSizeLevel, for: .horizontal)
-        textView.linkTextAttributes = [
-            .foregroundColor: linkColor
-        ]
-        return textView
+    private var cleanedHost: String {
+        urlString
+            .replacingOccurrences(of: "https://", with: "")
+            .replacingOccurrences(of: "http://", with: "")
+            .replacingOccurrences(of: "www.", with: "")
     }
 
-    func updateUIView(_ uiView: UITextView, context: Context) {
-        uiView.attributedText = attributedString(text: text, linkColor: linkColor)
+    private var normalizedURL: URL? {
+        let lower = urlString.lowercased()
+        let full = (lower.hasPrefix("http://") || lower.hasPrefix("https://")) ? urlString : "https://\(urlString)"
+        return URL(string: full)
     }
 
-    // CHANGED — no more HTML parsing, no more NSException risk
-    private func attributedString(text: String, linkColor: UIColor) -> NSAttributedString {
-        let mutable = NSMutableAttributedString(
-            string: text,
-            attributes: [.foregroundColor: UIColor.label]
-        )
-
-        // Manually detect URLs (and let dataDetectorTypes handle making them tappable)
-        if let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) {
-            let matches = detector.matches(in: text, range: NSRange(text.startIndex..., in: text))
-            for match in matches {
-                mutable.addAttribute(.foregroundColor, value: linkColor, range: match.range)
+    var body: some View {
+        Button {
+            showBrowser = true
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "link")
+                    .font(.system(size: 12, weight: .semibold))
+                Text(displayTitle)
+                    .font(.subheadline.weight(.semibold))
+                    .lineLimit(1)
+            }
+            .foregroundStyle(Color.theme.brocheCoral)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .background(Color.theme.brocheCoral.opacity(0.12))
+            .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .sheet(isPresented: $showBrowser) {
+            if let url = normalizedURL {
+                SafariView(url: url)
+                    .ignoresSafeArea()
             }
         }
-
-        return mutable
-    }
-
-    class Coordinator: NSObject, UITextViewDelegate {
-        func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
-            UIApplication.shared.open(URL)
-            return false
-        }
-    }
-}
-
-private class NonScrollingTextView: UITextView {
-    override func scrollRectToVisible(_ rect: CGRect, animated: Bool) {
-        // no-op — prevents auto-scroll bubbling to an ancestor scroll view
     }
 }

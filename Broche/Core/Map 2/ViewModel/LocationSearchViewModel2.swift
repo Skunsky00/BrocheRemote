@@ -15,9 +15,7 @@ class LocationSearchViewModel2: NSObject, ObservableObject {
     @Published var selectedLocation: Location?
     @Published var selectedUser: User?
 
-    /// **MUST** be set from `MapView2` (e.g. in `.onAppear`)
     var userId: String = ""
-
     weak var mapViewModel: MapViewModel?
 
     private let searchCompleter = MKLocalSearchCompleter()
@@ -26,29 +24,35 @@ class LocationSearchViewModel2: NSObject, ObservableObject {
         didSet { searchCompleter.queryFragment = queryFragment }
     }
 
-    // MARK: – Init
+    // MARK: - Init
     override init() {
         super.init()
         searchCompleter.delegate = self
-        searchCompleter.resultTypes = .address
+        // 1. Enable both addresses and points of interest
+        searchCompleter.resultTypes = [.address, .pointOfInterest]
+        searchCompleter.pointOfInterestFilter = .includingAll
+    }
+    
+    func updateSearchRegion(_ region: MKCoordinateRegion) {
+        searchCompleter.region = region
     }
 
-    // MARK: – Select & Resolve
+    // MARK: - Select & Resolve
     func selectLocation(_ completion: MKLocalSearchCompletion) {
-        let request = MKLocalSearch.Request()
-        request.naturalLanguageQuery = completion.title +
-            (completion.subtitle.isEmpty ? "" : ", \(completion.subtitle)")
+        // 2. Pass the completion object directly to retain Apple's entity tokens
+        let request = MKLocalSearch.Request(completion: completion)
         request.resultTypes = [.address, .pointOfInterest]
 
         Task {
             do {
                 let response = try await MKLocalSearch(request: request).start()
-                guard let item = response.mapItems.first else { return }
+                guard let item = response.mapItems.first else {
+                    print("No map item found for completion: \(completion.title)")
+                    return
+                }
 
-                // **NEW API** – `location` is **non-optional** CLLocation
-                let location = item.location          // <-- no `guard let` needed
-                let coordinate = location.coordinate
-                let title = completion.title
+                let coordinate = item.location.coordinate
+                let title = item.name ?? completion.title
 
                 await MainActor.run {
                     self.selectedLocationCoordinate = coordinate
@@ -59,7 +63,6 @@ class LocationSearchViewModel2: NSObject, ObservableObject {
 
                     // 2. Check saved status (parallel)
                     Task {
-                        // ----> MARK: 1. Try / await the calls
                         async let visitedSaved = try? await UserService.checkIfSavedLocation(
                             uid: self.userId,
                             coordinate: coordinate,
@@ -76,7 +79,7 @@ class LocationSearchViewModel2: NSObject, ObservableObject {
                             futureSaved ?? false
                         )
 
-                        // 3. Update MapViewModel (drives the sheet UI)
+                        // 3. Update MapViewModel
                         self.mapViewModel?.didSaveLocation = isVisitedSaved
                         self.mapViewModel?.didSaveFutureLocation = isFutureSaved
 

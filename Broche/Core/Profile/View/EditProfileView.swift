@@ -71,20 +71,24 @@ struct EditProfileView: View {
 
                         EditProfileFieldView(title: "Bio", placeholder: "Tell people about yourself", text: $viewModel.bio, isMultiline: true)
 
-                        VStack(alignment: .leading, spacing: 0) {
+                        VStack(alignment: .leading, spacing: 8) {
                             EditProfileFieldView(title: "Link", placeholder: "Add a link", text: $viewModel.link)
 
                             if !viewModel.link.isEmpty {
+                                EditProfileFieldView(title: "Link title", placeholder: "Name this link", text: $viewModel.linkTitle)
+                                    .transition(.opacity.combined(with: .move(edge: .top)))
+
                                 Button {
                                     viewModel.link = ""
+                                    viewModel.linkTitle = ""
                                 } label: {
                                     Text("Remove link")
                                         .font(.footnote.weight(.medium))
                                         .foregroundColor(.red)
                                 }
-                                .padding(.top, 6)
                             }
                         }
+                        .animation(.easeInOut(duration: 0.2), value: viewModel.link.isEmpty)
                     }
                     .padding(.horizontal, 20)
 

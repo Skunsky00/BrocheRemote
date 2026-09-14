@@ -10,22 +10,36 @@ import SwiftUI
 struct LocationSearchResultCell2: View {
     let title: String
     let subtitle: String
-    
+    var isPointOfInterest: Bool = false
+ 
     var body: some View {
-        HStack {
-            Image(systemName: "mappin.circle.fill")
-                .resizable()
-                .foregroundStyle(.blue)
-                .accentColor(.white)
-                .frame(width: 40, height: 40)
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title).font(.body)
-                Text(subtitle).font(.system(size: 15)).foregroundStyle(.gray)
-                Divider()
+        HStack(spacing: 14) {
+            ZStack {
+                Circle()
+                    .fill(isPointOfInterest ? AnyShapeStyle(LinearGradient.broche) : AnyShapeStyle(Color(.tertiarySystemFill)))
+                    .frame(width: 38, height: 38)
+                Image(systemName: isPointOfInterest ? "mappin" : "circle.fill")
+                    .font(.system(size: isPointOfInterest ? 15 : 6, weight: .semibold))
+                    .foregroundStyle(isPointOfInterest ? .white : Color.secondary)
             }
-            .padding(.leading, 8)
-            .padding(.vertical, 8)
+ 
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.body)
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                if !subtitle.isEmpty {
+                    Text(subtitle)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+ 
+            Spacer()
         }
-        .padding(.leading)
+        .padding(.horizontal)
+        .padding(.vertical, 10)
+        .contentShape(Rectangle())
     }
 }

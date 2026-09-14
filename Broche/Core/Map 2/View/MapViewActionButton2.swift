@@ -12,8 +12,8 @@ struct MapViewActionButton2: View {
     @Binding var mapState: MapViewState2
     @Binding var isSheetPresented: Bool
     let user: User
-    var isInTrip: Bool = false          // NEW
-    var onExitTrip: () -> Void = {}     // NEW
+    var isInTrip: Bool = false
+    var onExitTrip: () -> Void = {}
     var onSelectTrip: (Trip) -> Void
     @Environment(\.colorScheme) var colorScheme
 
@@ -29,9 +29,14 @@ struct MapViewActionButton2: View {
                 .padding()
                 .background(colorScheme == .dark ? Color.black : Color.white)
                 .clipShape(Circle())
-                .shadow(color: colorScheme == .dark ? .white : .black, radius: 6)
+                .overlay(
+                    Circle()
+                        .stroke(LinearGradient.brocheStroke, lineWidth: 1.5)
+                        .padding(1)
+                )
+                .shadow(color: colorScheme == .dark ? .white.opacity(0.5) : .black.opacity(0.35), radius: 6)
         }
-        .onboardingTarget(.createTrips)   // NEW
+        .onboardingTarget(.createTrips)
         .frame(maxWidth: .infinity, alignment: .leading)
         .sheet(isPresented: $isSheetPresented) {
             Itinerary(userId: user.id, user: user, canCreateTrip: true, onSelectTrip: onSelectTrip)
@@ -43,7 +48,7 @@ struct MapViewActionButton2: View {
         switch state {
         case .noInput:
             if isInTrip {
-                onExitTrip()          // CHANGED — exit instead of opening picker
+                onExitTrip()
             } else {
                 isSheetPresented = true
             }
@@ -55,7 +60,7 @@ struct MapViewActionButton2: View {
     private func imageNameForState(_ state: MapViewState2) -> String {
         switch state {
         case .noInput:
-            return isInTrip ? "arrow.left" : "line.3.horizontal"   // CHANGED
+            return isInTrip ? "arrow.left" : "line.3.horizontal"
         case .searchingForLocation, .locationSelected:
             return "arrow.left"
         }

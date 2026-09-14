@@ -38,16 +38,17 @@ struct EditMarkerView2: View {
                         Text("Link")
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.secondary)
-                        
+
                         HStack {
-                            TextField("Add a link", text: $viewModel.link)
+                            TextField("Paste a link", text: $viewModel.link)
                                 .keyboardType(.URL)
                                 .autocapitalization(.none)
                                 .autocorrectionDisabled()
-                            
+
                             if !viewModel.link.isEmpty {
                                 Button {
                                     viewModel.link = ""
+                                    viewModel.linkTitle = ""
                                 } label: {
                                     Image(systemName: "xmark.circle.fill")
                                         .foregroundStyle(.secondary)
@@ -57,7 +58,28 @@ struct EditMarkerView2: View {
                         .padding(14)
                         .background(Color(.secondarySystemBackground))
                         .cornerRadius(14)
+
+                        if !viewModel.link.isEmpty {
+                            HStack {
+                                TextField("Name this link", text: $viewModel.linkTitle)
+                                    .autocorrectionDisabled()
+
+                                if !viewModel.linkTitle.isEmpty {
+                                    Button {
+                                        viewModel.linkTitle = ""
+                                    } label: {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+                            .padding(14)
+                            .background(Color(.secondarySystemBackground))
+                            .cornerRadius(14)
+                            .transition(.opacity.combined(with: .move(edge: .top)))
+                        }
                     }
+                    .animation(.easeInOut(duration: 0.2), value: viewModel.link.isEmpty)
                 }
                 
                 Spacer()
