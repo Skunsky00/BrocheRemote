@@ -27,7 +27,7 @@ struct MapViewActionButton2: View {
                 .font(.title2)
                 .foregroundStyle(colorScheme == .dark ? .white : .black)
                 .padding()
-                .background(colorScheme == .dark ? Color.black : Color.white)
+                .background(Color.theme.brocheIndigo)
                 .clipShape(Circle())
                 .overlay(
                     Circle()

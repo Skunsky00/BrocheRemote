@@ -23,6 +23,7 @@
 		4E358C8B2E20A6AB0058C06C /* UsernameWithBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E358C8A2E20A6AB0058C06C /* UsernameWithBadge.swift */; };
 		4E358C8D2E20A7B30058C06C /* VerificationRequestViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E358C8C2E20A7B30058C06C /* VerificationRequestViewModel.swift */; };
 		4E3A859F2DD7E6F800983046 /* LocationResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E3A859E2DD7E6F800983046 /* LocationResolver.swift */; };
+		4E494ED3306A0A9200FBE358 /* FriendsMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E494ED2306A0A9200FBE358 /* FriendsMapView.swift */; };
 		4E5F48D52B11A12C009A8F16 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 4E5F48D42B11A12C009A8F16 /* FirebaseAnalytics */; };
 		4E5F48D72B11A12C009A8F16 /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = 4E5F48D62B11A12C009A8F16 /* FirebaseAnalyticsOnDeviceConversion */; };
 		4E5F48D92B11A12C009A8F16 /* FirebaseAnalyticsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 4E5F48D82B11A12C009A8F16 /* FirebaseAnalyticsSwift */; };
@@ -101,6 +102,7 @@
 		4EA3A74D2A40BCA8005C548D /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA3A74C2A40BCA8005C548D /* Notification.swift */; };
 		4EA3A74F2A40BCDD005C548D /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA3A74E2A40BCDD005C548D /* NotificationService.swift */; };
 		4EA717E3303444FB002C096A /* PostGridFeedCellPhoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA717E2303444FB002C096A /* PostGridFeedCellPhoto.swift */; };
+		4EAF7F243071F61B002B8E2D /* PostCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EAF7F233071F61B002B8E2D /* PostCard.swift */; };
 		4EB6BC162AABB22800D1586F /* LocationCommentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB6BC152AABB22800D1586F /* LocationCommentViewModel.swift */; };
 		4EB6BC182AABF21B00D1586F /* LocationsCommentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB6BC172AABF21B00D1586F /* LocationsCommentsView.swift */; };
 		4EB6BC1A2AABF3C900D1586F /* LocationCommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EB6BC192AABF3C900D1586F /* LocationCommentCell.swift */; };
@@ -160,6 +162,7 @@
 		4EE1582B303A9D19007E785B /* DeepLinkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE1582A303A9D19007E785B /* DeepLinkManager.swift */; };
 		4EE15871303E7531007E785B /* NotificationsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE15870303E7531007E785B /* NotificationsSettingsView.swift */; };
 		4EE15873303E90FE007E785B /* HelpandSupportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE15872303E90FE007E785B /* HelpandSupportView.swift */; };
+		4EE1B2F7306ED9D000E6C817 /* LocationPostPagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EE1B2F6306ED9D000E6C817 /* LocationPostPagerView.swift */; };
 		4EEE64C92E4D3DA4009A9CA1 /* MapView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64C82E4D3DA4009A9CA1 /* MapView2.swift */; };
 		4EEE64CB2E4D3DBE009A9CA1 /* MapViewState2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64CA2E4D3DBE009A9CA1 /* MapViewState2.swift */; };
 		4EEE64CD2E4D3EDD009A9CA1 /* LocationSearchViewModel2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EEE64CC2E4D3EDD009A9CA1 /* LocationSearchViewModel2.swift */; };
@@ -191,6 +194,7 @@
 		4E358C8A2E20A6AB0058C06C /* UsernameWithBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameWithBadge.swift; sourceTree = "<group>"; };
 		4E358C8C2E20A7B30058C06C /* VerificationRequestViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerificationRequestViewModel.swift; sourceTree = "<group>"; };
 		4E3A859E2DD7E6F800983046 /* LocationResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationResolver.swift; sourceTree = "<group>"; };
+		4E494ED2306A0A9200FBE358 /* FriendsMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsMapView.swift; sourceTree = "<group>"; };
 		4E7BF7DC303197C50035C0D3 /* SuggestedFollowsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestedFollowsView.swift; sourceTree = "<group>"; };
 		4E7BF7DE303197D50035C0D3 /* SuggestedFollowsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestedFollowsViewModel.swift; sourceTree = "<group>"; };
 		4E85EB9A2A16972C0074A346 /* Broche.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Broche.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -242,6 +246,7 @@
 		4EA3A74C2A40BCA8005C548D /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		4EA3A74E2A40BCDD005C548D /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		4EA717E2303444FB002C096A /* PostGridFeedCellPhoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostGridFeedCellPhoto.swift; sourceTree = "<group>"; };
+		4EAF7F233071F61B002B8E2D /* PostCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostCard.swift; sourceTree = "<group>"; };
 		4EB6BC152AABB22800D1586F /* LocationCommentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationCommentViewModel.swift; sourceTree = "<group>"; };
 		4EB6BC172AABF21B00D1586F /* LocationsCommentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsCommentsView.swift; sourceTree = "<group>"; };
 		4EB6BC192AABF3C900D1586F /* LocationCommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationCommentCell.swift; sourceTree = "<group>"; };
@@ -303,6 +308,7 @@
 		4EE1582A303A9D19007E785B /* DeepLinkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkManager.swift; sourceTree = "<group>"; };
 		4EE15870303E7531007E785B /* NotificationsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsSettingsView.swift; sourceTree = "<group>"; };
 		4EE15872303E90FE007E785B /* HelpandSupportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpandSupportView.swift; sourceTree = "<group>"; };
+		4EE1B2F6306ED9D000E6C817 /* LocationPostPagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPostPagerView.swift; sourceTree = "<group>"; };
 		4EEE64C82E4D3DA4009A9CA1 /* MapView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView2.swift; sourceTree = "<group>"; };
 		4EEE64CA2E4D3DBE009A9CA1 /* MapViewState2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewState2.swift; sourceTree = "<group>"; };
 		4EEE64CC2E4D3EDD009A9CA1 /* LocationSearchViewModel2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchViewModel2.swift; sourceTree = "<group>"; };
@@ -672,6 +678,8 @@
 				4E8D3E952A73094A000907A5 /* MapViewForLocation.swift */,
 				4EA717E2303444FB002C096A /* PostGridFeedCellPhoto.swift */,
 				4EE157E23038F083007E785B /* DeleteStatusToast.swift */,
+				4EE1B2F6306ED9D000E6C817 /* LocationPostPagerView.swift */,
+				4EAF7F233071F61B002B8E2D /* PostCard.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -862,6 +870,7 @@
 				4EEE64D82E4D43D1009A9CA1 /* LocationBookmarkView2.swift */,
 				4EEE64E22E4D45C7009A9CA1 /* MapViewForUserPins2.swift */,
 				4EBBF2812AB276B500AA444C /* Itinerary.swift */,
+				4E494ED2306A0A9200FBE358 /* FriendsMapView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -994,6 +1003,7 @@
 				4EC0810B2A25897100B86052 /* ProfileFilterSelector.swift in Sources */,
 				4E85EBC22A16AC6A0074A346 /* FeedCell.swift in Sources */,
 				4EC081582A34D93900B86052 /* ConversationsViewModel.swift in Sources */,
+				4EAF7F243071F61B002B8E2D /* PostCard.swift in Sources */,
 				4E85EBBB2A169AD70074A346 /* ProfileView.swift in Sources */,
 				4EB6BC182AABF21B00D1586F /* LocationsCommentsView.swift in Sources */,
 				4EB6BC1A2AABF3C900D1586F /* LocationCommentCell.swift in Sources */,
@@ -1057,6 +1067,7 @@
 				4EC0815C2A34DE2A00B86052 /* SearchBar.swift in Sources */,
 				4E9770382A1D3D9C00919F88 /* FeedViewModel.swift in Sources */,
 				4EC0813F2A34CF5900B86052 /* UserListView.swift in Sources */,
+				4EE1B2F7306ED9D000E6C817 /* LocationPostPagerView.swift in Sources */,
 				4ECD4E7F2D93A68700292441 /* BrocheGridViewModal.swift in Sources */,
 				4E85EBF42A17E9270074A346 /* ContentViewModel.swift in Sources */,
 				4E97703A2A1D6E6A00919F88 /* PostService.swift in Sources */,
@@ -1078,6 +1089,7 @@
 				4E97701D2A19197200919F88 /* RegistrationViewModel.swift in Sources */,
 				4E85EBE02A17DE040074A346 /* UploadPostViewModel.swift in Sources */,
 				4E2330012DFE93FA00B48755 /* CollectionsView.swift in Sources */,
+				4E494ED3306A0A9200FBE358 /* FriendsMapView.swift in Sources */,
 				4EEE64D52E4D4383009A9CA1 /* LocationSearchActivationView2.swift in Sources */,
 				4EEE64C92E4D3DA4009A9CA1 /* MapView2.swift in Sources */,
 				4E30437B2DCBF45300B9613E /* PostDetailsView.swift in Sources */,
@@ -1277,7 +1289,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.brochetravel.broche;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1318,7 +1330,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.3;
+				MARKETING_VERSION = 2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.brochetravel.broche;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

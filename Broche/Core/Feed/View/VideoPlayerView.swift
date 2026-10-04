@@ -65,3 +65,45 @@ struct VideoPlayerController: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
     }
 }
+
+
+@MainActor
+final class FeedPlaybackCoordinator: ObservableObject {
+    let player = AVPlayer()
+    @Published private(set) var activePostId: String?
+    @Published private(set) var isMuted = true
+    private var loopObserver: NSObjectProtocol?
+
+    init() {
+        player.isMuted = true
+        player.actionAtItemEnd = .none
+    }
+
+    func activate(postId: String, url: URL) {
+        guard activePostId != postId else { return }   // scroll updates fire constantly, ignore repeats
+        activePostId = postId
+        let item = AVPlayerItem(url: url)
+        player.replaceCurrentItem(with: item)
+
+        if let loopObserver { NotificationCenter.default.removeObserver(loopObserver) }
+        loopObserver = NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime, object: item, queue: .main
+        ) { [weak self] _ in
+            self?.player.seek(to: .zero)
+            self?.player.play()
+        }
+        player.play()
+    }
+
+    func deactivate() {
+        guard activePostId != nil else { return }
+        activePostId = nil
+        player.pause()
+        player.replaceCurrentItem(with: nil)
+    }
+
+    func toggleMute() {
+        isMuted.toggle()
+        player.isMuted = isMuted
+    }
+}

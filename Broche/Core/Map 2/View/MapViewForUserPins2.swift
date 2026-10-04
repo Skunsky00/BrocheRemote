@@ -57,6 +57,7 @@ struct MapViewForUserPins2: View {
             
             // MARK: - MARKER DETAIL SHEET
             if let selectedLocation = selectedLocation {
+                let list = viewModel.pagingLocations(for: selectedLocationType)
                 VStack {
                     Spacer()
                     MarkerSheet2(viewModel: MarkerSheetViewModel2(
@@ -71,7 +72,12 @@ struct MapViewForUserPins2: View {
                             viewModel.futureLocations[index] = updated
                         }
                         self.selectedLocation = updated   // ← explicit `self.` reaches the @State property, not the shadowed local
-                    },autoOpenComments: deepLinkOpenComments )
+                    }, autoOpenComments: deepLinkOpenComments && selectedLocation.id == deepLinkLocationId,   // CHANGED
+                                 pageIndex: list.firstIndex(where: { $0.id == selectedLocation.id }),
+                                 pageCount: list.count,
+                                 onPrevious: { page(by: -1) },
+                                 onNext: { page(by: 1) })
+                                 .id(selectedLocation.id)
                     .padding(.horizontal)
                     .padding(.bottom, 32)
                     .transition(.move(edge: .bottom))
@@ -165,10 +171,12 @@ struct MapViewForUserPins2: View {
                 }
             }
         }
-        .onChange(of: selectedLocation?.id) { newValue in
+        .onChange(of: selectedLocation?.id) { oldValue, newValue in
             if newValue != nil {
-                overlayWasVisibleBeforeMarker = showOverlay
-                if let selectedLocation {   // NEW — capture coordinate before it's gone
+                if oldValue == nil {   // NEW: only capture on the first selection, not while paging
+                    overlayWasVisibleBeforeMarker = showOverlay
+                }
+                if let selectedLocation {
                     lastSelectedCoordinate = CLLocationCoordinate2D(
                         latitude: selectedLocation.latitude,
                         longitude: selectedLocation.longitude
@@ -223,15 +231,7 @@ struct MapViewForUserPins2: View {
                                 .font(.system(size: 24))
                         )
                         .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 2)
-                        .onTapGesture {
-                            withAnimation(.spring()) {
-                                selectedLocation = location
-                                selectedLocationType = .visited
-                            }
-                            viewModel.animateToCoordinate(
-                                .init(latitude: location.latitude, longitude: location.longitude)
-                            )
-                        }
+                        .onTapGesture { selectLocation(location, type: .visited) }   // .future for the airplane pins
                 }
                 .annotationTitles(.hidden)
                 .annotationSubtitles(.hidden)
@@ -249,15 +249,7 @@ struct MapViewForUserPins2: View {
                             .foregroundStyle(.white)
                             .font(.system(size: 12))
                     }
-                    .onTapGesture {
-                        withAnimation(.spring()) {
-                            selectedLocation = location
-                            selectedLocationType = .future
-                        }
-                        viewModel.animateToCoordinate(
-                            .init(latitude: location.latitude, longitude: location.longitude)
-                        )
-                    }
+                    .onTapGesture { selectLocation(location, type: .visited) }   // .future for the airplane pins
                 }
                 .annotationTitles(.hidden)
                 .annotationSubtitles(.hidden)
@@ -314,6 +306,21 @@ struct MapViewForUserPins2: View {
             .padding()
             .padding(.bottom, 8)
         }
+    }
+    private func selectLocation(_ location: Location, type: MarkerType) {
+        withAnimation(.spring()) {
+            selectedLocation = location
+            selectedLocationType = type
+        }
+        viewModel.animateToCoordinate(.init(latitude: location.latitude, longitude: location.longitude))
+    }
+
+    private func page(by offset: Int) {
+        let list = viewModel.pagingLocations(for: selectedLocationType)
+        guard let current = selectedLocation,
+              let idx = list.firstIndex(where: { $0.id == current.id }),
+              list.count > 1 else { return }
+        selectLocation(list[(idx + offset + list.count) % list.count], type: selectedLocationType)
     }
     
 }

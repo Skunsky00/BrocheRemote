@@ -220,73 +220,114 @@ struct PostGridFeedCellPhoto: View {
 
 struct ZoomableImageView: View {
     let url: String
-    @State private var scale: CGFloat = 1.0
-    @State private var lastScale: CGFloat = 1.0      // NEW — baseline for accumulating pinch
-    @State private var offset: CGSize = .zero
-    @State private var lastOffset: CGSize = .zero    // NEW — baseline for accumulating pan
-
-    private let maxScale: CGFloat = 4.0   // CHANGED — Instagram allows a bit more headroom than 3x
+    @State private var aspectRatio: CGFloat = 4.0 / 5.0
+    @State private var uiImage: UIImage?
+    @State private var isZooming = false
 
     var body: some View {
-        GeometryReader { geo in
-            KFImage(URL(string: url))
-                .resizable()
-                .scaledToFill()
-                .frame(width: geo.size.width, height: geo.size.height)
-                .scaleEffect(scale)
-                .offset(offset)
-                .clipped()
-                .gesture(
-                    SimultaneousGesture(
-                        MagnificationGesture()
-                            .onChanged { value in
-                                let newScale = lastScale * value
-                                scale = min(max(1.0, newScale), maxScale)
-                                offset = clampedOffset(offset, scale: scale, in: geo.size)   // NEW — keep pan valid as scale changes
-                            }
-                            .onEnded { _ in
-                                lastScale = scale   // CHANGED — remember where we ended up, don't reset
-                                if scale <= 1.0 {   // NEW — only snap back if genuinely zoomed all the way out
-                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
-                                        scale = 1.0
-                                        lastScale = 1.0
-                                        offset = .zero
-                                        lastOffset = .zero
-                                    }
-                                }
-                            },
-                        DragGesture()
-                            .onChanged { value in
-                                guard scale > 1.0 else { return }   // no panning at fit-frame, matches Instagram
-                                let proposed = CGSize(
-                                    width: lastOffset.width + value.translation.width,
-                                    height: lastOffset.height + value.translation.height
-                                )
-                                offset = clampedOffset(proposed, scale: scale, in: geo.size)
-                            }
-                            .onEnded { _ in
-                                lastOffset = offset   // CHANGED — remember where we ended up, don't reset
-                            }
-                    )
-                )
-                .onTapGesture(count: 2) {   // NEW — double-tap to reset, same as Instagram
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
-                        scale = 1.0
-                        lastScale = 1.0
-                        offset = .zero
-                        lastOffset = .zero
-                    }
-                }
-        }
+        KFImage(URL(string: url))
+            .onSuccess { result in
+                let s = result.image.size
+                if s.width > 0, s.height > 0 { aspectRatio = s.width / s.height }
+                uiImage = result.image
+            }
+            .resizable()
+            .aspectRatio(aspectRatio, contentMode: .fit)
+            .frame(maxWidth: .infinity)
+            .opacity(isZooming ? 0 : 1)   // hide the original while the floating copy is up
+            .overlay(PinchZoomOverlay(image: uiImage, isZooming: $isZooming))
+    }
+}
+
+struct PinchZoomOverlay: UIViewRepresentable {
+    let image: UIImage?
+    @Binding var isZooming: Bool
+
+    func makeCoordinator() -> Coordinator { Coordinator(isZooming: $isZooming) }
+
+    func makeUIView(context: Context) -> UIView {
+        let v = UIView()
+        v.backgroundColor = .clear
+        let pinch = UIPinchGestureRecognizer(target: context.coordinator,
+                                             action: #selector(Coordinator.handlePinch(_:)))
+        pinch.delegate = context.coordinator
+        v.addGestureRecognizer(pinch)
+        context.coordinator.view = v
+        return v
     }
 
-    // NEW — shared clamp so image edges never leave the visible frame while panned/zoomed
-    private func clampedOffset(_ proposed: CGSize, scale: CGFloat, in size: CGSize) -> CGSize {
-        let maxOffsetX = max(0, (size.width * (scale - 1)) / 2)
-        let maxOffsetY = max(0, (size.height * (scale - 1)) / 2)
-        return CGSize(
-            width: min(max(proposed.width, -maxOffsetX), maxOffsetX),
-            height: min(max(proposed.height, -maxOffsetY), maxOffsetY)
-        )
+    func updateUIView(_ uiView: UIView, context: Context) {
+        context.coordinator.image = image
+        context.coordinator.isZooming = $isZooming
+    }
+
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        var image: UIImage?
+        var isZooming: Binding<Bool>
+        weak var view: UIView?
+        private var floating: UIImageView?
+        private var backdrop: UIView?
+        private var startCenter = CGPoint.zero
+        private var anchor = CGPoint.zero
+
+        init(isZooming: Binding<Bool>) { self.isZooming = isZooming }
+
+        func gestureRecognizer(_ g: UIGestureRecognizer,
+                               shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool { true }
+
+        @objc func handlePinch(_ g: UIPinchGestureRecognizer) {
+            guard let view, let window = view.window else { return }
+
+            switch g.state {
+            case .began:
+                guard let image else { return }
+                let frame = view.convert(view.bounds, to: window)
+
+                let dim = UIView(frame: window.bounds)
+                dim.backgroundColor = .black
+                dim.alpha = 0
+
+                let iv = UIImageView(image: image)
+                iv.contentMode = .scaleAspectFit
+                iv.frame = frame
+
+                window.addSubview(dim)
+                window.addSubview(iv)
+                backdrop = dim
+                floating = iv
+                startCenter = iv.center
+                anchor = g.location(in: window)
+                isZooming.wrappedValue = true
+
+            case .changed:
+                guard let iv = floating else { return }
+                let s = min(max(g.scale, 1), 4)
+                let loc = g.location(in: window)   // midpoint of both fingers, so moving them pans
+                iv.transform = CGAffineTransform(scaleX: s, y: s)
+                iv.center = CGPoint(
+                    x: anchor.x + (startCenter.x - anchor.x) * s + (loc.x - anchor.x),
+                    y: anchor.y + (startCenter.y - anchor.y) * s + (loc.y - anchor.y)
+                )
+                backdrop?.alpha = min((s - 1) * 0.4, 0.5)
+
+            case .ended, .cancelled, .failed:
+                guard let iv = floating else { return }
+                UIView.animate(withDuration: 0.3, delay: 0,
+                               usingSpringWithDamping: 0.85, initialSpringVelocity: 0,
+                               options: []) {
+                    iv.transform = .identity
+                    iv.center = self.startCenter
+                    self.backdrop?.alpha = 0
+                } completion: { _ in
+                    iv.removeFromSuperview()
+                    self.backdrop?.removeFromSuperview()
+                    self.floating = nil
+                    self.backdrop = nil
+                    self.isZooming.wrappedValue = false
+                }
+
+            default: break
+            }
+        }
     }
 }

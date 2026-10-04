@@ -22,6 +22,10 @@ struct MarkerSheet2: View {
     var onLocationUpdated: (Location) -> Void = { _ in }
     var onLocationRemoved: (Location) -> Void = { _ in }
     var autoOpenComments: Bool = false   // NEW
+    var pageIndex: Int? = nil
+    var pageCount: Int = 0
+    var onPrevious: () -> Void = {}
+    var onNext: () -> Void = {}
     
     @StateObject private var uploadViewModel = UploadPostViewModel()   // NEW
     @State private var pickerSelection: PhotosPickerItem?              // NEW
@@ -82,9 +86,32 @@ struct MarkerSheet2: View {
                         
                         Spacer()
                         
-                        Text(viewModel.location.city ?? "Visit")
-                            .font(.title2.bold())
-                            .lineLimit(1)
+                        HStack(spacing: 8) {
+                            if pageCount > 1 {
+                                Button(action: onPrevious) {
+                                    Image(systemName: "chevron.left").font(.subheadline.bold())
+                                }
+                                .buttonStyle(.plain)
+                            }
+
+                            VStack(spacing: 0) {
+                                Text(viewModel.location.city ?? "Visit")
+                                    .font(.title2.bold())
+                                    .lineLimit(1)
+                                if pageCount > 1, let pageIndex {
+                                    Text("\(pageIndex + 1) of \(pageCount)")
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+
+                            if pageCount > 1 {
+                                Button(action: onNext) {
+                                    Image(systemName: "chevron.right").font(.subheadline.bold())
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
                         
                         Spacer()
                         
@@ -127,6 +154,12 @@ struct MarkerSheet2: View {
                             }
                         }
                     }
+                    .gesture(
+                        DragGesture(minimumDistance: 30).onEnded { value in
+                            guard pageCount > 1, abs(value.translation.width) > abs(value.translation.height) else { return }
+                            value.translation.width < 0 ? onNext() : onPrevious()
+                        }
+                    )
                     .padding(.horizontal, 24)
                     .padding(.top, 14)
                     

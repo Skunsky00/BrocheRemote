@@ -17,6 +17,7 @@ struct MapView2: View {
     @StateObject private var locationManager = LocationManager2()
     @GestureState private var pressLocation: CGPoint = .zero
     @GestureState private var isLongPressing = false
+    @State private var showFriends = false
 
     @State private var isSheetPresented = false
     @State private var showSearchSheet = false
@@ -54,15 +55,7 @@ struct MapView2: View {
                                                 .font(.system(size: 24))
                                         )
                                         .shadow(color: .black.opacity(0.3), radius: 3, x: 0, y: 2)
-                                        .onTapGesture {
-                                            withAnimation(.spring()) {
-                                                selectedLocation = location
-                                                selectedLocationType = .visited
-                                                viewModel.mapState = .locationSelected
-                                            }
-                                            lastSelectedCoordinate = .init(latitude: location.latitude, longitude: location.longitude)   // NEW
-                                            viewModel.animateToCoordinate(.init(latitude: location.latitude, longitude: location.longitude))
-                                        }
+                                        .onTapGesture { selectLocation(location, type: .visited) }   // .future for the airplane pins
                                 }
                                 .annotationTitles(.hidden)
                                 .annotationSubtitles(.hidden)
@@ -82,15 +75,7 @@ struct MapView2: View {
                                             .foregroundStyle(.white)
                                             .font(.system(size: 12))
                                     }
-                                    .onTapGesture {
-                                        withAnimation(.spring()) {
-                                            selectedLocation = location
-                                            selectedLocationType = .future
-                                            viewModel.mapState = .locationSelected
-                                        }
-                                        lastSelectedCoordinate = .init(latitude: location.latitude, longitude: location.longitude)   // NEW
-                                        viewModel.animateToCoordinate(.init(latitude: location.latitude, longitude: location.longitude))
-                                    }
+                                    .onTapGesture { selectLocation(location, type: .visited) }   // .future for the airplane pins
                                 }
                                 .annotationTitles(.hidden)
                                 .annotationSubtitles(.hidden)
@@ -234,12 +219,31 @@ struct MapView2: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .top)
 
-                // MARK: - LOCATION BUTTON (Bottom-Right)
+                // MARK: - BOTTOM BUTTONS (Friends left, Location right)
                 if viewModel.mapState == .noInput {
                     VStack {
                         Spacer()
                         HStack {
+                            Button {
+                                showFriends = true
+                            } label: {
+                                Image(systemName: "person.2.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(.white)
+                                    .frame(width: 44, height: 44)
+                                    .background(Color.theme.brocheIndigo)
+                                    .clipShape(Circle())
+                                    .overlay(
+                                        Circle()
+                                            .stroke(LinearGradient.brocheStroke, lineWidth: 1.5)
+                                            .padding(1)
+                                    )
+                                    .shadow(color: .black.opacity(0.25), radius: 6)
+                            }
+                            .padding(.leading, 16)
+
                             Spacer()
+
                             Button {
                                 locationManager.requestLocation()
                                 if let location = locationManager.userLocation {
@@ -267,16 +271,16 @@ struct MapView2: View {
                                     .shadow(color: .black.opacity(0.25), radius: 6)
                             }
                             .padding(.trailing, 16)
-                            .padding(.bottom, 30)
                         }
+                        .padding(.bottom, 30)
                     }
                     .zIndex(8)
                     .transition(.opacity)
                 }
-
                 // MARK: - BOOKMARK SHEET
                 if viewModel.mapState == .locationSelected {
                     if let selectedLocation = selectedLocation {
+                        let list = viewModel.pagingLocations(for: selectedLocationType)
                         VStack {
                             Spacer()
                             MarkerSheet2(viewModel: MarkerSheetViewModel2(
@@ -301,7 +305,12 @@ struct MapView2: View {
                                 viewModel.removeFutureLocation(id: removed.id)
                                 self.selectedLocation = nil
                                 viewModel.mapState = .noInput
-                            })
+                            },
+                            pageIndex: list.firstIndex(where: { $0.id == selectedLocation.id }),
+                            pageCount: list.count,
+                            onPrevious: { page(by: -1) },
+                            onNext: { page(by: 1) })
+                            .id(selectedLocation.id)
                             .padding(.horizontal)
                             .padding(.bottom, 32)
                             .transition(.move(edge: .bottom))
@@ -366,6 +375,9 @@ struct MapView2: View {
             .sheet(isPresented: $showTripSelector) {
                 TripPinSelectorView(user: user)
             }
+            .sheet(isPresented: $showFriends) {
+                FriendsMapView(user: user)
+            }
             .sheet(isPresented: $showEditTrip) {
                 if let activeTrip = viewModel.activeTrip {
                     TripPinSelectorView(user: user, existingTrip: activeTrip)
@@ -415,6 +427,26 @@ struct MapView2: View {
                 // removed: .ignoresSafeArea(edges: .bottom)
             }
         }
+    }
+    
+    private func selectLocation(_ location: Location, type: MarkerType) {
+        let coord = CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude)
+        withAnimation(.spring()) {
+            selectedLocation = location
+            selectedLocationType = type
+            viewModel.mapState = .locationSelected
+        }
+        lastSelectedCoordinate = coord
+        viewModel.animateToCoordinate(coord)
+    }
+
+    private func page(by offset: Int) {
+        let list = viewModel.pagingLocations(for: selectedLocationType)
+        guard let current = selectedLocation,
+              let idx = list.firstIndex(where: { $0.id == current.id }),
+              list.count > 1 else { return }
+        let next = (idx + offset + list.count) % list.count   // wraps around
+        selectLocation(list[next], type: selectedLocationType)
     }
 }
 

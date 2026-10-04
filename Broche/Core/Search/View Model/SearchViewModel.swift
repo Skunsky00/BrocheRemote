@@ -152,19 +152,6 @@ class SearchViewModel: ObservableObject {
         }
     }
 
-//    func updateSearchQuery(_ query: String) {
-//        users.removeAll()
-//        searchQuery = query
-//        fetchUsers(forConfig: config)
-//    }
-//
-//    func filteredUsers(_ query: String) -> [User] {
-//        let lowercasedQuery = query.lowercased()
-//        return users.filter {
-//            $0.fullname?.lowercased().contains(lowercasedQuery) ?? false || $0.username.contains(lowercasedQuery)
-//        }
-//    }
-
     func clearUsers() {
         users.removeAll()
     }

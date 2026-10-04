@@ -64,11 +64,7 @@ struct LocationPhotoGridPreview: View {
     }
     @ViewBuilder
     private func destinationView(for post: Post) -> some View {
-        if let videoUrl = post.videoUrl, !videoUrl.isEmpty {
-            PostGridFeedCell(viewModel: FeedCellViewModel(post: post))
-        } else {
-            PostGridFeedCellPhoto(viewModel: FeedCellViewModel(post: post))
-        }
+        LocationPostPagerView(posts: posts, startPost: post)
     }
     
     private var gridHeight: CGFloat {

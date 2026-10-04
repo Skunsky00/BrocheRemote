@@ -118,4 +118,10 @@ class MapViewModelForUserPins: ObservableObject {
            isSavingTrip = false
        }
     
+    func pagingLocations(for type: MarkerType) -> [Location] {
+        if type == .future { return futureLocations.chronological }
+        if let trip = activeTrip { return visitedLocations.inTripOrder(trip) }
+        return visitedLocations.chronological
+    }
+    
 }

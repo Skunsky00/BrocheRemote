@@ -97,6 +97,17 @@ struct Location: Codable, Identifiable {
     }
 }
 
+extension Array where Element == Location {
+    var chronological: [Location] {
+        sorted { ($0.createdAt ?? .distantPast) < ($1.createdAt ?? .distantPast) }
+    }
+
+    func inTripOrder(_ trip: Trip) -> [Location] {
+        let byId = reduce(into: [String: Location]()) { $0[$1.id] = $1 }
+        return trip.locationIds.compactMap { byId[$0] }
+    }
+}
+
 // MARK: - MOCK DATA (extension is safe)
 extension Location {
     static var MOCK_LOCATIONS: [Location] = [

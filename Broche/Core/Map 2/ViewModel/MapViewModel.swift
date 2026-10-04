@@ -159,4 +159,15 @@ extension MapViewModel {
         allFutureLocations.removeAll { $0.id == id }
     }
     
+    func pagingLocations(for type: MarkerType) -> [Location] {
+            if type == .future {
+                return futureLocations.sorted { ($0.createdAt ?? .distantPast) < ($1.createdAt ?? .distantPast) }
+            }
+            if let trip = activeTrip {
+                // Trip view: keep the order the user picked the pins in
+                let byId = visitedLocations.reduce(into: [String: Location]()) { $0[$1.id] = $1 }
+                return trip.locationIds.compactMap { byId[$0] }
+            }
+            return visitedLocations.sorted { ($0.createdAt ?? .distantPast) < ($1.createdAt ?? .distantPast) }
+        }
 }
