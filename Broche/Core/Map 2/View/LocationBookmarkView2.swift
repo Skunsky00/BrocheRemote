@@ -72,6 +72,11 @@ struct LocationBookMarkView2: View {
                         userId: user.id
                     ) { newValue, savedLocation in
                         savedStates[type] = newValue
+                        
+                        if newValue, let savedLocation {
+                                savedLocationIds[type] = savedLocation
+                                viewModel.resetSearch()   // <- new: a pin was actually added, so clear the search
+                            }
  
                         if newValue, let savedLocation {
                             savedLocationIds[type] = savedLocation

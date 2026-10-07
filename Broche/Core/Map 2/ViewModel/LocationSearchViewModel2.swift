@@ -92,6 +92,11 @@ class LocationSearchViewModel2: NSObject, ObservableObject {
             }
         }
     }
+    
+    func resetSearch() {
+        queryFragment = ""
+        results = []
+    }
 }
 
 // MARK: - MKLocalSearchCompleterDelegate

@@ -16,8 +16,8 @@ struct CameraRollImportView: View {
     @State private var renamingID: UUID?
     @State private var renameText = ""
 
-    init(user: User, onFinished: @escaping (Int) -> Void) {
-        _viewModel = StateObject(wrappedValue: CameraRollImportViewModel(userId: user.id))
+    init(user: User, fullRescan: Bool = false, onFinished: @escaping (Int) -> Void) {
+        _viewModel = StateObject(wrappedValue: CameraRollImportViewModel(userId: user.id, fullRescan: fullRescan))
         self.onFinished = onFinished
     }
 

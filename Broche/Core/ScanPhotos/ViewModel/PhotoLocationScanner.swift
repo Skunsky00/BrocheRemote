@@ -37,12 +37,15 @@ enum PhotoLocationScanner {
         }
     }
 
-    static func scan(clusterRadiusMeters: Double = 5_000) async -> [PlaceSuggestion] {
+    static func scan(since: Date? = nil, clusterRadiusMeters: Double = 5_000) async -> [PlaceSuggestion] {
         let status = await requestAccess()
         guard status == .authorized || status == .limited else { return [] }
 
         let options = PHFetchOptions()
         options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: true)]
+        if let since {
+            options.predicate = NSPredicate(format: "creationDate > %@", since as NSDate)
+        }
         let assets = PHAsset.fetchAssets(with: .image, options: options)
 
         var clusters: [Cluster] = []

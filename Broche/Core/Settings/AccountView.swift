@@ -8,6 +8,11 @@
 import SwiftUI
 
 struct AccountView: View {
+    var onPinsAdded: (() -> Void)? = nil          // NEW
+
+        @State private var showScanOptions = false     // NEW
+        @State private var scanMode: ScanMode?         // NEW
+        @State private var lastScanDate: Date?         // NEW
     @ObservedObject var viewModel: AccountViewModel
     @State private var showDeleteConfirm = false
     @State private var isDeleting = false
@@ -47,6 +52,22 @@ struct AccountView: View {
                 // MARK: - Preferences card
                 VStack(spacing: 0) {
                     AccountActionRow(
+                        icon: "photo.on.rectangle.angled",
+                        iconColor: Color.theme.brocheIndigo,
+                        title: "Find Places From My Photos",
+                        subtitle: lastScanDate.map { "Last scanned \($0.formatted(date: .abbreviated, time: .omitted))" }
+                            ?? "Add pins from where you've taken photos"
+                    ) {
+                        if lastScanDate == nil {
+                            scanMode = .all          // never scanned: just do the full scan
+                        } else {
+                            showScanOptions = true   // scanned before: let them choose
+                        }
+                    }
+
+                    Divider().padding(.leading, 60)
+
+                    AccountActionRow(
                         icon: "arrow.counterclockwise.circle.fill",
                         iconColor: .blue,
                         title: "Replay Onboarding Tips",
@@ -61,8 +82,6 @@ struct AccountView: View {
                         .fill(Color(.secondarySystemBackground))
                 )
                 .padding(.horizontal, 16)
-                
-                Spacer(minLength: 20)
                 
                 // MARK: - Danger zone, visually separated
                 VStack(spacing: 10) {
@@ -143,6 +162,22 @@ struct AccountView: View {
         } message: {
             Text(deleteErrorMessage ?? "")
         }
+        .confirmationDialog("Find places from my photos", isPresented: $showScanOptions, titleVisibility: .visible) {
+            Button("Scan new photos only") { scanMode = .newOnly }
+            Button("Scan all photos again") { scanMode = .all }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("New photos only skips anything from before your last scan.")
+        }
+        .sheet(item: $scanMode, onDismiss: { loadLastScanDate() }) { mode in
+            CameraRollImportView(user: viewModel.user, fullRescan: mode == .all) { count in
+                if count > 0 { onPinsAdded?() }
+            }
+        }
+        .onAppear { loadLastScanDate() }
+    }
+    private func loadLastScanDate() {
+        lastScanDate = UserDefaults.standard.object(forKey: "lastPhotoScan_\(viewModel.user.id)") as? Date
     }
 }
 
@@ -186,6 +221,11 @@ struct AccountActionRow: View {
         }
         .buttonStyle(.plain)
     }
+}
+
+enum ScanMode: Identifiable {
+    case newOnly, all
+    var id: Int { self == .newOnly ? 0 : 1 }
 }
 
 struct AccountView_Previews: PreviewProvider {

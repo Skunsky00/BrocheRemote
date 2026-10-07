@@ -19,18 +19,28 @@ final class CameraRollImportViewModel: ObservableObject {
 
     private let userId: String
     private let geocoder = CityGeocoder()
+    private let fullRescan: Bool
+    private var lastScanKey: String { "lastPhotoScan_\(userId)" }
 
-    init(userId: String) { self.userId = userId }
+    private var lastScanDate: Date? {
+        UserDefaults.standard.object(forKey: lastScanKey) as? Date
+    }
+
+    init(userId: String, fullRescan: Bool = false) {
+        self.userId = userId
+        self.fullRescan = fullRescan
+    }
 
     func scan() async {
         isScanning = true
-        var found = await PhotoLocationScanner.scan()
+        var found = await PhotoLocationScanner.scan(since: fullRescan ? nil : lastScanDate)
 
         let existing = (try? await UserService.fetchSavedLocations(forUserID: userId, type: .visited)) ?? []
+        let dedupeRadius: Double = existing.isEmpty ? 1000 : 5000
         found = found.filter { s in
             let loc = CLLocation(latitude: s.coordinate.latitude, longitude: s.coordinate.longitude)
             return !existing.contains {
-                CLLocation(latitude: $0.latitude, longitude: $0.longitude).distance(from: loc) < 1000
+                CLLocation(latitude: $0.latitude, longitude: $0.longitude).distance(from: loc) < dedupeRadius
             }
         }
 
@@ -54,6 +64,7 @@ final class CameraRollImportViewModel: ObservableObject {
         namingProgress = (0, ids.count)
 
         for (n, id) in ids.enumerated() {
+            if Task.isCancelled { break }
             guard let i = suggestions.firstIndex(where: { $0.id == id }) else { continue }
             if let r = await geocoder.city(for: suggestions[i].coordinate),
                let j = suggestions.firstIndex(where: { $0.id == id }) {
@@ -152,7 +163,7 @@ final class CameraRollImportViewModel: ObservableObject {
                         ownerUid: self.userId,
                         latitude: suggestion.coordinate.latitude,
                         longitude: suggestion.coordinate.longitude,
-                        city: suggestion.cityName,
+                        city: suggestion.cityName ?? "Unnamed place",   // never save a blank
                         date: Self.formatDateRange(suggestion.startDate, suggestion.endDate),
                         createdAt: suggestion.startDate
                     )
@@ -160,6 +171,10 @@ final class CameraRollImportViewModel: ObservableObject {
                 }
             }
             for await success in group where success { savedCount += 1 }
+        }
+
+        if savedCount > 0 {
+            UserDefaults.standard.set(Date(), forKey: lastScanKey)
         }
         return savedCount
     }
