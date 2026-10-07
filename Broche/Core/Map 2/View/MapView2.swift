@@ -26,6 +26,8 @@ struct MapView2: View {
     @State private var showTripSelector = false
     @State private var showEditTrip = false
     @State private var lastSelectedCoordinate: CLLocationCoordinate2D?   // NEW
+    @State private var showCameraRollPrompt = false
+    @State private var showCameraRollImport = false
 
     var user: User
 
@@ -75,7 +77,7 @@ struct MapView2: View {
                                             .foregroundStyle(.white)
                                             .font(.system(size: 12))
                                     }
-                                    .onTapGesture { selectLocation(location, type: .visited) }   // .future for the airplane pins
+                                    .onTapGesture { selectLocation(location, type: .future) }   // .future for the airplane pins
                                 }
                                 .annotationTitles(.hidden)
                                 .annotationSubtitles(.hidden)
@@ -277,6 +279,61 @@ struct MapView2: View {
                     .zIndex(8)
                     .transition(.opacity)
                 }
+                
+                if showCameraRollPrompt {
+                    VStack {
+                        Spacer()
+                        VStack(spacing: 10) {
+                            Text("Build your map instantly")
+                                .font(.headline)
+                            Text("We can scan your photos for places you've already been.")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                            HStack(spacing: 12) {
+                                Button {
+                                    UserService.markCameraRollImportSeen(uid: user.id)
+                                    showCameraRollPrompt = false
+                                } label: {
+                                    Text("Not now")
+                                        .font(.subheadline.weight(.semibold))
+                                        .foregroundStyle(.primary)
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 10)
+                                        .background(Color(.secondarySystemBackground))
+                                        .clipShape(Capsule())
+                                }
+
+                                Button {
+                                    UserService.markCameraRollImportSeen(uid: user.id)
+                                    showCameraRollPrompt = false
+                                    showCameraRollImport = true
+                                } label: {
+                                    Text("Scan Photos")
+                                        .font(.subheadline.weight(.semibold))
+                                        .foregroundStyle(.white)
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 10)
+                                        .background(Color.theme.brocheIndigo)
+                                        .clipShape(Capsule())
+                                        .overlay(
+                                            Capsule()
+                                                .stroke(LinearGradient.brocheStroke, lineWidth: 1.5)
+                                                .padding(1)
+                                        )
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(16)
+                        .padding(.horizontal)
+                        .padding(.bottom, 100)   // clears the bottom buttons row
+                    }
+                    .zIndex(9)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+                
                 // MARK: - BOOKMARK SHEET
                 if viewModel.mapState == .locationSelected {
                     if let selectedLocation = selectedLocation {
@@ -337,7 +394,11 @@ struct MapView2: View {
                 // trip banner now lives only in the top-bar block above
             }
             .onAppear {
-                viewModel.fetchLocations(userId: user.id) { _ in }
+                viewModel.fetchLocations(userId: user.id) { _ in
+                    if user.hasSeenCameraRollImport != true && viewModel.visitedLocations.isEmpty {
+                        showCameraRollPrompt = true
+                    }
+                }
                 viewModel.locationViewModel.mapViewModel = viewModel
                 viewModel.locationViewModel.userId = user.id
             }
@@ -381,6 +442,11 @@ struct MapView2: View {
             .sheet(isPresented: $showEditTrip) {
                 if let activeTrip = viewModel.activeTrip {
                     TripPinSelectorView(user: user, existingTrip: activeTrip)
+                }
+            }
+            .sheet(isPresented: $showCameraRollImport) {
+                CameraRollImportView(user: user) { count in
+                    viewModel.fetchLocations(userId: user.id) { _ in }
                 }
             }
             .onChange(of: showEditTrip) {

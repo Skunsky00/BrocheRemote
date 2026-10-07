@@ -325,6 +325,7 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		4EA717E430350951002C096A /* Onboarding */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Onboarding; sourceTree = "<group>"; };
+		4EAF7F4930720754002B8E2D /* ScanPhotos */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ScanPhotos; sourceTree = "<group>"; };
 		4ECE528E2EDBB3CA0032B886 /* MapFeature */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = MapFeature; sourceTree = "<group>"; };
 		4EE157BC3037F6AB007E785B /* TabBar */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TabBar; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -456,6 +457,7 @@
 		4E85EBAF2A1698160074A346 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				4EAF7F4930720754002B8E2D /* ScanPhotos */,
 				4E85EBB12A1698770074A346 /* Authentication */,
 				4E85EBBC2A16A2560074A346 /* Components */,
 				4EC081192A27A8D500B86052 /* Comments */,
@@ -906,6 +908,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				4EA717E430350951002C096A /* Onboarding */,
+				4EAF7F4930720754002B8E2D /* ScanPhotos */,
 				4ECE528E2EDBB3CA0032B886 /* MapFeature */,
 				4EE157BC3037F6AB007E785B /* TabBar */,
 			);
@@ -1277,6 +1280,8 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Broche;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Please allow us to access your location to display the best Broches";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Broche scans your photos on your device to suggest pins for places you've visited. Photos are never uploaded, only place names and coordinates.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Broche scans your photos on your device to suggest pins for places you've visited. Photos are never uploaded, only place names and coordinates.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -1289,7 +1294,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.5;
+				MARKETING_VERSION = 2.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.brochetravel.broche;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1318,6 +1323,8 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Broche;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Please allow us to access your location to display the best Broches";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Broche scans your photos on your device to suggest pins for places you've visited. Photos are never uploaded, only place names and coordinates.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Broche scans your photos on your device to suggest pins for places you've visited. Photos are never uploaded, only place names and coordinates.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -1330,7 +1337,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.5;
+				MARKETING_VERSION = 2.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.brochetravel.broche;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

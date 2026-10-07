@@ -143,3 +143,22 @@ extension Location {
         )
     ]
 }
+
+
+struct NearbyFriendVisit: Identifiable, Hashable {
+    let id: String                 // locationId
+    let user: User
+    let locationId: String
+    let name: String
+    let coordinate: CLLocationCoordinate2D
+    let distanceMiles: Double
+
+    static func == (l: Self, r: Self) -> Bool { l.id == r.id }
+    func hash(into h: inout Hasher) { h.combine(id) }
+}
+
+struct NearbyFriendGroup: Identifiable {
+    var id: String { user.id }
+    let user: User
+    let visits: [NearbyFriendVisit]   // sorted by distance
+}

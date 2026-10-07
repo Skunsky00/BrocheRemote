@@ -23,6 +23,7 @@ struct User: Identifiable, Codable {
     var isFollowed: Bool? = false
     var didSaveLocation: Bool? = false
     var didSaveFutureLocation: Bool? = false
+    var hasSeenCameraRollImport: Bool?
     var verificationStatus: VerificationType = .none
     var followersCount: Int? = 0   // NEW — persisted, updated via increment on follow/unfollow
     var followingCount: Int? = 0   // NEW

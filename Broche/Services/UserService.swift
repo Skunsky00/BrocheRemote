@@ -316,6 +316,12 @@ extension UserService {
 }
 
 extension UserService {
+    static func markCameraRollImportSeen(uid: String) {
+        COLLECTION_USERS.document(uid).updateData(["hasSeenCameraRollImport": true])
+    }
+}
+
+extension UserService {
     static func backfillRegionData(uid: String, type: MarkerType) async {
         let collection = type == .visited ? COLLECTION_LOCATION : COLLECTION_FUTURE_LOCATIONS
         let subCollection = collection.document(uid).collection("user-locations")
@@ -422,4 +428,66 @@ extension UserService {
             try await unSaveLocation(uid: uid, location: location, type: .future)
             return saved
         }
+}
+
+extension UserService {
+    static func fetchNearbyFriendVisits(
+        around center: CLLocationCoordinate2D,
+        radiusMiles: Double
+    ) async -> [NearbyFriendGroup] {
+        guard let currentUid = Auth.auth().currentUser?.uid else { return [] }
+
+        guard let followingSnap = try? await COLLECTION_FOLLOWING
+            .document(currentUid)
+            .collection("user-following")
+            .getDocuments() else { return [] }
+
+        let friendIds = followingSnap.documents.map { $0.documentID }
+        guard !friendIds.isEmpty else { return [] }
+
+        let centerLoc = CLLocation(latitude: center.latitude, longitude: center.longitude)
+        let radiusMeters = radiusMiles * 1609.34
+
+        return await withTaskGroup(of: NearbyFriendGroup?.self) { group in
+            for friendId in friendIds {
+                group.addTask {
+                    guard let snapshot = try? await COLLECTION_LOCATION
+                        .document(friendId)
+                        .collection("user-locations")
+                        .getDocuments() else { return nil }
+
+                    // Filter by distance first, so we only fetch the User if there's a match
+                    let nearby: [(id: String, loc: Location, miles: Double)] = snapshot.documents.compactMap { doc in
+                        guard let loc = try? doc.data(as: Location.self) else { return nil }
+                        let meters = centerLoc.distance(from: CLLocation(latitude: loc.latitude, longitude: loc.longitude))
+                        guard meters <= radiusMeters else { return nil }
+                        return (doc.documentID, loc, meters / 1609.34)
+                    }
+
+                    guard !nearby.isEmpty,
+                          let user = try? await UserService.fetchUser(withUid: friendId) else { return nil }
+
+                    let visits = nearby
+                        .sorted { $0.miles < $1.miles }
+                        .map { item in
+                            NearbyFriendVisit(
+                                id: item.id,
+                                user: user,
+                                locationId: item.id,
+                                name: item.loc.city ?? "Unknown place",   // <- change if your field is named differently
+                                coordinate: CLLocationCoordinate2D(latitude: item.loc.latitude,
+                                                                   longitude: item.loc.longitude),
+                                distanceMiles: item.miles
+                            )
+                        }
+
+                    return NearbyFriendGroup(user: user, visits: visits)
+                }
+            }
+
+            var results: [NearbyFriendGroup] = []
+            for await g in group { if let g { results.append(g) } }
+            return results.sorted { $0.visits.count > $1.visits.count }
+        }
+    }
 }

@@ -179,17 +179,20 @@ struct MarkerSheet2: View {
                         
                         Spacer()
                         
-                        if viewModel.type == .visited {
-                            NavigationLink(destination: UserListView(
-                                config: .friendsWhoVisited(lat: viewModel.location.latitude, lon: viewModel.location.longitude),
-                                matchCoordinate: CLLocationCoordinate2D(latitude: viewModel.location.latitude, longitude: viewModel.location.longitude)
+                       // if viewModel.type == .visited {
+                            NavigationLink(destination: NearbyFriendsView(
+                                center: CLLocationCoordinate2D(
+                                    latitude: viewModel.location.latitude,
+                                    longitude: viewModel.location.longitude
+                                ),
+                                placeName: viewModel.location.city ?? "this location" // or whatever your name field is
                             )) {
                                 Label("Nearby", systemImage: "mappin.and.ellipse")
                                     .font(.footnote.bold())
                                     .foregroundStyle(.blue)
                             }
                             .markerOnboardingTarget(.nearby)
-                        }
+                     //   }
                         
                         if viewModel.user.isCurrentUser {
                             PhotosPicker(selection: $pickerSelection, matching: .any(of: [.images, .videos])) {
