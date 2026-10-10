@@ -19,17 +19,19 @@ class ProfileViewModel: ObservableObject {
     }
     
     func follow() {
-        UserService.follow(uid: user.id) { _ in
+        UserService.follow(uid: user.id) { [weak self] error in
+            guard let self, error == nil else { return }
             NotificationService.uploadNotification(toUid: self.user.id, type: .follow)
             self.user.isFollowed = true
-            self.user.followersCount = (self.user.followersCount ?? 0) + 1   // CHANGED
+            self.user.followersCount = (self.user.followersCount ?? 0) + 1
         }
     }
 
     func unfollow() {
-        UserService.unfollow(uid: user.id) { _ in
+        UserService.unfollow(uid: user.id) { [weak self] error in
+            guard let self, error == nil else { return }
             self.user.isFollowed = false
-            self.user.followersCount = max((self.user.followersCount ?? 1) - 1, 0)   // CHANGED
+            self.user.followersCount = max((self.user.followersCount ?? 1) - 1, 0)
             NotificationService.deleteNotification(toUid: self.user.id, type: .follow)
         }
     }
