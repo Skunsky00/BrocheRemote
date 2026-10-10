@@ -13,7 +13,9 @@ struct NearbyMediaPickerView: View {
     let center: CLLocationCoordinate2D
     let placeName: String
     var onPickedFromAll: () -> Void = {}
+    var onCancel: () -> Void = {}
     var onPicked: (PHAsset) -> Void
+   
 
     @Environment(\.dismiss) private var dismiss
     @StateObject private var loader = NearbyMediaLoader()
@@ -64,7 +66,10 @@ struct NearbyMediaPickerView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("Cancel") {
+                        onCancel()
+                        dismiss()
+                    }
                 }
                 ToolbarItem(placement: .bottomBar) {
                     Button("All photos") {

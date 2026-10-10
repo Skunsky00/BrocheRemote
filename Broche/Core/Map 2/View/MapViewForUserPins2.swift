@@ -189,16 +189,6 @@ struct MapViewForUserPins2: View {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     showOverlay = overlayWasVisibleBeforeMarker
                 }
-                withAnimation(.easeInOut(duration: 0.4)) {
-                    if let coordinate = lastSelectedCoordinate {   // CHANGED — zoom out around the last pin, not fit-to-all
-                        viewModel.cameraPosition = .region(MKCoordinateRegion(
-                            center: coordinate,
-                            span: MKCoordinateSpan(latitudeDelta: 25, longitudeDelta: 25)
-                        ))
-                    } else {
-                        viewModel.fitCameraToLocations()   // fallback if we somehow have no coordinate
-                    }
-                }
             }
         }
         
@@ -287,21 +277,22 @@ struct MapViewForUserPins2: View {
                 .onboardingTarget(.viewTrips)
                 
                 Spacer()
-                
-                // Profile header toggle — circular person icon
-                Button {
-                    withAnimation(.easeInOut(duration: 0.25)) {   // CHANGED — direct toggle, no closure
-                        showOverlay.toggle()
+
+                if !showOverlay {
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            showOverlay = true
+                        }
+                    } label: {
+                        Image(systemName: "person.crop.circle")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.primary)
+                            .frame(width: 44, height: 44)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
                     }
-                } label: {
-                    Image(systemName: "person.crop.circle")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.primary)
-                        .frame(width: 44, height: 44)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
+                    .transition(.scale.combined(with: .opacity))
                 }
-                .onboardingTarget(.hideProfile)
             }
             .padding()
             .padding(.bottom, 8)

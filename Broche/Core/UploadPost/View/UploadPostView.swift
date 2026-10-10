@@ -61,6 +61,7 @@ struct VideoSelectionView: View {
     @ObservedObject var viewModel: UploadPostViewModel
     var onFinished: () -> Void
     var onNext: (() -> Void)? = nil
+    var onChangeSelection: (() -> Void)? = nil   // NEW
     @Environment(\.dismiss) var dismiss
     @State private var imagePickerPresented = false
     @State private var showErrorAlert = false
@@ -93,15 +94,25 @@ struct VideoSelectionView: View {
                         }
                         .buttonStyle(.borderedProminent)
                         .padding()
-                    } else {
-                        ProgressView()
+                    }  else {
+                        VStack(spacing: 12) {
+                            Text("No media selected")
+                                .foregroundStyle(.secondary)
+                            Button("Choose another") {
+                                if let onChangeSelection { onChangeSelection() }
+                                else { imagePickerPresented = true }
+                            }
+                            .buttonStyle(.borderedProminent)
+                        }
+                        .padding()
                     }
                 }
         .navigationBarBackButtonHidden(true)
         .toolbar {   // NEW
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    imagePickerPresented = true
+                    if let onChangeSelection { onChangeSelection() }
+                    else { imagePickerPresented = true }
                 } label: {
                     Image(systemName: "chevron.left")
                         .foregroundColor(.blue)

@@ -403,33 +403,19 @@ struct MapView2: View {
                 viewModel.locationViewModel.userId = user.id
             }
             .onChange(of: viewModel.mapState) { _, newState in
-                           if newState != .searchingForLocation {
-                               showSearchSheet = false
-                           }
+                if newState != .searchingForLocation {
+                    showSearchSheet = false
+                }
 
-                           if newState == .noInput {
-                               selectedLocation = nil
-                               viewModel.locationViewModel.selectedLocationCoordinate = nil
-                               viewModel.locationViewModel.selectedLocationTitle = nil
-                               withAnimation(.easeInOut(duration: 0.4)) {   // CHANGED — was 1.0
-                                   if let coordinate = lastSelectedCoordinate {   // NEW
-                                       viewModel.cameraPosition = .region(MKCoordinateRegion(
-                                           center: coordinate,
-                                           span: MKCoordinateSpan(latitudeDelta: 25, longitudeDelta: 25)
-                                       ))
-                                   } else {
-                                       viewModel.cameraPosition = .region(
-                                           MKCoordinateRegion(
-                                               center: CLLocationCoordinate2D(latitude: 39.8283, longitude: -98.5795),
-                                               span: MKCoordinateSpan(latitudeDelta: 70, longitudeDelta: 70)
-                                           )
-                                       )
-                                   }
-                               }
-                           }
+                if newState == .noInput {
+                    selectedLocation = nil
+                    viewModel.locationViewModel.selectedLocationCoordinate = nil
+                    viewModel.locationViewModel.selectedLocationTitle = nil
+                    // camera intentionally untouched: stays at the pin's zoom
+                }
 
-                           viewModel.handleMapStateChange(newState, userId: user.id) { _ in }
-                       }
+                viewModel.handleMapStateChange(newState, userId: user.id) { _ in }
+            }
             .sheet(isPresented: $isSheetPresented) {
                 Text("Your Sheet Here")
             }

@@ -86,12 +86,17 @@ class UploadPostViewModel: ObservableObject {
             isVideoSelected = true
             selectedImage = nil
             do {
-                let movie = try await item.loadTransferable(type: Movie.self)
-                selectedVideoUrl = movie?.url
-                print("DEBUG: Video URL loaded: \(selectedVideoUrl?.absoluteString ?? "nil")")
+                if let movie = try await item.loadTransferable(type: Movie.self) {
+                    let duration = try await AVURLAsset(url: movie.url).load(.duration).seconds
+                    if duration > UploadLimits.maxVideoSeconds {
+                        try? FileManager.default.removeItem(at: movie.url)
+                        errorMessage = "Videos must be 3 minutes or shorter."
+                    } else {
+                        selectedVideoUrl = try await compressVideo(movie.url)
+                    }
+                }
             } catch {
                 errorMessage = "Failed to load video: \(error.localizedDescription)"
-                print("DEBUG: Error loading video: \(error)")
             }
         } else {
             isVideoSelected = false
@@ -227,6 +232,12 @@ class UploadPostViewModel: ObservableObject {
     }
     
     func loadMedia(from asset: PHAsset) async {
+        if asset.mediaType == .video, asset.duration > UploadLimits.maxVideoSeconds {
+            errorMessage = "Videos must be 3 minutes or shorter."
+            isLoadingVideo = false
+            return
+        }
+
         isLoadingVideo = true
         selectedVideoUrl = nil
         selectedImage = nil
@@ -235,15 +246,13 @@ class UploadPostViewModel: ObservableObject {
 
         do {
             if asset.mediaType == .video {
-                selectedVideoUrl = try await exportVideo(asset)
-                print("DEBUG: PHAsset video exported: \(selectedVideoUrl?.absoluteString ?? "nil")")
+                let raw = try await exportVideo(asset)
+                selectedVideoUrl = try await compressVideo(raw)
             } else {
                 selectedImage = try await loadImage(asset)
-                print("DEBUG: PHAsset image loaded")
             }
         } catch {
             errorMessage = "Failed to load media: \(error.localizedDescription)"
-            print("DEBUG: Error loading PHAsset: \(error)")
         }
 
         isLoadingVideo = false
@@ -269,6 +278,25 @@ class UploadPostViewModel: ObservableObject {
             }
         }
     }
+    private func compressVideo(_ url: URL) async throws -> URL {
+           let asset = AVURLAsset(url: url)
+           guard let export = AVAssetExportSession(asset: asset,
+                                                   presetName: AVAssetExportPreset1280x720) else {
+               return url   // can't compress, use the original
+           }
+           let out = URL(fileURLWithPath: NSTemporaryDirectory() + UUID().uuidString + ".mov")
+           export.outputURL = out
+           export.outputFileType = .mov
+           export.shouldOptimizeForNetworkUse = true
+           await export.export()
+
+           guard export.status == .completed else {
+               throw export.error ?? NSError(domain: "", code: -1,
+                   userInfo: [NSLocalizedDescriptionKey: "Video compression failed"])
+           }
+           try? FileManager.default.removeItem(at: url)   // delete the uncompressed temp copy
+           return out
+       }
 
     private func loadImage(_ asset: PHAsset) async throws -> UIImage {
         let options = PHImageRequestOptions()

@@ -44,8 +44,8 @@ enum OnboardingStep: Int, CaseIterable {
     }
     var messageAboveTarget: Bool {
         switch self {
-        case .searchBar, .createTrips: return false
-        case .hideProfile, .viewTrips: return true
+        case .searchBar, .createTrips, .hideProfile: return false
+        case .viewTrips: return true
         case .done: return false
         }
     }

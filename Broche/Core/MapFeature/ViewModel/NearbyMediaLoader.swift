@@ -22,9 +22,12 @@ final class NearbyMediaLoader: ObservableObject {
         Task.detached(priority: .userInitiated) {
             let options = PHFetchOptions()
             options.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-            options.predicate = NSPredicate(format: "mediaType == %d OR mediaType == %d",
-                                            PHAssetMediaType.image.rawValue,
-                                            PHAssetMediaType.video.rawValue)
+            options.predicate = NSPredicate(
+                format: "mediaType == %d OR (mediaType == %d AND duration <= %f)",
+                PHAssetMediaType.image.rawValue,
+                PHAssetMediaType.video.rawValue,
+                UploadLimits.maxVideoSeconds
+            )
             let result = PHAsset.fetchAssets(with: options)
 
             var matches: [PHAsset] = []
@@ -42,4 +45,9 @@ final class NearbyMediaLoader: ObservableObject {
     }
 }
 
+
+enum UploadLimits {
+    static let maxVideoSeconds: Double = 180   // 3 minutes
+    
+}
 

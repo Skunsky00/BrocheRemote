@@ -44,6 +44,10 @@ struct MarkerSheet2: View {
     @State private var showAllPhotosPicker = false
     @State private var pendingAsset: PHAsset?
     @State private var wantsAllPhotos = false
+    @State private var showNearbyPickerInCover = false   // ADD
+    @State private var showAllPhotosInCover = false      // ADD
+    @State private var wantsAllFromCover = false         // ADD
+    @State private var cancelledFromCover = false
     
     
     
@@ -290,20 +294,43 @@ struct MarkerSheet2: View {
                     path: .constant(NavigationPath()),
                     tabIndex: .constant(0),
                     viewModel: uploadViewModel,
-                    onFinished: { showUpload = false
-                                showPostDetails = false },
-                    onNext: { showPostDetails = true }
+                    onFinished: { showUpload = false; showPostDetails = false },
+                    onNext: { showPostDetails = true },
+                    onChangeSelection: { showNearbyPickerInCover = true }   // NEW
                 )
                 .navigationDestination(isPresented: $showPostDetails) {
                     PostDetailsView(
                         viewModel: uploadViewModel,
                         tabIndex: .constant(0),
                         path: .constant(NavigationPath()),
-                        onFinished: { showUpload = false
-                                    showPostDetails = false}
+                        onFinished: { showUpload = false; showPostDetails = false }
                     )
                 }
             }
+            .sheet(isPresented: $showNearbyPickerInCover, onDismiss: {
+                if wantsAllFromCover {
+                    wantsAllFromCover = false
+                    showAllPhotosInCover = true
+                } else if cancelledFromCover {
+                    cancelledFromCover = false
+                    showUpload = false          // close the cover, back to the marker sheet
+                    showPostDetails = false
+                }
+            }) {
+                NearbyMediaPickerView(
+                    center: CLLocationCoordinate2D(latitude: viewModel.location.latitude,
+                                                   longitude: viewModel.location.longitude),
+                    placeName: viewModel.location.city ?? "this location",
+                    onPickedFromAll: { wantsAllFromCover = true },
+                    onCancel: { cancelledFromCover = true },     // ADD
+                    onPicked: { asset in
+                        Task { await uploadViewModel.loadMedia(from: asset) }
+                    }
+                )
+            }
+            .photosPicker(isPresented: $showAllPhotosInCover,
+                          selection: $uploadViewModel.selectedItem,
+                          matching: .any(of: [.images, .videos]))
         }
         .onChange(of: uploadManager.uploadCompletionCount) { _ in
             if uploadManager.lastCompletedLocationId == viewModel.location.id {
@@ -396,6 +423,7 @@ struct MarkerSheet2: View {
             uploadViewModel.attachedVisitId = nil
             uploadViewModel.location = viewModel.location.city ?? ""
             showPostDetails = false
+            uploadViewModel.isLoadingVideo = true
             showUpload = true
             Task { await uploadViewModel.loadMedia(from: asset) }
         } else if wantsAllPhotos {

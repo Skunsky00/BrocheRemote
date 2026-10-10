@@ -44,7 +44,23 @@ struct ProfileView: View {
                     
                     if showOverlay {
                         VStack(spacing: 0) {
-                            Spacer().frame(height: 12)
+                            HStack {
+                                Button {
+                                    withAnimation(.easeInOut(duration: 0.25)) {
+                                        showOverlay = false
+                                    }
+                                } label: {
+                                    Label("Hide", systemImage: "person.crop.circle")
+                                        .font(.subheadline.weight(.semibold))
+                                        .foregroundColor(.primary)
+                                }
+                                .onboardingTarget(.hideProfile)   // moved here, see note below
+                                Spacer()
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.top, 12)
+                            .padding(.bottom, 4)
+
                             ProfileHeaderView(viewModel: viewModel)
                             Divider().padding(.horizontal, 12).opacity(0.3)
                             ProfileFilterBar(selectedFilter: $selectedFilter, isCurrentUser: user.isCurrentUser)
