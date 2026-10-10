@@ -18,6 +18,18 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         FirebaseApp.configure()
+        
+        // Share auth with the Share Extension
+            let group = "5K8U9AH5WN.com.brochetravel.broche.shared"
+            let existingUser = Auth.auth().currentUser
+            do {
+                try Auth.auth().useUserAccessGroup(group)
+                if let existingUser {
+                    Task { try? await Auth.auth().updateCurrentUser(existingUser) }
+                }
+            } catch {
+                print("DEBUG: Failed to set auth access group: \(error)")
+            }
 
         UNUserNotificationCenter.current().delegate = self
         Messaging.messaging().delegate = self

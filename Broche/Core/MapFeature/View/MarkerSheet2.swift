@@ -40,6 +40,10 @@ struct MarkerSheet2: View {
     @State private var showFutureActionSheet = false
     @State private var showPostDetails = false   // NEW
     @State private var showComments = false   // NEW
+    @State private var showNearbyPicker = false
+    @State private var showAllPhotosPicker = false
+    @State private var pendingAsset: PHAsset?
+    @State private var wantsAllPhotos = false
     
     
     
@@ -195,21 +199,24 @@ struct MarkerSheet2: View {
                      //   }
                         
                         if viewModel.user.isCurrentUser {
-                            PhotosPicker(selection: $pickerSelection, matching: .any(of: [.images, .videos])) {
-                                                            Image(systemName: "camera.fill")
-                                                                .font(.subheadline)
-                                                                .foregroundStyle(.white)
-                                                                .padding(8)
-                                                                .background(Color.blue)
-                                                                .clipShape(Circle())
-                                                                .overlay(
-                                                                    Image(systemName: "plus.circle.fill")
-                                                                        .font(.system(size: 14))
-                                                                        .foregroundStyle(.white, .blue)
-                                                                        .offset(x: 10, y: 10)
-                                                                )
-                                                        }
-                                                        .markerOnboardingTarget(.addPhoto)
+                            Button {
+                                showNearbyPicker = true
+                            } label: {
+                                Image(systemName: "camera.fill")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.white)
+                                    .padding(8)
+                                    .background(Color.blue)
+                                    .clipShape(Circle())
+                                    .overlay(
+                                        Image(systemName: "plus.circle.fill")
+                                            .font(.system(size: 14))
+                                            .foregroundStyle(.white, .blue)
+                                            .offset(x: 10, y: 10)
+                                    )
+                            }
+                            .buttonStyle(.plain)
+                            .markerOnboardingTarget(.addPhoto)
                         }
                     }
                     .padding(.horizontal, 24)
@@ -226,13 +233,8 @@ struct MarkerSheet2: View {
                             .padding(.top, 12)
                     }
                     
-                    // MARK: - Link (visited only)
-                    if let link = viewModel.location.link, viewModel.type == .visited {
-                        LinkChipView(title: viewModel.location.linkTitle ?? "", urlString: link)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 24)
-                            .padding(.top, 12)
-                    }
+                    // MARK: - Links
+                    LocationLinksRow(location: viewModel.location)
 
                     // MARK: - Photos
                     LocationPhotoGridPreview(location: viewModel.location, isCurrentUser: viewModel.user.isCurrentUser && viewModel.type == .visited)
@@ -260,6 +262,18 @@ struct MarkerSheet2: View {
         .presentationDragIndicator(.visible)
         .presentationBackground(.clear)
         .presentationCornerRadius(28)
+        .sheet(isPresented: $showNearbyPicker, onDismiss: handleNearbyDismiss) {
+            NearbyMediaPickerView(
+                center: CLLocationCoordinate2D(latitude: viewModel.location.latitude,
+                                               longitude: viewModel.location.longitude),
+                placeName: viewModel.location.city ?? "this location",
+                onPickedFromAll: { wantsAllPhotos = true },
+                onPicked: { pendingAsset = $0 }
+            )
+        }
+        .photosPicker(isPresented: $showAllPhotosPicker,
+                      selection: $pickerSelection,
+                      matching: .any(of: [.images, .videos]))
         .onChange(of: pickerSelection) { newItem in
             guard let newItem else { return }
             uploadViewModel.attachedLocationId = viewModel.location.id
@@ -372,6 +386,21 @@ struct MarkerSheet2: View {
         }
         .onAppear {
             markerOnboarding.start()
+        }
+    }
+    
+    private func handleNearbyDismiss() {
+        if let asset = pendingAsset {
+            pendingAsset = nil
+            uploadViewModel.attachedLocationId = viewModel.location.id
+            uploadViewModel.attachedVisitId = nil
+            uploadViewModel.location = viewModel.location.city ?? ""
+            showPostDetails = false
+            showUpload = true
+            Task { await uploadViewModel.loadMedia(from: asset) }
+        } else if wantsAllPhotos {
+            wantsAllPhotos = false
+            showAllPhotosPicker = true
         }
     }
 }

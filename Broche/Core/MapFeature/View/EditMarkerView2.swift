@@ -33,7 +33,7 @@ struct EditMarkerView2: View {
                         .cornerRadius(14)
                 }
                 
-                if viewModel.type == .visited {
+              //  if viewModel.type == .visited {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Link")
                             .font(.subheadline.weight(.semibold))
@@ -80,7 +80,7 @@ struct EditMarkerView2: View {
                         }
                     }
                     .animation(.easeInOut(duration: 0.2), value: viewModel.link.isEmpty)
-                }
+               // }
                 
                 Spacer()
             }

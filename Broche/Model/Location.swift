@@ -25,6 +25,8 @@ struct Location: Codable, Identifiable {
     var country: String?      // NEW — e.g. "United States"
     var countryCode: String?  // NEW — e.g. "US"
     var continent: String?    // NEW — lowercase, e.g. "north america"
+    var links: [PinLink]?
+    var placeId: String?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -41,6 +43,8 @@ struct Location: Codable, Identifiable {
         case country
         case countryCode
         case continent
+        case links
+        case placeId
     }
 
     init(from decoder: Decoder) throws {
@@ -59,6 +63,8 @@ struct Location: Codable, Identifiable {
         self.country = try container.decodeIfPresent(String.self, forKey: .country)
         self.countryCode = try container.decodeIfPresent(String.self, forKey: .countryCode)
         self.continent = try container.decodeIfPresent(String.self, forKey: .continent)
+        self.links = try container.decodeIfPresent([PinLink].self, forKey: .links)
+        self.placeId = try container.decodeIfPresent(String.self, forKey: .placeId)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -77,9 +83,11 @@ struct Location: Codable, Identifiable {
         try container.encodeIfPresent(country, forKey: .country)
         try container.encodeIfPresent(countryCode, forKey: .countryCode)
         try container.encodeIfPresent(continent, forKey: .continent)
+        try container.encodeIfPresent(links, forKey: .links)
+        try container.encodeIfPresent(placeId, forKey: .placeId)
     }
 
-    init(id: String, ownerUid: String = "", latitude: Double = 0.0, longitude: Double = 0.0, city: String? = nil, date: String? = nil, description: String? = nil, link: String? = nil, linkTitle: String? = nil, createdAt: Date? = Date(), state: String? = nil, country: String? = nil, countryCode: String? = nil, continent: String? = nil) {
+    init(id: String, ownerUid: String = "", latitude: Double = 0.0, longitude: Double = 0.0, city: String? = nil, date: String? = nil, description: String? = nil, link: String? = nil, linkTitle: String? = nil, createdAt: Date? = Date(), state: String? = nil, country: String? = nil, countryCode: String? = nil, continent: String? = nil,links: [PinLink]? = nil, placeId: String? = nil) {
         self.id = id
         self.ownerUid = ownerUid
         self.latitude = latitude
@@ -94,6 +102,8 @@ struct Location: Codable, Identifiable {
         self.country = country
         self.countryCode = countryCode
         self.continent = continent
+        self.links = links
+        self.placeId = placeId
     }
 }
 
@@ -105,6 +115,17 @@ extension Array where Element == Location {
     func inTripOrder(_ trip: Trip) -> [Location] {
         let byId = reduce(into: [String: Location]()) { $0[$1.id] = $1 }
         return trip.locationIds.compactMap { byId[$0] }
+    }
+}
+
+extension Location {
+    /// All links on this pin. Includes the legacy single `link` field so older pins still show up.
+    var allLinks: [PinLink] {
+        var result = links ?? []
+        if let link, !link.isEmpty, !result.contains(where: { $0.url == link }) {
+            result.insert(PinLink(url: link, title: linkTitle, source: nil, addedAt: nil), at: 0)
+        }
+        return result
     }
 }
 

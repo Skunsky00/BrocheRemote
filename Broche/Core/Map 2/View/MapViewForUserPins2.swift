@@ -249,7 +249,7 @@ struct MapViewForUserPins2: View {
                             .foregroundStyle(.white)
                             .font(.system(size: 12))
                     }
-                    .onTapGesture { selectLocation(location, type: .visited) }   // .future for the airplane pins
+                    .onTapGesture { selectLocation(location, type: .future) }   // .future for the airplane pins
                 }
                 .annotationTitles(.hidden)
                 .annotationSubtitles(.hidden)

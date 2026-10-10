@@ -8,6 +8,28 @@
 import Foundation
 import SwiftUI
 
+
+
+/// Row of link chips for the pin detail screen
+struct LocationLinksRow: View {
+    let location: Location
+ 
+    var body: some View {
+        let links = location.allLinks
+        if !links.isEmpty {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(links) { link in
+                        LinkChipView(title: link.title ?? "", urlString: link.url)
+                    }
+                }
+                .padding(.horizontal, 24)
+            }
+            .padding(.top, 12)
+        }
+    }
+}
+
 struct LinkChipView: View {
     let title: String
     let urlString: String

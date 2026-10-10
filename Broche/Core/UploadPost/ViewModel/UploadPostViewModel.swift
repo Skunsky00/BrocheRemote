@@ -225,4 +225,66 @@ class UploadPostViewModel: ObservableObject {
 
         try await postRef.setData(encodedPost)
     }
+    
+    func loadMedia(from asset: PHAsset) async {
+        isLoadingVideo = true
+        selectedVideoUrl = nil
+        selectedImage = nil
+        videoData = nil
+        isVideoSelected = (asset.mediaType == .video)
+
+        do {
+            if asset.mediaType == .video {
+                selectedVideoUrl = try await exportVideo(asset)
+                print("DEBUG: PHAsset video exported: \(selectedVideoUrl?.absoluteString ?? "nil")")
+            } else {
+                selectedImage = try await loadImage(asset)
+                print("DEBUG: PHAsset image loaded")
+            }
+        } catch {
+            errorMessage = "Failed to load media: \(error.localizedDescription)"
+            print("DEBUG: Error loading PHAsset: \(error)")
+        }
+
+        isLoadingVideo = false
+    }
+
+    private func exportVideo(_ asset: PHAsset) async throws -> URL {
+        let resources = PHAssetResource.assetResources(for: asset)
+        // prefer the edited version if the user trimmed/edited it in Photos
+        guard let resource = resources.first(where: { $0.type == .fullSizeVideo })
+                          ?? resources.first(where: { $0.type == .video }) else {
+            throw NSError(domain: "", code: -1,
+                          userInfo: [NSLocalizedDescriptionKey: "No video resource found"])
+        }
+
+        let url = URL(fileURLWithPath: NSTemporaryDirectory() + UUID().uuidString + ".mov")
+        let options = PHAssetResourceRequestOptions()
+        options.isNetworkAccessAllowed = true   // iCloud originals
+
+        return try await withCheckedThrowingContinuation { cont in
+            PHAssetResourceManager.default().writeData(for: resource, toFile: url, options: options) { error in
+                if let error { cont.resume(throwing: error) }
+                else { cont.resume(returning: url) }
+            }
+        }
+    }
+
+    private func loadImage(_ asset: PHAsset) async throws -> UIImage {
+        let options = PHImageRequestOptions()
+        options.deliveryMode = .highQualityFormat   // guarantees a single callback
+        options.isNetworkAccessAllowed = true
+        options.version = .current
+
+        return try await withCheckedThrowingContinuation { cont in
+            PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
+                if let data, let image = UIImage(data: data) {
+                    cont.resume(returning: image)
+                } else {
+                    cont.resume(throwing: NSError(domain: "", code: -1,
+                        userInfo: [NSLocalizedDescriptionKey: "Could not load image data"]))
+                }
+            }
+        }
+    }
 }
