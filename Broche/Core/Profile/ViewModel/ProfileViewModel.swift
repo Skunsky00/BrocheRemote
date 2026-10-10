@@ -23,7 +23,6 @@ class ProfileViewModel: ObservableObject {
             NotificationService.uploadNotification(toUid: self.user.id, type: .follow)
             self.user.isFollowed = true
             self.user.followersCount = (self.user.followersCount ?? 0) + 1   // CHANGED
-            self.user.stats?.followers = self.user.followersCount ?? 0        // keep stats in sync for the UI
         }
     }
 
@@ -31,7 +30,6 @@ class ProfileViewModel: ObservableObject {
         UserService.unfollow(uid: user.id) { _ in
             self.user.isFollowed = false
             self.user.followersCount = max((self.user.followersCount ?? 1) - 1, 0)   // CHANGED
-            self.user.stats?.followers = self.user.followersCount ?? 0
             NotificationService.deleteNotification(toUid: self.user.id, type: .follow)
         }
     }
@@ -49,22 +47,11 @@ class ProfileViewModel: ObservableObject {
 
 
     func loadUserData() {
-        self.user.stats = UserStats(following: user.followingCount ?? 0, followers: user.followersCount ?? 0)
-        
         Task {
-            if user.followersCount == nil || user.followingCount == nil {
-                await UserService.backfillFollowCounts(uid: user.id)
-                if let refreshed = try? await UserService.fetchUser(withUid: user.id) {
-                    self.user.followersCount = refreshed.followersCount
-                    self.user.followingCount = refreshed.followingCount
-                    self.user.stats = UserStats(following: refreshed.followingCount ?? 0, followers: refreshed.followersCount ?? 0)
-                }
-            }
-            
-            async let isFollowed = await checkIfUserIsFollowed()
+            async let isFollowed = checkIfUserIsFollowed()
+            async let followsMe = checkIfUserFollowsMe()
+
             self.user.isFollowed = await isFollowed
-            
-            async let followsMe = await checkIfUserFollowsMe()
             self.followsMe = await followsMe
         }
     }

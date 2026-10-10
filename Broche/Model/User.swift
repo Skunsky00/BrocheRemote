@@ -18,7 +18,6 @@ struct User: Identifiable, Codable {
     var link: String?
     var linkTitle: String?
     let email: String
-    var stats: UserStats?
     var location: Location?
     var isFollowed: Bool? = false
     var didSaveLocation: Bool? = false
@@ -46,10 +45,6 @@ extension User: Hashable {
     }
 }
 
-struct UserStats: Codable {
-    var following: Int
-    var followers: Int
-}
 
 extension User {
     static var MOCK_USERS: [User] = [
