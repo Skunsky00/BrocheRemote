@@ -54,8 +54,8 @@ struct UserListView: View {
                         }
                     }
                     .onAppear {
-                        if searchText.isEmpty && viewModel.supportsPagination && user.id == users.last?.id {
-                            Task { await viewModel.fetchUsers() }
+                        if searchText.isEmpty {
+                            viewModel.loadMoreIfNeeded(current: user)
                         }
                     }
                 }

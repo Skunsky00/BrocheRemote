@@ -27,8 +27,7 @@ struct CreatePasswordView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
                 
-                SecureField("Password", text: $viewModel.password)
-                    .modifier(BrocheTextFieldModifier())
+                PasswordField(placeholder: "Password", text: $viewModel.password)
                     .padding(.top)
                 
                 NavigationLink {

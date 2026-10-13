@@ -19,16 +19,24 @@ struct CurrentUserProfileView: View {
     @StateObject var brocheViewModel: BrocheGridViewModel
     @Environment(\.colorScheme) var colorScheme
     @StateObject private var pushBadgeState = PushBadgeState.shared   // NEW
-
+    @StateObject private var postsVM: PostGridViewModel
+    @StateObject private var likesVM: PostGridViewModel
+    
     private var showUnreadMessageBadge: Bool {
-            notiViewModel.hasUnreadMessages || pushBadgeState.hasUnreadMessages   // NEW
-        }
+        notiViewModel.hasUnreadMessages || pushBadgeState.hasUnreadMessages   // NEW
+    }
     
     init(user: User) {
         self.user = user
         self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
         self._notiViewModel = StateObject(wrappedValue: NotificationsViewModel())
         self._brocheViewModel = StateObject(wrappedValue: BrocheGridViewModel(user: user))
+        self._postsVM = StateObject(wrappedValue: PostGridViewModel { cursor in
+            try await PostService.fetchUserPosts(user: user, after: cursor)
+        })
+        self._likesVM = StateObject(wrappedValue: PostGridViewModel { cursor in
+            try await PostService.fetchLikedPosts(forUserID: user.id, after: cursor)
+        })
     }
     
     private var showTopBar: Bool {
@@ -45,7 +53,7 @@ struct CurrentUserProfileView: View {
                             user: user,
                             showOverlay: $showOverlay,
                             selectedLocation: $selectedLocation   // NEW
-                                                )
+                        )
                         
                         if showOverlay {
                             VStack(spacing: 0) {
@@ -65,7 +73,7 @@ struct CurrentUserProfileView: View {
                                 .padding(.horizontal, 16)
                                 .padding(.top, 12)
                                 .padding(.bottom, 4)
-
+                                
                                 ProfileHeaderView(viewModel: viewModel)
                                 Divider().padding(.horizontal, 12).opacity(0.3)
                                 ProfileFilterBar(selectedFilter: $selectedFilter, isCurrentUser: user.isCurrentUser)
@@ -111,30 +119,30 @@ struct CurrentUserProfileView: View {
                     UsernameWithBadgeView(user: user)
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
-                        NavigationLink {
-                            ConversationsView()
-                        } label: {
-                            Image(systemName: "paperplane")
-                                .imageScale(.large)
-                                .scaledToFit()
-                                .foregroundColor(showUnreadMessageBadge ? .red : (colorScheme == .dark ? .white : .black))   // CHANGED
-                        }
-                        .simultaneousGesture(TapGesture().onEnded {   // NEW — clear on open
-                            pushBadgeState.hasUnreadMessages = false
-                        })
+                    NavigationLink {
+                        ConversationsView()
+                    } label: {
+                        Image(systemName: "paperplane")
+                            .imageScale(.large)
+                            .scaledToFit()
+                            .foregroundColor(showUnreadMessageBadge ? .red : (colorScheme == .dark ? .white : .black))   // CHANGED
                     }
+                    .simultaneousGesture(TapGesture().onEnded {   // NEW — clear on open
+                        pushBadgeState.hasUnreadMessages = false
+                    })
+                }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                                    Button {
-                                        showSettings = true   // CHANGED — straight to full settings, no sheet
-                                    } label: {
-                                        Image(systemName: "line.3.horizontal")
-                                            .foregroundColor(colorScheme == .dark ? .white : .black)
-                                    }
-                                }
-                            }
-                            .task {
-                                await pushBadgeState.refreshFromFirestore()
-                            }
+                    Button {
+                        showSettings = true   // CHANGED — straight to full settings, no sheet
+                    } label: {
+                        Image(systemName: "line.3.horizontal")
+                            .foregroundColor(colorScheme == .dark ? .white : .black)
+                    }
+                }
+            }
+            .task {
+                await pushBadgeState.refreshFromFirestore()
+            }
         }
     }
     
@@ -143,18 +151,10 @@ struct CurrentUserProfileView: View {
         switch selectedFilter {
         case .map:
             EmptyView()   // never actually reached — .map is handled entirely in Mode 1 above
-        case .trips:
-            ScrollView {
-                SavedTripsListView(user: user)
-            }
-        case .posts:
-            ScrollView {
-                PostGridView(config: .profile(user))
-            }
-        case .hearts:
-            ScrollView {
-                PostGridView(config: .likedPosts(user))
-            }
+        case .trips:ScrollView {SavedTripsListView(user: user)}
+        case .posts:  PostGridContent(config: .profile(user), viewModel: postsVM)
+        case .hearts: PostGridContent(config: .likedPosts(user), viewModel: likesVM)
+            
         }
     }
 }

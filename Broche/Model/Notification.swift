@@ -52,5 +52,6 @@ struct GroupedNotification: Identifiable {
     let latestTimestamp: Timestamp
     let representativeNotification: Notification   // the newest raw one, used for navigation/post/location context
     var isViewed: Bool
+    let underlyingIDs: Set<String>
 }
 

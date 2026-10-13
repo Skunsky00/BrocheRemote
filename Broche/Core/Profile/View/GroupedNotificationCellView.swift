@@ -10,18 +10,21 @@ import Kingfisher
 
 struct GroupedNotificationCell: View {
     let group: GroupedNotification
-    @ObservedObject var viewModel: NotificationCellViewModel
-    @State private var selectedPost: Post?
-    @State private var isFollowedState: Bool   // NEW
-
-    private var primaryUser: User? { group.users.first }
-    private var extraCount: Int { max(0, group.users.count - 1) }
+        let onSelectPost: (Post, Bool) -> Void   // (post, openComments)
+        @StateObject private var viewModel: NotificationCellViewModel
+        @State private var isFollowedState: Bool
     
-    init(group: GroupedNotification, viewModel: NotificationCellViewModel) {
+    private var primaryUser: User? { group.users.first }
+
+        init(group: GroupedNotification, onSelectPost: @escaping (Post, Bool) -> Void) {
             self.group = group
-            self.viewModel = viewModel
-            self._isFollowedState = State(initialValue: group.representativeNotification.isFollowed ?? false)
+            self.onSelectPost = onSelectPost
+            _viewModel = StateObject(
+                wrappedValue: NotificationCellViewModel(notification: group.representativeNotification)
+            )
+            _isFollowedState = State(initialValue: group.representativeNotification.isFollowed ?? false)
         }
+
     
     var body: some View {
         Group {
@@ -45,7 +48,7 @@ struct GroupedNotificationCell: View {
                     .buttonStyle(.plain)
                 } else if group.type == .comment, let post = group.representativeNotification.post {
                     Button {
-                        selectedPost = post
+                        onSelectPost(post, true)
                     } label: {
                         cellContent(primaryUser: primaryUser)
                     }
@@ -67,9 +70,7 @@ struct GroupedNotificationCell: View {
             RoundedRectangle(cornerRadius: 16)
                 .stroke(group.isViewed ? Color.clear : Color.blue.opacity(0.25), lineWidth: 1)
         )
-        .navigationDestination(item: $selectedPost) { post in
-            feedCellDestination(for: post)
-        }
+
     }
 
     private var isStandalone: Bool {
@@ -188,7 +189,7 @@ struct GroupedNotificationCell: View {
             .buttonStyle(.plain)
         } else if let post = group.representativeNotification.post {
             Button {
-                selectedPost = post
+                onSelectPost(post, group.type == .comment)
             } label: {
                 thumbnail(for: post)
             }
@@ -217,17 +218,6 @@ struct GroupedNotificationCell: View {
         .frame(width: 44, height: 44)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
-
-    @MainActor
-    @ViewBuilder
-    private func feedCellDestination(for post: Post) -> some View {
-        if let videoUrl = post.videoUrl, !videoUrl.isEmpty {
-            PostGridFeedCell(viewModel: FeedCellViewModel(post: post), autoOpenComments: group.type == .comment)
-        } else {
-            PostGridFeedCellPhoto(viewModel: FeedCellViewModel(post: post), autoOpenComments: group.type == .comment)
-        }
-    }
-
 
     private func timestampString() -> String {
         let formatter = DateComponentsFormatter()

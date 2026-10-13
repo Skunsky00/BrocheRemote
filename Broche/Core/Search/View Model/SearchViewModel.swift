@@ -63,27 +63,36 @@ class SearchViewModel: ObservableObject {
     }
 
     func fetchUsers() async {
-        guard !isFetching, hasMorePages else { return }
+        guard supportsPagination, !isFetching, hasMorePages else { return }
+        guard let currentUid = Auth.auth().currentUser?.uid else { return }
         isFetching = true
         defer { isFetching = false }
 
-        guard let currentUid = Auth.auth().currentUser?.uid else { return }
-        let query = COLLECTION_USERS
-            .order(by: "username")
-            .limit(to: pageSize)
+        var query = COLLECTION_USERS.order(by: "username").limit(to: pageSize)
+        if let last = lastDoc { query = query.start(afterDocument: last) }
 
-        if let last = lastDoc {
-            let next = query.start(afterDocument: last)
-            guard let snapshot = try? await next.getDocuments() else { return }
+        do {
+            let snapshot = try await query.getDocuments()
+            print("📦 loaded \(snapshot.documents.count) users")
             if snapshot.documents.count < pageSize { hasMorePages = false }
-            self.lastDoc = snapshot.documents.last
-            self.users.append(contentsOf: snapshot.documents.compactMap({ try? $0.data(as: User.self) }))
-        } else {
-            guard let snapshot = try? await query.getDocuments() else { return }
-            if snapshot.documents.count < pageSize { hasMorePages = false }
-            self.lastDoc = snapshot.documents.last
-            self.users = snapshot.documents.compactMap({ try? $0.data(as: User.self) }).filter({ $0.id != currentUid })
+            lastDoc = snapshot.documents.last
+
+            let newUsers = snapshot.documents
+                .compactMap { try? $0.data(as: User.self) }
+                .filter { $0.id != currentUid }
+            let existing = Set(users.map(\.id))
+            users += newUsers.filter { !existing.contains($0.id) }
+        } catch {
+            print("❌ user page failed: \(error)")
         }
+    }
+
+    /// Call from each row's onAppear.
+    func loadMoreIfNeeded(current user: User) {
+        guard supportsPagination,
+              let index = users.firstIndex(where: { $0.id == user.id }),
+              index >= users.count - 6 else { return }
+        Task { await fetchUsers() }
     }
 
     // NEW — server-side search, independent of pagination state

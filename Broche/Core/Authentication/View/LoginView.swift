@@ -35,9 +35,7 @@ struct LoginView: View {
                             .autocorrectionDisabled()
                             .modifier(BrocheTextFieldModifier())
                         
-                        SecureField("Enter your password", text: $password)
-                            .textInputAutocapitalization(.never)
-                            .modifier(BrocheTextFieldModifier())
+                        PasswordField(placeholder: "Enter your password", text: $password)
                     }
                     .padding(.top, 20)
                     

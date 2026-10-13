@@ -131,8 +131,8 @@ struct MainTabView: View {
             }
         }
         .task {   // NEW — seeds the badge once per app session, not per tab switch
-                    await PushBadgeState.shared.refreshFromFirestore()
-                }
+            await PushBadgeState.shared.refreshFromFirestore()
+        }
         
     }
     
@@ -169,13 +169,12 @@ struct MainTabView: View {
     // NEW — finds the matching notification(s) in what's already loaded and marks them viewed
     @MainActor
     private func markMatchingNotificationViewed(where predicate: (Notification) -> Bool) async {
+        // Cold launch from a push: the listener may not have delivered yet
         if notiViewModel.notifications.isEmpty {
             await notiViewModel.updateNotifications()
         }
-        for notification in notiViewModel.notifications where predicate(notification) && !notification.isViewed {
-            notiViewModel.markNotificationAsViewed(notification: notification)
-        }
-        await notiViewModel.updateNotifications()   // refresh badge/list state
+        notiViewModel.markViewed(where: predicate)
+        // No refresh needed. The snapshot listener picks up the change.
     }
 }
 

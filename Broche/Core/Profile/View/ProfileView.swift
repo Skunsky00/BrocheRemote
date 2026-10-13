@@ -10,6 +10,8 @@ import SwiftUI
 struct ProfileView: View {
     let user: User
     @StateObject var viewModel: ProfileViewModel
+    @StateObject private var postsVM: PostGridViewModel
+    @StateObject private var likesVM: PostGridViewModel
     @State private var selectedFilter: ProfileFilterSelector = .map
     @State private var showOverlay = true
     @State private var selectedLocation: Location?
@@ -19,15 +21,21 @@ struct ProfileView: View {
     var deepLinkOpenComments: Bool = false   // NEW
     var onDismissOverride: (() -> Void)? = nil   // NEW
     
-    init(user: User, deepLinkLocationId: String? = nil, deepLinkTripId: String? = nil, deepLinkOpenComments: Bool = false, onDismissOverride: (() -> Void)? = nil) { 
-               self.user = user
-               self.deepLinkLocationId = deepLinkLocationId
-               self.deepLinkTripId = deepLinkTripId
-               self.deepLinkOpenComments = deepLinkOpenComments
-               self.onDismissOverride = onDismissOverride   // NEW
-               self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
-           }
-
+    init(user: User, deepLinkLocationId: String? = nil, deepLinkTripId: String? = nil, deepLinkOpenComments: Bool = false, onDismissOverride: (() -> Void)? = nil) {
+        self.user = user
+        self.deepLinkLocationId = deepLinkLocationId
+        self.deepLinkTripId = deepLinkTripId
+        self.deepLinkOpenComments = deepLinkOpenComments
+        self.onDismissOverride = onDismissOverride   // NEW
+        self._viewModel = StateObject(wrappedValue: ProfileViewModel(user: user))
+        self._postsVM = StateObject(wrappedValue: PostGridViewModel { cursor in
+            try await PostService.fetchUserPosts(user: user, after: cursor)
+        })
+        self._likesVM = StateObject(wrappedValue: PostGridViewModel { cursor in
+            try await PostService.fetchLikedPosts(forUserID: user.id, after: cursor)
+        })
+    }
+    
     
     var body: some View {
         Group {
@@ -60,7 +68,7 @@ struct ProfileView: View {
                             .padding(.horizontal, 16)
                             .padding(.top, 12)
                             .padding(.bottom, 4)
-
+                            
                             ProfileHeaderView(viewModel: viewModel)
                             Divider().padding(.horizontal, 12).opacity(0.3)
                             ProfileFilterBar(selectedFilter: $selectedFilter, isCurrentUser: user.isCurrentUser)
@@ -111,18 +119,10 @@ struct ProfileView: View {
         switch selectedFilter {
         case .map:
             EmptyView()
-        case .trips:
-            ScrollView {
-                SavedTripsListView(user: user)
-            }
-        case .posts:
-            ScrollView {
-                PostGridView(config: .profile(user))
-            }
-        case .hearts:
-            ScrollView {
-                PostGridView(config: .likedPosts(user))
-            }
+        case .trips:ScrollView {SavedTripsListView(user: user)}
+        case .posts:  PostGridContent(config: .profile(user), viewModel: postsVM)
+        case .hearts: PostGridContent(config: .likedPosts(user), viewModel: likesVM)
+            
         }
     }
 }

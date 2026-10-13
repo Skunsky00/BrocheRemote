@@ -17,6 +17,8 @@ class NotificationsViewModel: ObservableObject {
     
     private var listener: ListenerRegistration?
     private var hydrationTask: Task<Void, Never>?   // NEW — the in-flight debounce timer
+    private var markedViewedIDs = Set<String>()
+    private var hydratedCache: [String: Notification] = [:]
     
     init() {
         startListening()
@@ -45,30 +47,50 @@ class NotificationsViewModel: ObservableObject {
     }
     
     private func handleNotificationsUpdate(_ rawNotifications: [Notification]) async {
-        var updated = rawNotifications
-        
+        var result = rawNotifications
+        var toFetch: [(Int, Notification)] = []
+
+        for (index, raw) in rawNotifications.enumerated() {
+            if let id = raw.id, var cached = hydratedCache[id] {
+                cached.isViewed = raw.isViewed   // only the live field changes
+                result[index] = cached
+            } else {
+                toFetch.append((index, raw))
+            }
+        }
+
         await withTaskGroup(of: (Int, Notification).self) { group in
-            for (index, notification) in updated.enumerated() {
+            for (index, raw) in toFetch {
                 group.addTask {
-                    let hydrated = await NotificationService.fetchMetadata(for: notification)
-                    return (index, hydrated)
+                    (index, await NotificationService.fetchMetadata(for: raw))
                 }
             }
             for await (index, hydrated) in group {
-                if index < updated.count {
-                    updated[index] = hydrated
-                }
+                result[index] = hydrated
+                if let id = hydrated.id { hydratedCache[id] = hydrated }
             }
         }
-        
-        self.notifications = updated
+
+        self.notifications = result
         checkForNewNotifications()
         checkForUnreadMessages()
         buildGroups()
     }
     
+    func markGroupAsViewed(_ group: GroupedNotification) {
+        for notification in notifications {
+            guard let id = notification.id,
+                  group.underlyingIDs.contains(id),
+                  !notification.isViewed,
+                  !markedViewedIDs.contains(id) else { continue }
+            markedViewedIDs.insert(id)
+            NotificationService.markNotificationAsViewed(notification: notification)
+        }
+    }
+    
     func updateNotifications() async {
-        hydrationTask?.cancel()   // CHANGED — manual refresh should win over any pending debounce, run immediately
+        hydrationTask?.cancel()
+        hydratedCache.removeAll()
         let raw = await NotificationService.fetchNotifications()
         await handleNotificationsUpdate(raw)
     }
@@ -82,9 +104,17 @@ class NotificationsViewModel: ObservableObject {
            hasUnreadMessages = notifications.contains { $0.type == .message && !$0.isViewed }
        }
     
-    func markNotificationAsViewed(notification: Notification) {
-        NotificationService.markNotificationAsViewed(notification: notification)
+    func markViewed(where predicate: (Notification) -> Bool) {
+        for notification in notifications {
+            guard let id = notification.id,
+                  !notification.isViewed,
+                  !markedViewedIDs.contains(id),
+                  predicate(notification) else { continue }
+            markedViewedIDs.insert(id)
+            NotificationService.markNotificationAsViewed(notification: notification)
+        }
     }
+
     
     private func buildGroups() {
         var buckets: [String: [Notification]] = [:]
@@ -113,7 +143,8 @@ class NotificationsViewModel: ObservableObject {
                 users: [newest.user].compactMap { $0 },
                 latestTimestamp: newest.timestamp,
                 representativeNotification: newest,
-                isViewed: newest.isViewed
+                isViewed: newest.isViewed,
+                underlyingIDs: Set([newest.id].compactMap { $0 })
             ))
 
             // Summary cell — only for like/comment, only the OTHER unique people, excluding the newest actor
@@ -134,7 +165,8 @@ class NotificationsViewModel: ObservableObject {
                         users: summaryUsers,
                         latestTimestamp: oldestInSummary.timestamp,
                         representativeNotification: oldestInSummary,
-                        isViewed: sorted.dropFirst().allSatisfy { $0.isViewed }
+                        isViewed: sorted.dropFirst().allSatisfy { $0.isViewed },
+                        underlyingIDs: Set(sorted.dropFirst().compactMap { $0.id })
                     ))
                 }
             }

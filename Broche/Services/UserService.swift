@@ -12,43 +12,48 @@ import MapKit
 struct UserService {
     
     static func follow(uid: String, completion: ((Error?) -> Void)?) {
-        guard let currentUid = Auth.auth().currentUser?.uid else { return }
-        
-        COLLECTION_FOLLOWING.document(currentUid)
-            .collection("user-following").document(uid).setData([:]) { error in
-                guard error == nil else { completion?(error); return }
-                COLLECTION_FOLLOWERS.document(uid).collection("user-followers")
-                    .document(currentUid).setData([:]) { error in
-                        guard error == nil else { completion?(error); return }
-                        // NEW — keep denormalized counts in sync
-                        COLLECTION_USERS.document(currentUid).updateData([
-                            "followingCount": FieldValue.increment(Int64(1))
-                        ])
-                        COLLECTION_USERS.document(uid).updateData([
-                            "followersCount": FieldValue.increment(Int64(1))
-                        ], completion: completion)
-                    }
-            }
-    }
+            guard let currentUid = Auth.auth().currentUser?.uid else { return }
+            let batch = Firestore.firestore().batch()
 
-    static func unfollow(uid: String, completion: ((Error?) -> Void)?) {
-        guard let currentUid = Auth.auth().currentUser?.uid else { return }
+            batch.setData([:], forDocument: COLLECTION_FOLLOWING.document(currentUid)
+                .collection("user-following").document(uid))
+            batch.setData([:], forDocument: COLLECTION_FOLLOWERS.document(uid)
+                .collection("user-followers").document(currentUid))
+            batch.updateData(["followingCount": FieldValue.increment(Int64(1))],
+                             forDocument: COLLECTION_USERS.document(currentUid))
+            batch.updateData(["followersCount": FieldValue.increment(Int64(1))],
+                             forDocument: COLLECTION_USERS.document(uid))
 
-        COLLECTION_FOLLOWING.document(currentUid).collection("user-following")
-            .document(uid).delete { error in
-                guard error == nil else { completion?(error); return }
-                COLLECTION_FOLLOWERS.document(uid).collection("user-followers")
-                    .document(currentUid).delete { error in
-                        guard error == nil else { completion?(error); return }
-                        // NEW
-                        COLLECTION_USERS.document(currentUid).updateData([
-                            "followingCount": FieldValue.increment(Int64(-1))
-                        ])
-                        COLLECTION_USERS.document(uid).updateData([
-                            "followersCount": FieldValue.increment(Int64(-1))
-                        ], completion: completion)
-                    }
-            }
+            batch.commit(completion: completion)
+        }
+
+        static func unfollow(uid: String, completion: ((Error?) -> Void)?) {
+            guard let currentUid = Auth.auth().currentUser?.uid else { return }
+            let batch = Firestore.firestore().batch()
+
+            batch.deleteDocument(COLLECTION_FOLLOWING.document(currentUid)
+                .collection("user-following").document(uid))
+            batch.deleteDocument(COLLECTION_FOLLOWERS.document(uid)
+                .collection("user-followers").document(currentUid))
+            batch.updateData(["followingCount": FieldValue.increment(Int64(-1))],
+                             forDocument: COLLECTION_USERS.document(currentUid))
+            batch.updateData(["followersCount": FieldValue.increment(Int64(-1))],
+                             forDocument: COLLECTION_USERS.document(uid))
+
+            batch.commit(completion: completion)
+        }
+    
+    static func recalculateCounts(uid: String) async {
+        async let followers = COLLECTION_FOLLOWERS.document(uid)
+            .collection("user-followers").count.getAggregation(source: .server)
+        async let following = COLLECTION_FOLLOWING.document(uid)
+            .collection("user-following").count.getAggregation(source: .server)
+
+        guard let f = try? await followers, let g = try? await following else { return }
+        try? await COLLECTION_USERS.document(uid).updateData([
+            "followersCount": f.count.intValue,
+            "followingCount": g.count.intValue
+        ])
     }
     
     static func checkIfUserIsFollowed(uid: String) async -> Bool {
@@ -125,7 +130,7 @@ extension UserService {
     // Add to UserService
     static func deleteAccount(uid: String) async throws {
         // 1. Delete all owned posts
-        if let posts = try? await PostService.fetchUserPosts(user: User(id: uid, username: "", email: "")) {
+        if let posts = try? await PostService.fetchAllUserPosts(uid: uid) {
             for post in posts {
                 try? await PostService.deletePost(post)
             }
@@ -274,6 +279,9 @@ extension UserService {
                 
                 // NEW — delete all visits (and their posts) under this pin before deleting the pin
                 if type == .visited {
+                    // posts first, by locationId, so nothing depends on visits existing
+                    try await PostService.deletePosts(forLocationId: document.documentID, ownerUid: uid)
+
                     let visitsSnapshot = try await document.reference.collection("visits").getDocuments()
                     for visitDoc in visitsSnapshot.documents {
                         try await VisitService.deleteVisit(userId: uid, locationId: document.documentID, visitId: visitDoc.documentID)

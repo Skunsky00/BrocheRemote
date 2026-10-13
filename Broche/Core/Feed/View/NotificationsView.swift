@@ -9,7 +9,9 @@ import SwiftUI
 
 struct NotificationsView: View {
     @ObservedObject var viewModel: NotificationsViewModel
-    
+    @State private var selectedPost: Post?
+    @State private var openComments = false
+
     var body: some View {
         NavigationStack {
             Group {
@@ -19,14 +21,12 @@ struct NotificationsView: View {
                     ScrollView {
                         LazyVStack(spacing: 4) {
                             ForEach(viewModel.groupedNotifications) { group in
-                                GroupedNotificationCell(
-                                    group: group,
-                                    viewModel: NotificationCellViewModel(notification: group.representativeNotification)
-                                )
+                                GroupedNotificationCell(group: group) { post, shouldOpenComments in
+                                    openComments = shouldOpenComments
+                                    selectedPost = post
+                                }
                                 .onAppear {
-                                    for notification in viewModel.notifications where groupMatches(notification, group) {
-                                        viewModel.markNotificationAsViewed(notification: notification)
-                                    }
+                                    viewModel.markGroupAsViewed(group)
                                 }
                             }
                         }
@@ -36,11 +36,23 @@ struct NotificationsView: View {
                     }
                 }
             }
+            .navigationDestination(item: $selectedPost) { post in
+                feedCellDestination(for: post)
+            }
             .onAppear {
                 viewModel.hasNewNotifications = false
             }
             .navigationTitle("Notifications")
             .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+
+    @ViewBuilder
+    private func feedCellDestination(for post: Post) -> some View {
+        if let videoUrl = post.videoUrl, !videoUrl.isEmpty {
+            PostGridFeedCell(viewModel: FeedCellViewModel(post: post), autoOpenComments: openComments)
+        } else {
+            PostGridFeedCellPhoto(viewModel: FeedCellViewModel(post: post), autoOpenComments: openComments)
         }
     }
 
@@ -51,10 +63,6 @@ struct NotificationsView: View {
             systemImage: "bell.slash",
             description: Text("When there's activity on your account, you'll see it here.")
         )
-    }
-
-    private func groupMatches(_ notification: Notification, _ group: GroupedNotification) -> Bool {
-        group.users.contains { $0.id == notification.uid } && notification.type == group.type
     }
 }
 

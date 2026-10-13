@@ -9,120 +9,77 @@ import SwiftUI
 import Firebase
 
 enum PostGridConfiguration {
-    case explore
     case profile(User)
     case likedPosts(User)
     case bookmarkedPosts(User)
     case collectionPosts(userId: String, collectionId: String)
     case visit(Visit)
-    case location(Location)   // NEW
+    case location(Location)
 }
 
-class PostGridViewModel: ObservableObject {
-    @Published var posts: [Post] = []
-    @Published var isLoading: Bool = false
-    private let config: PostGridConfiguration
-    private var lastDoc: QueryDocumentSnapshot?
-    
-    init(config: PostGridConfiguration) {
-        self.config = config
-        fetchPosts(forConfig: config)
+@MainActor
+final class PostGridViewModel: ObservableObject {
+    typealias PageLoader = (DocumentSnapshot?) async throws -> ([Post], DocumentSnapshot?)
+
+    @Published private(set) var posts: [Post] = []
+    @Published private(set) var isLoading = false
+
+    private let loader: PageLoader
+    private var lastDoc: DocumentSnapshot?
+    private var reachedEnd = false
+    private var hasLoadedOnce = false
+    private var task: Task<Void, Never>?
+
+    init(loader: @escaping PageLoader) { self.loader = loader }
+    deinit { task?.cancel() }
+
+    /// Call from .task / onAppear. Does nothing if we already have data.
+    func loadIfNeeded() {
+        guard !hasLoadedOnce else { return }
+        loadMore()
     }
-    
-    func fetchPosts(forConfig config: PostGridConfiguration) {
+
+    func loadMore() {
+        guard !isLoading, !reachedEnd else { return }
         isLoading = true
-        switch config {
-        case .explore:
-            Task { await fetchExplorePagePosts() }
-        case .profile(let user):
-            Task { try await fetchUserPosts(forUser: user) }
-        case .likedPosts(let user):
-            Task { try await fetchLikedPosts(forUser: user) }
-        case .bookmarkedPosts(let user):
-            Task { try await fetchBookmarkedPosts(forUser: user) }
-        case .collectionPosts(let userId, let collectionId):
-            Task { try await fetchCollectionPosts(userId: userId, collectionId: collectionId) }
-        case .visit(let visit):
-            Task { try await fetchVisitPosts(forVisit: visit) }
-        case .location(let location):
-            Task { try await fetchLocationPosts(forLocation: location) }
-        }
-    }
-    
-    @MainActor
-    func fetchExplorePagePosts() async {
-        let query = Firestore.firestore().collection("posts").limit(to: 20).order(by: "timestamp", descending: true)
-        do {
-            if let last = lastDoc {
-                let next = query.start(afterDocument: last)
-                let snapshot = try await next.getDocuments()
-                if !snapshot.documents.isEmpty {
-                    self.lastDoc = snapshot.documents.last
-                    self.posts.append(contentsOf: snapshot.documents.compactMap { try? $0.data(as: Post.self) })
-                }
-            } else {
-                let snapshot = try await query.getDocuments()
-                if !snapshot.documents.isEmpty {
-                    self.posts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
-                    self.lastDoc = snapshot.documents.last
-                }
+        let cursor = lastDoc
+        let loader = self.loader
+        task = Task { [weak self] in
+            do {
+                let (newPosts, last) = try await loader(cursor)
+                guard let self, !Task.isCancelled else { return }
+                let existing = Set(self.posts.compactMap(\.id))
+                self.posts += newPosts.filter { !existing.contains($0.id ?? "") }
+                self.lastDoc = last
+                if newPosts.isEmpty || last == nil { self.reachedEnd = true }
+                self.hasLoadedOnce = true
+                self.isLoading = false
+            } catch {
+                self?.isLoading = false
             }
-        } catch {
-            print("Error fetching explore page posts: \(error)")
-        }
-        isLoading = false
-    }
-    
-    @MainActor
-    func fetchUserPosts(forUser user: User) async throws {
-        let posts = try await PostService.fetchUserPosts(user: user)
-        self.posts = posts
-        isLoading = false
-    }
-    
-    @MainActor
-    func fetchLikedPosts(forUser user: User) async throws {
-        let posts = try await PostService.fetchLikedPosts(forUserID: user.id)
-        self.posts = posts
-        isLoading = false
-    }
-    
-    @MainActor
-    func fetchBookmarkedPosts(forUser user: User) async throws {
-        let posts = try await PostService.fetchBookmarkedPosts(forUserID: user.id)
-        self.posts = posts
-        isLoading = false
-    }
-    
-    @MainActor
-    func fetchCollectionPosts(userId: String, collectionId: String) async throws {
-        let posts = try await PostService.fetchPostsInCollection(userId: userId, collectionId: collectionId)
-        self.posts = posts
-        isLoading = false
-    }
-    
-    @MainActor
-    func fetchVisitPosts(forVisit visit: Visit) async throws {
-        let posts = try await PostService.fetchPosts(forVisitId: visit.id)
-        self.posts = posts
-        isLoading = false
-    }
-    
-    @MainActor
-    func fetchLocationPosts(forLocation location: Location) async throws {
-        let posts = try await PostService.fetchPosts(forLocationId: location.id)
-        self.posts = posts
-        isLoading = false
-    }
-    
-    func filteredPosts(_ query: String) -> [Post] {
-        let lowercasedQuery = query.lowercased()
-        return posts.filter {
-            $0.location.lowercased().contains(lowercasedQuery)
         }
     }
-    
+
+    /// Call from each cell's onAppear.
+    func loadMoreIfNeeded(current post: Post) {
+        guard let index = posts.firstIndex(where: { $0.id == post.id }),
+              index >= posts.count - 6 else { return }
+        loadMore()
+    }
+
+    /// Pull-to-refresh: reset and reload.
     func refresh() {
-        fetchPosts(forConfig: config)
+        task?.cancel()
+        lastDoc = nil
+        reachedEnd = false
+        hasLoadedOnce = false
+        isLoading = false
+        posts = []
+        loadMore()
+    }
+
+    func filteredPosts(_ query: String) -> [Post] {
+        let q = query.lowercased()
+        return posts.filter { $0.location.lowercased().contains(q) }
     }
 }

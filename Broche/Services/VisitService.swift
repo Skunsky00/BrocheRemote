@@ -54,7 +54,8 @@ struct VisitService {
                 .getDocuments()
             
             for doc in postsSnapshot.documents {
-                try await doc.reference.delete()
+                let ownerUid = doc.data()["ownerUid"] as? String ?? userId
+                try await PostService.deletePost(postId: doc.documentID, ownerUid: ownerUid)
             }
             
             // 2. Delete the visit document itself

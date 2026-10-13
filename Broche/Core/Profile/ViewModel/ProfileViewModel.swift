@@ -23,16 +23,16 @@ class ProfileViewModel: ObservableObject {
             guard let self, error == nil else { return }
             NotificationService.uploadNotification(toUid: self.user.id, type: .follow)
             self.user.isFollowed = true
-            self.user.followersCount = (self.user.followersCount ?? 0) + 1
+            Task { await self.refreshCounts() }
         }
     }
 
     func unfollow() {
         UserService.unfollow(uid: user.id) { [weak self] error in
             guard let self, error == nil else { return }
-            self.user.isFollowed = false
-            self.user.followersCount = max((self.user.followersCount ?? 1) - 1, 0)
             NotificationService.deleteNotification(toUid: self.user.id, type: .follow)
+            self.user.isFollowed = false
+            Task { await self.refreshCounts() }
         }
     }
     
@@ -53,9 +53,23 @@ class ProfileViewModel: ObservableObject {
             async let isFollowed = checkIfUserIsFollowed()
             async let followsMe = checkIfUserFollowsMe()
 
+            await refreshCounts()
             self.user.isFollowed = await isFollowed
             self.followsMe = await followsMe
         }
+    }
+
+    // Pulls fresh counts from Firestore; self-heals if the fields don't exist yet
+    func refreshCounts() async {
+        guard var fresh = try? await UserService.fetchUser(withUid: user.id) else { return }
+
+        if fresh.followersCount == nil || fresh.followingCount == nil {
+            await UserService.recalculateCounts(uid: user.id)
+            if let healed = try? await UserService.fetchUser(withUid: user.id) { fresh = healed }
+        }
+
+        self.user.followersCount = fresh.followersCount ?? 0
+        self.user.followingCount = fresh.followingCount ?? 0
     }
     
     func updateUserData(user: User) {

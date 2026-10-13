@@ -35,47 +35,60 @@ struct PostService {
         }
 
     
-    static func fetchUserPosts(user: User) async throws -> [Post] {
-        let snapshot = try await COLLECTION_POSTS.whereField("ownerUid", isEqualTo: user.id).getDocuments()
-        var posts = snapshot.documents.compactMap({try? $0.data(as: Post.self )})
-        
-        for i in 0 ..< posts.count {
-            posts[i].user = user
+    static func fetchUserPosts(user: User, pageSize: Int = 20, after: DocumentSnapshot? = nil)
+        async throws -> ([Post], DocumentSnapshot?) {
+        var query = COLLECTION_POSTS
+            .whereField("ownerUid", isEqualTo: user.id)
+            .order(by: "timestamp", descending: true)
+            .limit(to: pageSize)
+        if let after { query = query.start(afterDocument: after) }
+
+        let snapshot = try await query.getDocuments()
+        var posts = snapshot.documents.compactMap { try? $0.data(as: Post.self) }
+        for i in posts.indices { posts[i].user = user }
+            let isLastPage = snapshot.documents.count < pageSize
+            return (posts, isLastPage ? nil : snapshot.documents.last)
+    }
+
+    static func fetchLikedPosts(forUserID id: String, pageSize: Int = 20, after: DocumentSnapshot? = nil)
+        async throws -> ([Post], DocumentSnapshot?) {
+        try await fetchSavedPage(collection: "user-likes", userID: id, pageSize: pageSize, after: after)
+    }
+
+    static func fetchBookmarkedPosts(forUserID id: String, pageSize: Int = 12, after: DocumentSnapshot? = nil)
+        async throws -> ([Post], DocumentSnapshot?) {
+        try await fetchSavedPage(collection: "user-bookmarks", userID: id, pageSize: pageSize, after: after)
+    }
+
+    private static func fetchSavedPage(collection: String, userID: String, pageSize: Int, after: DocumentSnapshot?)
+        async throws -> ([Post], DocumentSnapshot?) {
+        var query = COLLECTION_USERS.document(userID).collection(collection)
+            .limit(to: pageSize)
+        if let after { query = query.start(afterDocument: after) }
+
+        let snapshot = try await query.getDocuments()
+        let posts = await fetchPosts(withIds: snapshot.documents.map { $0.documentID })
+            let isLastPage = snapshot.documents.count < pageSize
+            return (posts, isLastPage ? nil : snapshot.documents.last)
+    }
+
+    private static func fetchPosts(withIds ids: [String]) async -> [Post] {
+        await withTaskGroup(of: Post?.self) { group in
+            for id in ids {
+                group.addTask {
+                    guard let snap = try? await COLLECTION_POSTS.document(id).getDocument() else { return nil }
+                    return try? snap.data(as: Post.self)
+                }
+            }
+            var result: [Post] = []
+            for await post in group { if let post { result.append(post) } }
+            return result
         }
-        
-        return posts
     }
     
-    
-    static func fetchLikedPosts(forUserID id: String) async throws -> [Post] {
-        let snapshot = try await COLLECTION_USERS.document(id).collection("user-likes").getDocuments()
-        var posts = snapshot.documents.compactMap({ try? $0.data(as: Post.self) })
-        
-        let postIDs = snapshot.documents.map({ $0.documentID })
-        
-        for postID in postIDs {
-            let snippet = try await COLLECTION_POSTS.document(postID).getDocument()
-            let post = try snippet.data(as: Post.self)
-            posts.append(post)
-        }
-        
-        return posts
-    }
-    
-    static func fetchBookmarkedPosts(forUserID id: String) async throws -> [Post] {
-        let snapshot = try await COLLECTION_USERS.document(id).collection("user-bookmarks").getDocuments()
-        var posts = snapshot.documents.compactMap({try? $0.data(as: Post.self )})
-        
-        let postIDs = snapshot.documents.map({ $0.documentID })
-            
-        for postID in postIDs {
-            let snippet = try await COLLECTION_POSTS.document(postID).getDocument()
-            let post = try snippet.data(as: Post.self)
-            posts.append(post)
-            
-        }
-        
-        return posts
+    static func fetchAllUserPosts(uid: String) async throws -> [Post] {
+        let snapshot = try await COLLECTION_POSTS.whereField("ownerUid", isEqualTo: uid).getDocuments()
+        return snapshot.documents.compactMap { try? $0.data(as: Post.self) }
     }
     
     static func fetchPost(withId postId: String) async -> Post? {
@@ -84,18 +97,28 @@ struct PostService {
         post.user = try? await UserService.fetchUser(withUid: post.ownerUid)
         return post
     }
-//
+
     static func deletePost(_ post: Post) async throws {
-            // Delete the post from Firebase
-            guard let postId = post.id else { return }
-            let postRef = COLLECTION_POSTS.document(postId)
-            let userLikesRef = COLLECTION_USERS.document(post.ownerUid).collection("user-likes").document(postId)
-            let userBookmarksRef = COLLECTION_USERS.document(post.ownerUid).collection("user-bookmarks").document(postId)
-            
-            try await postRef.delete()
-            try await userLikesRef.delete()
-            try await userBookmarksRef.delete()
+        guard let postId = post.id else { return }
+        try await deletePost(postId: postId, ownerUid: post.ownerUid)
+    }
+
+    static func deletePost(postId: String, ownerUid: String) async throws {
+        try await COLLECTION_POSTS.document(postId).delete()
+        try? await COLLECTION_USERS.document(ownerUid).collection("user-likes").document(postId).delete()
+        try? await COLLECTION_USERS.document(ownerUid).collection("user-bookmarks").document(postId).delete()
+    }
+
+    /// Deletes every post tied to a pin, whether or not it has a visitId.
+    static func deletePosts(forLocationId locationId: String, ownerUid: String) async throws {
+        let snapshot = try await COLLECTION_POSTS
+            .whereField("ownerUid", isEqualTo: ownerUid)
+            .whereField("locationId", isEqualTo: locationId)
+            .getDocuments()
+        for doc in snapshot.documents {
+            try await deletePost(postId: doc.documentID, ownerUid: ownerUid)
         }
+    }
 }
 
 // MARK: - Likes

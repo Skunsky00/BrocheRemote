@@ -11,7 +11,7 @@ import _PhotosUI_SwiftUI
 
 struct VisitRowView: View {
     let visit: Visit
-
+    
     var body: some View {
         HStack(spacing: 12) {
             ZStack {
@@ -21,13 +21,13 @@ struct VisitRowView: View {
                 Image(systemName: "photo.on.rectangle.angled")
                     .foregroundColor(.secondary)
             }
-
+            
             Text(visit.name)
                 .font(.subheadline)
                 .fontWeight(.semibold)
-
+            
             Spacer()
-
+            
             Image(systemName: "chevron.right")
                 .font(.footnote.weight(.semibold))
                 .foregroundColor(.secondary)
@@ -47,14 +47,14 @@ struct VisitListView: View {
     @State private var newVisitName = ""
     @State private var visitPendingDelete: Visit?
     @State private var showDeleteConfirmation = false
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             ZStack {
                 Text("Albums")
                     .font(.title3.weight(.bold))
                     .frame(maxWidth: .infinity)
-
+                
                 if isCurrentUser {   // NEW — only owner sees Add
                     HStack {
                         Spacer()
@@ -74,7 +74,7 @@ struct VisitListView: View {
                     }
                 }
             }
-
+            
             if isLoading {
                 ProgressView()
                     .frame(maxWidth: .infinity)
@@ -122,7 +122,7 @@ struct VisitListView: View {
             Text("This will permanently delete \"\(visit.name)\" and all posts inside it. This can't be undone.")
         }
     }
-
+    
     private func loadVisits() async {
         isLoading = true
         do {
@@ -132,7 +132,7 @@ struct VisitListView: View {
         }
         isLoading = false
     }
-
+    
     private func createVisit() async {
         guard isCurrentUser, let uid = Auth.auth().currentUser?.uid else { return }   // NEW guard
         do {
@@ -143,7 +143,7 @@ struct VisitListView: View {
             print("DEBUG: Failed to create visit: \(error)")
         }
     }
-
+    
     private func deleteVisit(_ visit: Visit) async {
         guard isCurrentUser else { return }   // NEW guard
         do {
@@ -165,20 +165,42 @@ struct VisitPostGridScreen: View {
     @State private var pickerSelection: PhotosPickerItem?
     @State private var showUpload = false
     @State private var showPostDetails = false
+    @State private var showNearbyPicker = false
+    @State private var showAllPhotosPicker = false
+    @State private var pendingAsset: PHAsset?
+    @State private var wantsAllPhotos = false
+    @State private var showNearbyPickerInCover = false
+    @State private var showAllPhotosInCover = false
+    @State private var wantsAllFromCover = false
+    @State private var cancelledFromCover = false
     @ObservedObject private var uploadManager = UploadManager.shared
-
+    
     var body: some View {
         PostGridView(config: .visit(visit))
             .id(refreshToken)
             .toolbar {
                 if isCurrentUser {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        PhotosPicker(selection: $pickerSelection, matching: .any(of: [.images, .videos])) {
+                        Button {
+                            showNearbyPicker = true
+                        } label: {
                             Image(systemName: "plus")
                         }
                     }
                 }
             }
+            .sheet(isPresented: $showNearbyPicker, onDismiss: handleNearbyDismiss) {
+                NearbyMediaPickerView(
+                    center: CLLocationCoordinate2D(latitude: location.latitude,
+                                                   longitude: location.longitude),
+                    placeName: location.city ?? "this location",
+                    onPickedFromAll: { wantsAllPhotos = true },
+                    onPicked: { pendingAsset = $0 }
+                )
+            }
+            .photosPicker(isPresented: $showAllPhotosPicker,
+                          selection: $pickerSelection,
+                          matching: .any(of: [.images, .videos]))
             .onChange(of: pickerSelection) { newItem in
                 guard let newItem else { return }
                 uploadViewModel.attachedLocationId = visit.locationId
@@ -194,23 +216,63 @@ struct VisitPostGridScreen: View {
                         path: .constant(NavigationPath()),
                         tabIndex: .constant(0),
                         viewModel: uploadViewModel,
-                        onFinished: { showUpload = false },
-                        onNext: { showPostDetails = true }
+                        onFinished: { showUpload = false; showPostDetails = false },
+                        onNext: { showPostDetails = true },
+                        onChangeSelection: { showNearbyPickerInCover = true }
                     )
                     .navigationDestination(isPresented: $showPostDetails) {
                         PostDetailsView(
                             viewModel: uploadViewModel,
                             tabIndex: .constant(0),
                             path: .constant(NavigationPath()),
-                            onFinished: { showUpload = false }
+                            onFinished: { showUpload = false; showPostDetails = false }
                         )
                     }
                 }
+                .sheet(isPresented: $showNearbyPickerInCover, onDismiss: {
+                    if wantsAllFromCover {
+                        wantsAllFromCover = false
+                        showAllPhotosInCover = true
+                    } else if cancelledFromCover {
+                        cancelledFromCover = false
+                        showUpload = false
+                        showPostDetails = false
+                    }
+                }) {
+                    NearbyMediaPickerView(
+                        center: CLLocationCoordinate2D(latitude: location.latitude,
+                                                       longitude: location.longitude),
+                        placeName: location.city ?? "this location",
+                        onPickedFromAll: { wantsAllFromCover = true },
+                        onCancel: { cancelledFromCover = true },
+                        onPicked: { asset in
+                            Task { await uploadViewModel.loadMedia(from: asset) }
+                        }
+                    )
+                }
+                .photosPicker(isPresented: $showAllPhotosInCover,
+                              selection: $uploadViewModel.selectedItem,
+                              matching: .any(of: [.images, .videos]))
             }
             .onChange(of: uploadManager.lastCompletedLocationId) { newValue in
                 if newValue == visit.locationId {
                     refreshToken = UUID()
                 }
             }
+    }
+    private func handleNearbyDismiss() {
+        if let asset = pendingAsset {
+            pendingAsset = nil
+            uploadViewModel.attachedLocationId = visit.locationId
+            uploadViewModel.attachedVisitId = visit.id
+            uploadViewModel.location = location.city ?? ""
+            showPostDetails = false
+            uploadViewModel.isLoadingVideo = true
+            showUpload = true
+            Task { await uploadViewModel.loadMedia(from: asset) }
+        } else if wantsAllPhotos {
+            wantsAllPhotos = false
+            showAllPhotosPicker = true
+        }
     }
 }
